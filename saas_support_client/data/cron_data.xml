@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Cron job to cleanup expired support sessions -->
+    <record id="ir_cron_cleanup_support_sessions" model="ir.cron">
+        <field name="name">Cleanup Expired Support Sessions</field>
+        <field name="model_id" search="[('model', '=', 'saas.support.session')]"/>
+        <field name="state">code</field>
+        <field name="code">model.cleanup_expired_sessions()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

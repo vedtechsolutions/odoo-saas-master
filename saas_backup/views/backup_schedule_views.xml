@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BACKUP SCHEDULE VIEWS ==================== -->
+
+    <!-- Schedule Form View -->
+    <record id="saas_backup_schedule_view_form" model="ir.ui.view">
+        <field name="name">saas.backup.schedule.form</field>
+        <field name="model">saas.backup.schedule</field>
+        <field name="arch" type="xml">
+            <form string="Backup Schedule">
+                <header>
+                    <button name="action_run_backup" string="Run Now" type="object"
+                            class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_backups" type="object"
+                                class="oe_stat_button" icon="fa-database">
+                            <field name="backup_count" widget="statinfo" string="Backups"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Inactive" bg_color="text-bg-danger" invisible="is_active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g., Daily Backup"/></h1>
+                    </div>
+                    <group>
+                        <group string="Target">
+                            <field name="is_active"/>
+                            <field name="apply_to_all"/>
+                            <field name="instance_id" invisible="apply_to_all"
+                                   required="not apply_to_all"/>
+                        </group>
+                        <group string="Backup Settings">
+                            <field name="backup_type"/>
+                            <field name="retention_override"/>
+                        </group>
+                    </group>
+                    <group string="Schedule">
+                        <group>
+                            <field name="frequency"/>
+                            <field name="hour"/>
+                            <field name="minute"/>
+                        </group>
+                        <group>
+                            <field name="day_of_week" invisible="frequency != 'weekly'"/>
+                            <field name="day_of_month" invisible="frequency != 'monthly'"/>
+                            <field name="next_run"/>
+                        </group>
+                    </group>
+                    <group string="Statistics">
+                        <group>
+                            <field name="last_run"/>
+                            <field name="last_status" widget="badge"
+                                   decoration-success="last_status == 'success'"
+                                   decoration-warning="last_status == 'partial'"
+                                   decoration-danger="last_status == 'failed'"/>
+                        </group>
+                        <group>
+                            <field name="success_count"/>
+                            <field name="failed_count"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Schedule List View -->
+    <record id="saas_backup_schedule_view_list" model="ir.ui.view">
+        <field name="name">saas.backup.schedule.list</field>
+        <field name="model">saas.backup.schedule</field>
+        <field name="arch" type="xml">
+            <list string="Backup Schedules" decoration-muted="not is_active">
+                <field name="name"/>
+                <field name="instance_id"/>
+                <field name="apply_to_all" widget="boolean"/>
+                <field name="frequency"/>
+                <field name="backup_type"/>
+                <field name="next_run"/>
+                <field name="last_run"/>
+                <field name="last_status" widget="badge"
+                       decoration-success="last_status == 'success'"
+                       decoration-warning="last_status == 'partial'"
+                       decoration-danger="last_status == 'failed'"/>
+                <field name="is_active" widget="boolean"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Schedule Search View -->
+    <record id="saas_backup_schedule_view_search" model="ir.ui.view">
+        <field name="name">saas.backup.schedule.search</field>
+        <field name="model">saas.backup.schedule</field>
+        <field name="arch" type="xml">
+            <search string="Backup Schedules">
+                <field name="name"/>
+                <field name="instance_id"/>
+                <separator/>
+                <filter name="active" string="Active" domain="[('is_active', '=', True)]"/>
+                <filter name="inactive" string="Inactive" domain="[('is_active', '=', False)]"/>
+                <separator/>
+                <filter name="daily" string="Daily" domain="[('frequency', '=', 'daily')]"/>
+                <filter name="weekly" string="Weekly" domain="[('frequency', '=', 'weekly')]"/>
+                <filter name="monthly" string="Monthly" domain="[('frequency', '=', 'monthly')]"/>
+                <separator/>
+                <filter name="group_frequency" string="Frequency" context="{'group_by': 'frequency'}"/>
+                <filter name="group_instance" string="Instance" context="{'group_by': 'instance_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Schedule Actions -->
+    <record id="saas_backup_schedule_action" model="ir.actions.act_window">
+        <field name="name">Backup Schedules</field>
+        <field name="res_model">saas.backup.schedule</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a backup schedule
+            </p>
+            <p>
+                Configure automatic backups for your instances.
+            </p>
+        </field>
+    </record>
+
+</odoo>

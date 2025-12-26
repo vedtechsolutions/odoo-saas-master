@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== INVOICE EXTENSION VIEWS ==================== -->
+
+    <!-- Extend Invoice Form - Add SaaS Fields -->
+    <record id="account_move_view_form_saas" model="ir.ui.view">
+        <field name="name">account.move.form.saas</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Add SaaS tab to invoice notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="SaaS Billing" name="saas_billing" invisible="not is_saas_invoice">
+                    <group>
+                        <group string="SaaS Details">
+                            <field name="subscription_id"/>
+                            <field name="instance_id"/>
+                            <field name="saas_invoice_type"/>
+                            <field name="is_saas_invoice" invisible="1"/>
+                        </group>
+                        <group string="Billing Period">
+                            <field name="billing_period_start"/>
+                            <field name="billing_period_end"/>
+                            <field name="is_prorated"/>
+                            <field name="proration_factor" invisible="not is_prorated"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Payment">
+                            <field name="billing_transaction_id"/>
+                            <field name="credit_applied"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Search View for SaaS Invoices (must be defined before action that references it) -->
+    <record id="saas_invoice_view_search" model="ir.ui.view">
+        <field name="name">account.move.search.saas</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <search string="Search Invoices">
+                <field name="name" string="Invoice"/>
+                <field name="partner_id"/>
+                <field name="subscription_id"/>
+                <separator/>
+                <filter name="filter_saas" string="SaaS Invoices"
+                        domain="[('is_saas_invoice', '=', True)]"/>
+                <filter name="filter_all" string="All Invoices"
+                        domain="[]"/>
+                <separator/>
+                <filter name="filter_draft" string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_posted" string="Posted"
+                        domain="[('state', '=', 'posted')]"/>
+                <filter name="filter_paid" string="Paid"
+                        domain="[('payment_state', '=', 'paid')]"/>
+                <filter name="filter_not_paid" string="Not Paid"
+                        domain="[('payment_state', '!=', 'paid')]"/>
+                <separator/>
+                <filter name="group_partner" string="Customer"
+                        context="{'group_by': 'partner_id'}"/>
+                <filter name="group_subscription" string="Subscription"
+                        context="{'group_by': 'subscription_id'}"/>
+                <filter name="group_state" string="Status"
+                        context="{'group_by': 'state'}"/>
+                <filter name="group_invoice_date" string="Invoice Date"
+                        context="{'group_by': 'invoice_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- SaaS Invoices Action - All Customer Invoices -->
+    <record id="saas_invoice_action" model="ir.actions.act_window">
+        <field name="name">SaaS Invoices</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('move_type', 'in', ('out_invoice', 'out_refund'))]</field>
+        <field name="context">{'default_move_type': 'out_invoice'}</field>
+        <field name="search_view_id" ref="saas_invoice_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No invoices yet
+            </p>
+            <p>
+                SaaS invoices are automatically generated from subscriptions.
+            </p>
+        </field>
+    </record>
+
+    <!-- ==================== PRORATION CALCULATOR WIZARD ==================== -->
+
+    <record id="saas_proration_calculator_view_form" model="ir.ui.view">
+        <field name="name">saas.proration.calculator.form</field>
+        <field name="model">saas.proration.calculator</field>
+        <field name="arch" type="xml">
+            <form string="Plan Change Calculator">
+                <group>
+                    <group string="Current Subscription">
+                        <field name="subscription_id" readonly="1"/>
+                        <field name="current_plan_id" readonly="1"/>
+                        <field name="billing_cycle" readonly="1"/>
+                        <field name="next_billing_date" readonly="1"/>
+                    </group>
+                    <group string="New Plan">
+                        <field name="new_plan_id" options="{'no_create': True}"/>
+                        <field name="change_date"/>
+                    </group>
+                </group>
+                <group string="Proration Calculation">
+                    <group>
+                        <field name="days_in_period"/>
+                        <field name="days_used"/>
+                        <field name="days_remaining"/>
+                        <field name="proration_factor"/>
+                    </group>
+                    <group>
+                        <field name="current_price"/>
+                        <field name="new_price"/>
+                        <field name="is_upgrade"/>
+                    </group>
+                </group>
+                <group string="Financial Summary">
+                    <group>
+                        <field name="credit_amount"/>
+                        <field name="charge_amount"/>
+                    </group>
+                    <group>
+                        <field name="net_amount"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_apply_change" string="Apply Plan Change" type="object"
+                            class="btn-primary" invisible="not new_plan_id"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

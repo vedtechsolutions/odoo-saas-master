@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== MONITORING SECURITY GROUPS ==================== -->
+
+    <!-- Monitoring User - can view metrics and alerts -->
+    <record id="group_monitoring_user" model="res.groups">
+        <field name="name">SaaS / Monitoring User</field>
+        <field name="implied_ids" eval="[(4, ref('saas_master.group_saas_user'))]"/>
+    </record>
+
+    <!-- Monitoring Manager - can manage alerts and configure metrics -->
+    <record id="group_monitoring_manager" model="res.groups">
+        <field name="name">SaaS / Monitoring Manager</field>
+        <field name="implied_ids" eval="[(4, ref('group_monitoring_user'))]"/>
+    </record>
+
+    <!-- Admin gets monitoring manager access -->
+    <record id="saas_master.group_saas_admin" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_monitoring_manager'))]"/>
+    </record>
+
+    <!-- ==================== RECORD RULES ==================== -->
+
+    <!-- Metric Types: All users can read -->
+    <record id="metric_type_rule_read" model="ir.rule">
+        <field name="name">Metric Types: Read All</field>
+        <field name="model_id" ref="model_saas_metric_type"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_monitoring_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Metric Types: Managers can edit -->
+    <record id="metric_type_rule_manage" model="ir.rule">
+        <field name="name">Metric Types: Managers Full Access</field>
+        <field name="model_id" ref="model_saas_metric_type"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_monitoring_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Usage Metrics: Users can read -->
+    <record id="usage_metric_rule_read" model="ir.rule">
+        <field name="name">Usage Metrics: Read All</field>
+        <field name="model_id" ref="model_saas_usage_metric"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_monitoring_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Usage Logs: Users can read -->
+    <record id="usage_log_rule_read" model="ir.rule">
+        <field name="name">Usage Logs: Read All</field>
+        <field name="model_id" ref="model_saas_usage_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_monitoring_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Alerts: Users can read and update (acknowledge, etc.) -->
+    <record id="alert_rule_user" model="ir.rule">
+        <field name="name">Alerts: Users Read/Update</field>
+        <field name="model_id" ref="model_saas_alert"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_monitoring_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Alerts: Managers full access -->
+    <record id="alert_rule_manager" model="ir.rule">
+        <field name="name">Alerts: Managers Full Access</field>
+        <field name="model_id" ref="model_saas_alert"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_monitoring_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+</odoo>

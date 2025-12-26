@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_token_form_powertranz" model="ir.ui.view">
+        <field name="name">payment.token.form.powertranz</field>
+        <field name="model">payment.token</field>
+        <field name="inherit_id" ref="payment.payment_token_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="after">
+                <group string="PowerTranz Recurring Details" name="powertranz_recurring_details" invisible="provider_code != 'powertranz'">
+                    <field name="powertranz_recurring_enabled"/>
+                    <field name="powertranz_recurring_identifier" readonly="1"/>
+                    <field name="powertranz_recurring_active" readonly="1"/>
+                    <field name="powertranz_recurring_frequency" invisible="not powertranz_recurring_enabled"/>
+                    <field name="powertranz_recurring_start_date" invisible="not powertranz_recurring_enabled"/>
+                    <field name="powertranz_recurring_end_date" invisible="not powertranz_recurring_enabled"/>
+                    <field name="powertranz_recurring_next_date" readonly="1" invisible="not powertranz_recurring_enabled"/>
+                    <button name="powertranz_cancel_recurring"
+                            type="object"
+                            string="Cancel Recurring Subscription"
+                            help="Cancel the PowerTranz managed recurring subscription linked to this token."
+                            invisible="not powertranz_recurring_identifier or not powertranz_recurring_active"
+                            confirm="Are you sure you want to cancel the PowerTranz recurring subscription linked to this token? This cannot be undone."/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

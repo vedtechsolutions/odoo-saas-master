@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BILLING TRANSACTION VIEWS ==================== -->
+
+    <!-- Transaction Form View -->
+    <record id="saas_billing_transaction_view_form" model="ir.ui.view">
+        <field name="name">saas.billing.transaction.form</field>
+        <field name="model">saas.billing.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Billing Transaction">
+                <header>
+                    <button name="action_process" string="Process Payment" type="object"
+                            class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_retry" string="Retry" type="object"
+                            class="btn-primary" invisible="not is_retryable"/>
+                    <button name="action_refund" string="Refund" type="object"
+                            class="btn-warning" invisible="state != 'success'"/>
+                    <button name="action_cancel" string="Cancel" type="object"
+                            invisible="state in ('success', 'cancelled', 'refunded')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,processing,success"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(account.action_move_out_invoice_type)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                invisible="not invoice_id"
+                                context="{'search_default_id': invoice_id}">
+                            <span class="o_stat_text">Invoice</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="reference"/>
+                        <h1><field name="reference" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="transaction_type"/>
+                            <field name="partner_id"/>
+                            <field name="subscription_id"/>
+                        </group>
+                        <group>
+                            <field name="amount"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="gateway"/>
+                            <field name="is_retryable" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Payment Gateway" invisible="gateway in ('manual', 'credit')">
+                        <group>
+                            <field name="gateway_reference"/>
+                        </group>
+                        <group>
+                            <field name="processed_at"/>
+                            <field name="completed_at"/>
+                        </group>
+                    </group>
+                    <group string="Retry Information" invisible="retry_count == 0">
+                        <group>
+                            <field name="retry_count"/>
+                            <field name="max_retries"/>
+                        </group>
+                        <group>
+                            <field name="last_retry_date"/>
+                            <field name="next_retry_date"/>
+                        </group>
+                    </group>
+                    <group string="Error Details" invisible="not error_message">
+                        <group>
+                            <field name="error_code"/>
+                        </group>
+                        <field name="error_message" colspan="2"/>
+                    </group>
+                    <group string="Billing Period" invisible="not period_start">
+                        <group>
+                            <field name="period_start"/>
+                        </group>
+                        <group>
+                            <field name="period_end"/>
+                        </group>
+                    </group>
+                    <group string="Refund" invisible="amount_refunded == 0">
+                        <field name="amount_refunded"/>
+                    </group>
+                    <field name="gateway_response" invisible="not gateway_response" groups="base.group_no_one"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Transaction List View -->
+    <record id="saas_billing_transaction_view_list" model="ir.ui.view">
+        <field name="name">saas.billing.transaction.list</field>
+        <field name="model">saas.billing.transaction</field>
+        <field name="arch" type="xml">
+            <list string="Billing Transactions" decoration-danger="state == 'failed'" decoration-success="state == 'success'" decoration-warning="state == 'processing'">
+                <field name="create_date" string="Date"/>
+                <field name="reference"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="transaction_type"/>
+                <field name="amount" sum="Total"/>
+                <field name="gateway"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'pending'"
+                       decoration-warning="state == 'processing'"
+                       decoration-success="state == 'success'"
+                       decoration-danger="state == 'failed'"
+                       decoration-muted="state in ('cancelled', 'refunded')"/>
+                <field name="retry_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Transaction Search View -->
+    <record id="saas_billing_transaction_view_search" model="ir.ui.view">
+        <field name="name">saas.billing.transaction.search</field>
+        <field name="model">saas.billing.transaction</field>
+        <field name="arch" type="xml">
+            <search string="Billing Transactions">
+                <field name="reference"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="subscription_id"/>
+                <separator/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="processing" string="Processing" domain="[('state', '=', 'processing')]"/>
+                <filter name="success" string="Successful" domain="[('state', '=', 'success')]"/>
+                <filter name="failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <filter name="retryable" string="Retryable" domain="[('state', '=', 'failed'), ('retry_count', '&lt;', 3)]"/>
+                <separator/>
+                <filter name="subscription" string="Subscription" domain="[('transaction_type', '=', 'subscription')]"/>
+                <filter name="refunds" string="Refunds" domain="[('transaction_type', '=', 'refund')]"/>
+                <separator/>
+                <filter name="today" string="Today" domain="[('create_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <filter name="this_week" string="This Week" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)))]"/>
+                <filter name="this_month" string="This Month" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=30)))]"/>
+                <separator/>
+                <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                <filter name="group_type" string="Type" context="{'group_by': 'transaction_type'}"/>
+                <filter name="group_gateway" string="Gateway" context="{'group_by': 'gateway'}"/>
+                <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Transaction Actions -->
+    <record id="saas_billing_transaction_action" model="ir.actions.act_window">
+        <field name="name">Billing Transactions</field>
+        <field name="res_model">saas.billing.transaction</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_this_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No billing transactions yet
+            </p>
+            <p>
+                Billing transactions track all payment attempts and their outcomes.
+            </p>
+        </field>
+    </record>
+
+    <record id="saas_billing_transaction_action_pending" model="ir.actions.act_window">
+        <field name="name">Pending Transactions</field>
+        <field name="res_model">saas.billing.transaction</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'pending')]</field>
+    </record>
+
+    <record id="saas_billing_transaction_action_failed" model="ir.actions.act_window">
+        <field name="name">Failed Transactions</field>
+        <field name="res_model">saas.billing.transaction</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'failed')]</field>
+    </record>
+
+</odoo>

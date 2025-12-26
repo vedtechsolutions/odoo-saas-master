@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== SEQUENCES ==================== -->
+
+    <!-- Billing Transaction Sequence -->
+    <record id="seq_billing_transaction" model="ir.sequence">
+        <field name="name">Billing Transaction</field>
+        <field name="code">saas.billing.transaction</field>
+        <field name="prefix">TXN-</field>
+        <field name="padding">6</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <!-- Customer Credit Sequence -->
+    <record id="seq_customer_credit" model="ir.sequence">
+        <field name="name">Customer Credit</field>
+        <field name="code">saas.customer.credit</field>
+        <field name="prefix">CRD-</field>
+        <field name="padding">6</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

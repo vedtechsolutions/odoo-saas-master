@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- SaaS Shop Menu - Child of SaaS Platform -->
+    <menuitem id="menu_saas_shop_root"
+              name="Shop"
+              parent="saas_master.menu_saas_root"
+              sequence="25"
+              groups="saas_master.group_saas_manager"/>
+
+    <!-- Products Submenu -->
+    <menuitem id="menu_saas_shop_products"
+              name="Products"
+              parent="menu_saas_shop_root"
+              sequence="10"/>
+
+    <!-- SaaS Plans with Products -->
+    <record id="saas_plan_action_shop" model="ir.actions.act_window">
+        <field name="name">SaaS Plans</field>
+        <field name="res_model">saas.plan</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('shop_visible', '=', True)]</field>
+        <field name="context">{'default_shop_visible': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first SaaS Plan
+            </p>
+            <p>
+                Plans define the pricing and resources for your SaaS offerings.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_saas_plans"
+              name="SaaS Plans"
+              parent="menu_saas_shop_products"
+              action="saas_plan_action_shop"
+              sequence="10"/>
+
+    <!-- SaaS Product Templates -->
+    <record id="product_template_action_saas" model="ir.actions.act_window">
+        <field name="name">SaaS Products</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_saas_plan', '=', True)]</field>
+        <field name="context">{'default_is_saas_plan': True, 'default_type': 'service'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first SaaS Product
+            </p>
+            <p>
+                SaaS Products are linked to plans and sold through the website shop.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_saas_products"
+              name="SaaS Products"
+              parent="menu_saas_shop_products"
+              action="product_template_action_saas"
+              sequence="20"/>
+
+    <!-- Add-on Products -->
+    <record id="product_template_action_addons" model="ir.actions.act_window">
+        <field name="name">Add-on Products</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_saas_addon', '=', True)]</field>
+        <field name="context">{'default_is_saas_addon': True, 'default_type': 'service'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create add-on products
+            </p>
+            <p>
+                Add-ons like extra storage, users, or support hours.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_saas_addons"
+              name="Add-ons"
+              parent="menu_saas_shop_products"
+              action="product_template_action_addons"
+              sequence="30"/>
+
+    <!-- Orders Submenu -->
+    <menuitem id="menu_saas_shop_orders"
+              name="Orders"
+              parent="menu_saas_shop_root"
+              sequence="20"/>
+
+    <!-- SaaS Orders -->
+    <record id="sale_order_action_saas" model="ir.actions.act_window">
+        <field name="name">SaaS Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('has_saas_products', '=', True)]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No SaaS orders yet
+            </p>
+            <p>
+                Orders containing SaaS products will appear here.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_saas_orders"
+              name="SaaS Orders"
+              parent="menu_saas_shop_orders"
+              action="sale_order_action_saas"
+              sequence="10"/>
+
+    <!-- Configuration Submenu -->
+    <menuitem id="menu_saas_shop_config"
+              name="Configuration"
+              parent="menu_saas_shop_root"
+              sequence="90"
+              groups="saas_master.group_saas_admin"/>
+
+    <!-- Product Category -->
+    <record id="product_category_action_saas" model="ir.actions.act_window">
+        <field name="name">SaaS Categories</field>
+        <field name="res_model">product.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('name', 'ilike', 'SaaS')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create product categories
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_saas_categories"
+              name="Product Categories"
+              parent="menu_saas_shop_config"
+              action="product_category_action_saas"
+              sequence="10"/>
+
+</odoo>

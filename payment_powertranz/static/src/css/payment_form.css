@@ -1,0 +1,189 @@
+.payment_provider_powertranz {
+    position: relative;
+    min-height: 100px;
+}
+
+.powertranz_3ds_iframe {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.powertranz_3ds_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.powertranz_loading {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.powertranz_loading.active {
+    display: block;
+}
+
+.powertranz_loading .spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Card Form Container */
+.powertranz-card-form {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    transition: all 0.3s ease;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Card Type Indicator */
+.powertranz-card-form .card-type-indicator {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: #6c757d;
+}
+
+/* Valid/Invalid Form Controls */
+.powertranz-card-form .form-control.is-valid {
+    border-color: #28a745;
+    padding-right: calc(1.5em + .75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+}
+
+.powertranz-card-form .form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + .75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23dc3545' viewBox='-2 -2 7 7'%3e%3cpath stroke='%23dc3545' d='M0 0l3 3m0-3L0 3'/%3e%3ccircle r='.5'/%3e%3ccircle cx='3' r='.5'/%3e%3ccircle cy='3' r='.5'/%3e%3ccircle cx='3' cy='3' r='.5'/%3e%3c/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+}
+
+/* Secure Badge */
+.powertranz-secure-badge {
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 10px;
+    text-align: right;
+}
+
+/* Hide redundant elements in payment radio */
+.o_payment_option[data-provider-code="powertranz"] .o_payment_icon,
+.o_payment_option[data-provider-code="powertranz"] .o_payment_option_label:after,
+[data-provider-code="powertranz"] + .o_payment_icon {
+    display: none !important;
+}
+
+/* Payment icons styling */
+.payment-icons-container {
+    gap: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.payment-icon {
+    height: 30px;
+    max-width: 80px;
+    object-fit: contain;
+    margin: 5px;
+}
+
+/* Test card box */
+.powertranz-test-cards {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e6f7ff;
+    border: 2px dashed #1e88e5;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.powertranz-test-cards h5 {
+    color: #1e88e5;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.powertranz-test-cards table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.powertranz-test-cards th,
+.powertranz-test-cards td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.powertranz-test-cards th {
+    background-color: #ddeeff;
+    font-weight: bold;
+}
+
+.powertranz-test-cards .card-copy {
+    cursor: pointer;
+    color: #1e88e5;
+    margin-left: 5px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background-color: #f0f7ff;
+    transition: background-color 0.2s;
+}
+
+.powertranz-test-cards .card-copy:hover {
+    background-color: #dee9f7;
+    text-decoration: none;
+}
+
+/* Make the test card section more obvious */
+.powertranz-test-cards::before {
+    content: "Use these test cards for development only";
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #d1ecf1;
+    color: #0c5460;
+    padding: 5px;
+    border-radius: 4px;
+} 

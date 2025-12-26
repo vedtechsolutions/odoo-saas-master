@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== ALERT VIEWS ==================== -->
+
+    <!-- Alert Form View -->
+    <record id="saas_alert_view_form" model="ir.ui.view">
+        <field name="name">saas.alert.form</field>
+        <field name="model">saas.alert</field>
+        <field name="arch" type="xml">
+            <form string="Alert">
+                <header>
+                    <button name="action_acknowledge" string="Acknowledge" type="object"
+                            class="btn-primary" invisible="state != 'new'"/>
+                    <button name="action_start_progress" string="Start Working" type="object"
+                            class="btn-primary" invisible="state not in ('new', 'acknowledged')"/>
+                    <button name="action_resolve" string="Resolve" type="object"
+                            class="btn-success" invisible="state not in ('acknowledged', 'in_progress')"/>
+                    <button name="action_dismiss" string="Dismiss" type="object"
+                            invisible="state in ('resolved', 'dismissed')"/>
+                    <button name="action_reopen" string="Reopen" type="object"
+                            invisible="state not in ('resolved', 'dismissed')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="new,acknowledged,in_progress,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="title"/>
+                        <h1><field name="title" placeholder="Alert title..."/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="instance_id"/>
+                            <field name="server_id"/>
+                            <field name="metric_type_id"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group>
+                            <field name="alert_type"/>
+                            <field name="severity" widget="badge"
+                                   decoration-info="severity == 'info'"
+                                   decoration-warning="severity == 'warning'"
+                                   decoration-danger="severity == 'critical'"/>
+                            <field name="assigned_to"/>
+                            <field name="is_active" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Values" invisible="not current_value">
+                        <group>
+                            <field name="current_value"/>
+                        </group>
+                        <group>
+                            <field name="threshold_value"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="message" placeholder="Alert details..."/>
+                    </group>
+                    <group string="Resolution" invisible="state not in ('resolved', 'dismissed')">
+                        <group>
+                            <field name="acknowledged_at"/>
+                            <field name="acknowledged_by"/>
+                        </group>
+                        <group>
+                            <field name="resolved_at"/>
+                            <field name="resolved_by"/>
+                        </group>
+                        <field name="resolution_notes" placeholder="Resolution notes..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Alert List View -->
+    <record id="saas_alert_view_list" model="ir.ui.view">
+        <field name="name">saas.alert.list</field>
+        <field name="model">saas.alert</field>
+        <field name="arch" type="xml">
+            <list string="Alerts" decoration-danger="severity == 'critical'" decoration-warning="severity == 'warning'">
+                <field name="create_date" string="Created"/>
+                <field name="title"/>
+                <field name="instance_name"/>
+                <field name="alert_type"/>
+                <field name="severity" widget="badge"
+                       decoration-info="severity == 'info'"
+                       decoration-warning="severity == 'warning'"
+                       decoration-danger="severity == 'critical'"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'new'"
+                       decoration-warning="state in ('acknowledged', 'in_progress')"
+                       decoration-success="state == 'resolved'"
+                       decoration-muted="state == 'dismissed'"/>
+                <field name="assigned_to"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Alert Kanban View -->
+    <record id="saas_alert_view_kanban" model="ir.ui.view">
+        <field name="name">saas.alert.kanban</field>
+        <field name="model">saas.alert</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="state"/>
+                <field name="severity"/>
+                <field name="title"/>
+                <field name="instance_name"/>
+                <field name="alert_type"/>
+                <field name="assigned_to"/>
+                <field name="create_date"/>
+                <templates>
+                    <t t-name="card">
+                        <div t-attf-class="#{record.severity.raw_value == 'critical' ? 'border-danger' : record.severity.raw_value == 'warning' ? 'border-warning' : ''}">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="title"/>
+                                    </strong>
+                                </div>
+                                <field name="severity" widget="badge"
+                                       decoration-info="severity == 'info'"
+                                       decoration-warning="severity == 'warning'"
+                                       decoration-danger="severity == 'critical'"/>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="instance_name"/>
+                                <br/>
+                                <small class="text-muted"><field name="alert_type"/></small>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="create_date" widget="date"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="assigned_to" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Alert Search View -->
+    <record id="saas_alert_view_search" model="ir.ui.view">
+        <field name="name">saas.alert.search</field>
+        <field name="model">saas.alert</field>
+        <field name="arch" type="xml">
+            <search string="Alerts">
+                <field name="title"/>
+                <field name="instance_id"/>
+                <field name="instance_name"/>
+                <field name="assigned_to"/>
+                <separator/>
+                <filter name="active" string="Active" domain="[('is_active', '=', True)]"/>
+                <filter name="my_alerts" string="My Alerts" domain="[('assigned_to', '=', uid)]"/>
+                <filter name="unassigned" string="Unassigned" domain="[('assigned_to', '=', False)]"/>
+                <separator/>
+                <filter name="info" string="Info" domain="[('severity', '=', 'info')]"/>
+                <filter name="warning" string="Warning" domain="[('severity', '=', 'warning')]"/>
+                <filter name="critical" string="Critical" domain="[('severity', '=', 'critical')]"/>
+                <separator/>
+                <filter name="new" string="New" domain="[('state', '=', 'new')]"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', 'in', ('acknowledged', 'in_progress'))]"/>
+                <filter name="resolved" string="Resolved" domain="[('state', '=', 'resolved')]"/>
+                <separator/>
+                <filter name="group_instance" string="Instance" context="{'group_by': 'instance_id'}"/>
+                <filter name="group_type" string="Alert Type" context="{'group_by': 'alert_type'}"/>
+                <filter name="group_severity" string="Severity" context="{'group_by': 'severity'}"/>
+                <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                <filter name="group_assigned" string="Assigned To" context="{'group_by': 'assigned_to'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Alert Action - All -->
+    <record id="saas_alert_action" model="ir.actions.act_window">
+        <field name="name">Alerts</field>
+        <field name="res_model">saas.alert</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No alerts - everything is running smoothly!
+            </p>
+            <p>
+                Alerts are automatically created when thresholds are exceeded
+                or health checks fail.
+            </p>
+        </field>
+    </record>
+
+    <!-- Alert Action - Active Only -->
+    <record id="saas_alert_action_active" model="ir.actions.act_window">
+        <field name="name">Active Alerts</field>
+        <field name="res_model">saas.alert</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('is_active', '=', True)]</field>
+    </record>
+
+    <!-- Alert Action - Critical -->
+    <record id="saas_alert_action_critical" model="ir.actions.act_window">
+        <field name="name">Critical Alerts</field>
+        <field name="res_model">saas.alert</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('severity', '=', 'critical'), ('is_active', '=', True)]</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add assets for payment token card icons -->
+    <template id="assets_frontend" inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <style>
+                /* Card brand icons for PowerTranz tokens */
+                .payment_token_powertranz_visa::before {
+                    content: '';
+                    background-image: url('/payment_powertranz/static/img/visa.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    display: inline-block;
+                    width: 32px;
+                    height: 20px;
+                    margin-right: 8px;
+                    vertical-align: middle;
+                }
+                
+                .payment_token_powertranz_mastercard::before {
+                    content: '';
+                    background-image: url('/payment_powertranz/static/img/mastercard.png');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    display: inline-block;
+                    width: 32px;
+                    height: 20px;
+                    margin-right: 8px;
+                    vertical-align: middle;
+                }
+            </style>
+        </xpath>
+    </template>
+</odoo>

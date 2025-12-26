@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Cron job to process pending SaaS provisioning -->
+    <record id="cron_saas_provisioning" model="ir.cron">
+        <field name="name">SaaS: Process Pending Provisioning</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_process_pending_provisioning()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+    </record>
+
+</odoo>

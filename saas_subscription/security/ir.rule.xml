@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Record Rules for saas_subscription module -->
+    <!-- Implements tenant isolation for subscriptions -->
+
+    <!-- Portal users can only see their own subscriptions -->
+    <record id="rule_subscription_portal_own" model="ir.rule">
+        <field name="name">Subscription: Portal users see own</field>
+        <field name="model_id" ref="model_saas_subscription"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- SaaS Users can see all subscriptions (read-only) -->
+    <record id="rule_subscription_user_read" model="ir.rule">
+        <field name="name">Subscription: SaaS users read all</field>
+        <field name="model_id" ref="model_saas_subscription"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('saas_master.group_saas_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- SaaS Managers have full access to all subscriptions -->
+    <record id="rule_subscription_manager_full" model="ir.rule">
+        <field name="name">Subscription: Manager full access</field>
+        <field name="model_id" ref="model_saas_subscription"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('saas_master.group_saas_manager'))]"/>
+    </record>
+
+</odoo>

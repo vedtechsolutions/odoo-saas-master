@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== USAGE LOG VIEWS ==================== -->
+
+    <!-- Usage Log Form View -->
+    <record id="saas_usage_log_view_form" model="ir.ui.view">
+        <field name="name">saas.usage.log.form</field>
+        <field name="model">saas.usage.log</field>
+        <field name="arch" type="xml">
+            <form string="Usage Log Entry" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="instance_id"/>
+                            <field name="metric_type_id"/>
+                            <field name="timestamp"/>
+                        </group>
+                        <group>
+                            <field name="value"/>
+                            <field name="limit_value"/>
+                            <field name="usage_percent" widget="progressbar"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Usage Log List View -->
+    <record id="saas_usage_log_view_list" model="ir.ui.view">
+        <field name="name">saas.usage.log.list</field>
+        <field name="model">saas.usage.log</field>
+        <field name="arch" type="xml">
+            <list string="Usage Logs" create="false" edit="false">
+                <field name="timestamp"/>
+                <field name="instance_name"/>
+                <field name="metric_name"/>
+                <field name="value"/>
+                <field name="limit_value"/>
+                <field name="usage_percent" widget="progressbar"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Usage Log Search View -->
+    <record id="saas_usage_log_view_search" model="ir.ui.view">
+        <field name="name">saas.usage.log.search</field>
+        <field name="model">saas.usage.log</field>
+        <field name="arch" type="xml">
+            <search string="Usage Logs">
+                <field name="instance_id"/>
+                <field name="metric_type_id"/>
+                <field name="instance_name"/>
+                <field name="metric_code"/>
+                <separator/>
+                <filter name="today" string="Today" domain="[('date', '=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="week" string="This Week" domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter name="month" string="This Month" domain="[('date', '&gt;=', (context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="group_instance" string="Instance" context="{'group_by': 'instance_id'}"/>
+                <filter name="group_metric" string="Metric Type" context="{'group_by': 'metric_type_id'}"/>
+                <filter name="group_date" string="Date" context="{'group_by': 'date'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Usage Log Graph View -->
+    <record id="saas_usage_log_view_graph" model="ir.ui.view">
+        <field name="name">saas.usage.log.graph</field>
+        <field name="model">saas.usage.log</field>
+        <field name="arch" type="xml">
+            <graph string="Usage Over Time" type="line">
+                <field name="timestamp" type="col"/>
+                <field name="value" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Usage Log Pivot View -->
+    <record id="saas_usage_log_view_pivot" model="ir.ui.view">
+        <field name="name">saas.usage.log.pivot</field>
+        <field name="model">saas.usage.log</field>
+        <field name="arch" type="xml">
+            <pivot string="Usage Analysis">
+                <field name="instance_id" type="row"/>
+                <field name="metric_type_id" type="col"/>
+                <field name="value" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Usage Log Action -->
+    <record id="saas_usage_log_action" model="ir.actions.act_window">
+        <field name="name">Usage History</field>
+        <field name="res_model">saas.usage.log</field>
+        <field name="view_mode">list,graph,pivot,form</field>
+        <field name="context">{'search_default_week': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No usage history recorded yet
+            </p>
+            <p>
+                Usage history is automatically collected from running instances.
+            </p>
+        </field>
+    </record>
+
+</odoo>

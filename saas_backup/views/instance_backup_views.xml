@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== INSTANCE BACKUP VIEWS ==================== -->
+
+    <!-- Extend Instance Form with Backup Button Box -->
+    <record id="saas_instance_backup_view_form" model="ir.ui.view">
+        <field name="name">saas.instance.backup.form.inherit</field>
+        <field name="model">saas.instance</field>
+        <field name="inherit_id" ref="saas_master.saas_instance_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add backup buttons to button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_backups" type="object"
+                        class="oe_stat_button" icon="fa-database"
+                        invisible="backup_count == 0">
+                    <field name="backup_count" widget="statinfo" string="Backups"/>
+                </button>
+            </xpath>
+
+            <!-- Add backup tab to notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Backups" name="backups">
+                    <!-- Status and Actions Row -->
+                    <group>
+                        <group string="Backup Status">
+                            <field name="last_backup_date"/>
+                            <field name="last_backup_state" widget="badge"
+                                   decoration-success="last_backup_state == 'completed'"
+                                   decoration-warning="last_backup_state == 'in_progress'"
+                                   decoration-danger="last_backup_state == 'failed'"
+                                   invisible="not last_backup_state"/>
+                            <field name="backup_size_display" string="Total Size"/>
+                        </group>
+                        <group string="Retention">
+                            <field name="backup_retention_days"/>
+                        </group>
+                    </group>
+                    <!-- Action Buttons -->
+                    <div class="mb-3">
+                        <button name="action_create_backup" string="Create Backup Now"
+                                type="object" class="btn-primary me-2"
+                                invisible="state != 'running'"/>
+                        <button name="action_configure_backup_schedule" string="Configure Schedule"
+                                type="object" class="btn-secondary me-2"/>
+                        <button name="action_restore_backup" string="Restore from Backup"
+                                type="object" class="btn-warning"
+                                invisible="backup_count == 0"/>
+                    </div>
+                    <!-- Recent Backups Table - Full Width -->
+                    <group col="1" invisible="backup_count == 0">
+                        <separator string="Recent Backups"/>
+                        <field name="backup_ids" nolabel="1"
+                               widget="one2many" mode="list">
+                            <list string="Backups" limit="5" create="0" delete="0" editable="bottom">
+                                <field name="create_date" string="Date"/>
+                                <field name="reference"/>
+                                <field name="backup_type"/>
+                                <field name="size_display" string="Size"/>
+                                <field name="state" widget="badge"
+                                       decoration-info="state == 'pending'"
+                                       decoration-warning="state == 'in_progress'"
+                                       decoration-success="state == 'completed'"
+                                       decoration-danger="state == 'failed'"
+                                       decoration-muted="state in ('expired', 'deleted')"/>
+                            </list>
+                        </field>
+                    </group>
+                    <!-- Backup Schedules Table - Full Width -->
+                    <group col="1">
+                        <separator string="Backup Schedules"/>
+                        <field name="schedule_ids" nolabel="1" widget="one2many" mode="list">
+                            <list string="Schedules" create="0" delete="0" editable="bottom">
+                                <field name="name"/>
+                                <field name="frequency"/>
+                                <field name="backup_type"/>
+                                <field name="next_run"/>
+                                <field name="is_active" widget="boolean"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

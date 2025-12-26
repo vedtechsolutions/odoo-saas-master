@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+saas_billing_transaction_user,saas.billing.transaction.user,model_saas_billing_transaction,group_saas_billing_user,1,0,0,0
+saas_billing_transaction_manager,saas.billing.transaction.manager,model_saas_billing_transaction,group_saas_billing_manager,1,1,1,1
+saas_customer_credit_user,saas.customer.credit.user,model_saas_customer_credit,group_saas_billing_user,1,0,0,0
+saas_customer_credit_manager,saas.customer.credit.manager,model_saas_customer_credit,group_saas_billing_manager,1,1,1,1
+saas_mrr_report_user,saas.mrr.report.user,model_saas_mrr_report,group_saas_billing_user,1,0,0,0
+saas_proration_calculator_user,saas.proration.calculator.user,model_saas_proration_calculator,group_saas_billing_user,1,1,1,1
+saas_add_credit_wizard_manager,saas.add.credit.wizard.manager,model_saas_add_credit_wizard,group_saas_billing_manager,1,1,1,1

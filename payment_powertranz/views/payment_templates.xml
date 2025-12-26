@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Clear custom JS from assets -->
+    <template id="assets_frontend" inherit_id="web.assets_frontend">
+        <xpath expr="." position="inside">
+            <!-- No custom JS needed for FPI approach -->
+        </xpath>
+    </template>
+
+    <!-- Define a simple redirect template for PowerTranz FPI flow -->
+    <template id="powertranz_form" name="PowerTranz Form">
+        <form action="/payment/powertranz/redirect" method="post" class="o_payment_powertranz_redirect p-3">
+            <input type="hidden" name="provider_id" t-att-value="providerId"/>
+            
+            <div class="d-flex flex-column gap-2 align-items-center">
+                <!-- PowerTranz logo and title -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <img src="/payment_powertranz/static/src/img/powertranz_logo.png" alt="PowerTranz" width="100" height="35" class="o_payment_provider_logo"/>
+                    <h5 class="mb-0">Secure Payment</h5>
+                </div>
+                
+                <!-- Redirect message -->
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="fa fa-info-circle me-2"></i>
+                    <span>You will be redirected to PowerTranz to complete your payment securely.</span>
+                </div>
+                
+                <!-- Processing indicator -->
+                <div class="text-center mt-2">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Please wait, redirecting to payment page...</p>
+                </div>
+                
+                <!-- Secure payment message -->
+                <div class="d-flex align-items-center justify-content-center mt-3 text-muted">
+                    <i class="fa fa-lock me-2"></i> 
+                    <small>Your payment will be processed securely by PowerTranz.</small>
+                </div>
+                
+                <!-- Auto submit script -->
+                <script type="text/javascript">
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Submit the form immediately on page load
+                        setTimeout(function() {
+                            document.querySelector('.o_payment_powertranz_redirect').submit();
+                        }, 500);
+                    });
+                </script>
+            </div>
+        </form>
+    </template>
+</odoo> 

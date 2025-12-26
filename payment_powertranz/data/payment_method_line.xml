@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Create payment method for PowerTranz (if not exists) -->
+        <record id="payment_method_powertranz" model="payment.method">
+            <field name="name">PowerTranz</field>
+            <field name="code">powertranz</field>
+            <field name="provider_ids" eval="[(4, ref('payment_powertranz.payment_provider_powertranz'))]"/>
+        </record>
+
+        <!-- We'll create payment method lines in the post_init_hook instead of here -->
+        <!-- This is more reliable since journal IDs can vary between installations -->
+    </data>
+</odoo> 

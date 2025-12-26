@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ticket_user,saas.ticket.user,model_saas_ticket,group_helpdesk_user,1,1,1,0
+access_ticket_manager,saas.ticket.manager,model_saas_ticket,group_helpdesk_manager,1,1,1,1
+access_ticket_category_user,saas.ticket.category.user,model_saas_ticket_category,group_helpdesk_user,1,0,0,0
+access_ticket_category_manager,saas.ticket.category.manager,model_saas_ticket_category,group_helpdesk_manager,1,1,1,1
+access_ticket_message_user,saas.ticket.message.user,model_saas_ticket_message,group_helpdesk_user,1,1,1,0
+access_ticket_message_manager,saas.ticket.message.manager,model_saas_ticket_message,group_helpdesk_manager,1,1,1,1
+access_ticket_tag_user,saas.ticket.tag.user,model_saas_ticket_tag,group_helpdesk_user,1,0,0,0
+access_ticket_tag_manager,saas.ticket.tag.manager,model_saas_ticket_tag,group_helpdesk_manager,1,1,1,1

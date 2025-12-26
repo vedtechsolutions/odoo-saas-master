@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Solo Plan Product -->
+        <record id="product_template_solo" model="product.template">
+            <field name="name">Solo Plan</field>
+            <field name="type">service</field>
+            <field name="list_price">12.00</field>
+            <field name="categ_id" ref="product_category_saas_plans"/>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="is_saas_plan">True</field>
+            <field name="saas_plan_id" ref="saas_master.plan_solo"/>
+            <field name="website_published">True</field>
+            <field name="description_sale">Perfect for solopreneurs and freelancers. 1 user, 2GB database, 5GB file storage.</field>
+        </record>
+
+        <!-- Solo Plan Billing Cycle Attribute Line -->
+        <record id="product_template_solo_billing_line" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="product_template_solo"/>
+            <field name="attribute_id" ref="product_attribute_billing_cycle"/>
+            <field name="value_ids" eval="[(6, 0, [ref('product_attribute_value_monthly'), ref('product_attribute_value_yearly')])]"/>
+        </record>
+
+        <!-- Starter Plan Product -->
+        <record id="product_template_starter" model="product.template">
+            <field name="name">Starter Plan</field>
+            <field name="type">service</field>
+            <field name="list_price">29.00</field>
+            <field name="categ_id" ref="product_category_saas_plans"/>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="is_saas_plan">True</field>
+            <field name="saas_plan_id" ref="saas_master.plan_starter"/>
+            <field name="website_published">True</field>
+            <field name="description_sale">Great for small teams. 3 users, 5GB database, 10GB file storage.</field>
+        </record>
+
+        <!-- Starter Plan Billing Cycle Attribute Line -->
+        <record id="product_template_starter_billing_line" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="product_template_starter"/>
+            <field name="attribute_id" ref="product_attribute_billing_cycle"/>
+            <field name="value_ids" eval="[(6, 0, [ref('product_attribute_value_monthly'), ref('product_attribute_value_yearly')])]"/>
+        </record>
+
+        <!-- Professional Plan Product -->
+        <record id="product_template_professional" model="product.template">
+            <field name="name">Professional Plan</field>
+            <field name="type">service</field>
+            <field name="list_price">99.00</field>
+            <field name="categ_id" ref="product_category_saas_plans"/>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="is_saas_plan">True</field>
+            <field name="saas_plan_id" ref="saas_master.plan_professional"/>
+            <field name="website_published">True</field>
+            <field name="description_sale">Ideal for growing businesses. 15 users, 25GB database, 50GB file storage, 3 instances.</field>
+        </record>
+
+        <!-- Professional Plan Billing Cycle Attribute Line -->
+        <record id="product_template_professional_billing_line" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="product_template_professional"/>
+            <field name="attribute_id" ref="product_attribute_billing_cycle"/>
+            <field name="value_ids" eval="[(6, 0, [ref('product_attribute_value_monthly'), ref('product_attribute_value_yearly')])]"/>
+        </record>
+
+        <!-- Enterprise Plan Product -->
+        <record id="product_template_enterprise" model="product.template">
+            <field name="name">Enterprise Plan</field>
+            <field name="type">service</field>
+            <field name="list_price">299.00</field>
+            <field name="categ_id" ref="product_category_saas_plans"/>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="is_saas_plan">True</field>
+            <field name="saas_plan_id" ref="saas_master.plan_enterprise"/>
+            <field name="website_published">True</field>
+            <field name="description_sale">For large organizations. 100 users, 100GB database, 250GB file storage, 10 instances, priority support.</field>
+        </record>
+
+        <!-- Enterprise Plan Billing Cycle Attribute Line -->
+        <record id="product_template_enterprise_billing_line" model="product.template.attribute.line">
+            <field name="product_tmpl_id" ref="product_template_enterprise"/>
+            <field name="attribute_id" ref="product_attribute_billing_cycle"/>
+            <field name="value_ids" eval="[(6, 0, [ref('product_attribute_value_monthly'), ref('product_attribute_value_yearly')])]"/>
+        </record>
+
+        <!-- Free Trial Product (no billing cycle variants) -->
+        <record id="product_template_trial" model="product.template">
+            <field name="name">14-Day Free Trial</field>
+            <field name="type">service</field>
+            <field name="list_price">0.00</field>
+            <field name="categ_id" ref="product_category_saas_plans"/>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="is_saas_plan">True</field>
+            <field name="saas_plan_id" ref="saas_master.plan_trial"/>
+            <field name="website_published">True</field>
+            <field name="description_sale">Try our platform free for 14 days. No credit card required. Full access to all features.</field>
+        </record>
+
+        <!-- Link products back to plans -->
+        <function model="saas.plan" name="write">
+            <value eval="[ref('saas_master.plan_solo')]"/>
+            <value eval="{'product_template_id': ref('product_template_solo')}"/>
+        </function>
+
+        <function model="saas.plan" name="write">
+            <value eval="[ref('saas_master.plan_starter')]"/>
+            <value eval="{'product_template_id': ref('product_template_starter')}"/>
+        </function>
+
+        <function model="saas.plan" name="write">
+            <value eval="[ref('saas_master.plan_professional')]"/>
+            <value eval="{'product_template_id': ref('product_template_professional')}"/>
+        </function>
+
+        <function model="saas.plan" name="write">
+            <value eval="[ref('saas_master.plan_enterprise')]"/>
+            <value eval="{'product_template_id': ref('product_template_enterprise')}"/>
+        </function>
+
+        <function model="saas.plan" name="write">
+            <value eval="[ref('saas_master.plan_trial')]"/>
+            <value eval="{'product_template_id': ref('product_template_trial')}"/>
+        </function>
+
+    </data>
+</odoo>

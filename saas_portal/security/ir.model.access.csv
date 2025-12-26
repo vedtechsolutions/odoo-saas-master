@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_instance_portal,saas.instance.portal,saas_master.model_saas_instance,base.group_portal,1,0,0,0
+access_subscription_portal,saas.subscription.portal,saas_subscription.model_saas_subscription,base.group_portal,1,0,0,0
+access_ticket_portal,saas.ticket.portal,saas_helpdesk.model_saas_ticket,base.group_portal,1,0,1,0
+access_ticket_message_portal,saas.ticket.message.portal,saas_helpdesk.model_saas_ticket_message,base.group_portal,1,0,1,0
+access_ticket_category_portal,saas.ticket.category.portal,saas_helpdesk.model_saas_ticket_category,base.group_portal,1,0,0,0
+access_plan_portal,saas.plan.portal,saas_master.model_saas_plan,base.group_portal,1,0,0,0

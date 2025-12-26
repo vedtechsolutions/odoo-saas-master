@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- PowerTranz Inline Card Form Template -->
+    <template id="inline_form">
+        <div name="o_powertranz_form"
+             class="o_powertranz_form"
+             t-att-data-powertranz-inline-form-values="provider_sudo._powertranz_get_inline_form_values()"
+             t-att-data-provider-state="provider_sudo.state">
+
+            <!-- Card Number -->
+            <div class="mb-3">
+                <label for="o_powertranz_card" class="form-label">Card Number</label>
+                <input type="text"
+                       id="o_powertranz_card"
+                       class="form-control"
+                       placeholder="1234 5678 9012 3456"
+                       required=""
+                       maxlength="19"
+                       inputmode="numeric"
+                       autocomplete="cc-number"/>
+            </div>
+
+            <!-- Cardholder Name -->
+            <div class="mb-3">
+                <label for="o_powertranz_holder" class="form-label">Cardholder Name</label>
+                <input type="text"
+                       id="o_powertranz_holder"
+                       class="form-control"
+                       placeholder="John Doe"
+                       required=""
+                       autocomplete="cc-name"/>
+            </div>
+
+            <!-- Expiry and CVC Row -->
+            <div class="row">
+                <div class="col-sm-6 mb-3">
+                    <label for="o_powertranz_expiry" class="form-label">Expiration</label>
+                    <input type="text"
+                           id="o_powertranz_expiry"
+                           class="form-control"
+                           placeholder="MM / YY"
+                           required=""
+                           maxlength="7"
+                           inputmode="numeric"
+                           autocomplete="cc-exp"/>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label for="o_powertranz_cvc" class="form-label">Security Code</label>
+                    <input type="text"
+                           id="o_powertranz_cvc"
+                           class="form-control"
+                           placeholder="CVC"
+                           required=""
+                           maxlength="4"
+                           inputmode="numeric"
+                           autocomplete="cc-csc"/>
+                </div>
+            </div>
+
+            <!-- Save Card Option -->
+            <div class="form-check mb-3">
+                <input type="checkbox"
+                       id="o_powertranz_save_card"
+                       class="form-check-input"/>
+                <label for="o_powertranz_save_card" class="form-check-label">
+                    Save my card for future payments
+                </label>
+            </div>
+
+            <!-- Recurring Payment Options -->
+            <div class="o_powertranz_recurring_section border rounded p-3 mb-3 bg-light">
+                <div class="form-check mb-2">
+                    <input type="checkbox"
+                           id="o_powertranz_setup_recurring"
+                           class="form-check-input"/>
+                    <label for="o_powertranz_setup_recurring" class="form-check-label fw-bold">
+                        Set up recurring payments
+                    </label>
+                    <small class="form-text text-muted d-block">Requires saving your card</small>
+                </div>
+
+                <div class="o_powertranz_recurring_details" style="display: none;">
+                    <div class="mb-2">
+                        <label for="o_powertranz_recurring_freq" class="form-label">Frequency</label>
+                        <select id="o_powertranz_recurring_freq" class="form-select">
+                            <option value="D">Daily</option>
+                            <option value="W">Weekly</option>
+                            <option value="F">Fortnightly</option>
+                            <option value="M" selected="">Monthly</option>
+                            <option value="B">Bi-Monthly</option>
+                            <option value="Q">Quarterly</option>
+                            <option value="S">Semi-Annually</option>
+                            <option value="Y">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 mb-2">
+                            <label for="o_powertranz_recurring_start" class="form-label">Start Date</label>
+                            <input type="date" id="o_powertranz_recurring_start" class="form-control"/>
+                        </div>
+                        <div class="col-sm-6 mb-2">
+                            <label for="o_powertranz_recurring_end" class="form-label">
+                                End Date <small class="text-muted">(Optional)</small>
+                            </label>
+                            <input type="date" id="o_powertranz_recurring_end" class="form-control"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Badge -->
+            <div class="d-flex align-items-center justify-content-between text-muted small mt-3">
+                <span><i class="fa fa-lock me-1"/> Secured by PowerTranz</span>
+                <div class="d-flex gap-2">
+                    <img src="/payment_powertranz/static/img/visa.png" alt="Visa" height="20"/>
+                    <img src="/payment_powertranz/static/img/mastercard.png" alt="Mastercard" height="20"/>
+                </div>
+            </div>
+
+            <!-- Test Cards Section (only shown in test mode) -->
+            <t t-if="provider_sudo.state == 'test'">
+                <div class="o_powertranz_test_cards alert alert-info mt-3">
+                    <h6><i class="fa fa-info-circle me-1"/> Test Cards</h6>
+                    <table class="table table-sm table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <td><code>4012000000020071</code></td>
+                                <td>Visa - Frictionless approve</td>
+                            </tr>
+                            <tr>
+                                <td><code>5200000000001005</code></td>
+                                <td>Mastercard - Frictionless approve</td>
+                            </tr>
+                            <tr>
+                                <td><code>4012000000020089</code></td>
+                                <td>Visa - Challenge then approve</td>
+                            </tr>
+                            <tr>
+                                <td><code>4012000000020097</code></td>
+                                <td>Visa - Will decline</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <small class="text-muted">Use any future expiry date and any 3-digit CVC</small>
+                </div>
+            </t>
+        </div>
+    </template>
+
+    <!-- Template for the 3DS Challenge Page -->
+    <template id="3ds_challenge" name="PowerTranz 3DS Challenge">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container py-4">
+                    <h1>3D Secure Authentication Required</h1>
+                    <p>Your bank requires additional verification to complete this transaction. Please complete the steps provided by your bank below.</p>
+
+                    <!-- Container for the challenge iframe -->
+                    <div id="powertranz-3ds-challenge-container" class="mt-4">
+                        <!--
+                            The 'redirect_data' contains the necessary HTML/JS/form
+                            provided by PowerTranz to initiate the challenge flow.
+                            It often includes a form that auto-submits to the ACS URL.
+                            It needs to be rendered raw.
+                        -->
+                         <div id="pt-challenge-iframe-content">
+                            <t t-out="redirect_data"/>
+                        </div>
+
+                         <!-- Fallback message if iframe content fails -->
+                        <noscript>
+                            <p class="alert alert-warning">JavaScript is required to complete 3D Secure authentication.</p>
+                        </noscript>
+                        <p class="text-muted small mt-2">Transaction Reference: <t t-esc="reference"/></p>
+                        <p class="text-muted small">Do not refresh or navigate away from this page until the process is complete.</p>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Template for the Merchant Response Redirect (after ACS interaction in iframe) -->
+    <template id="merchant_response_redirect" name="PowerTranz 3DS Redirect">
+        <html>
+            <head>
+                <title>Processing 3DS Authentication...</title>
+                <script type="text/javascript">
+                    // This script runs inside the iframe after the ACS posts back.
+                    // Its goal is to signal the parent window (Odoo checkout page)
+                    // that the 3DS flow is complete (or failed) and trigger
+                    // a redirect or status update on the parent page.
+                    function notifyParentAndRedirect() {
+                        try {
+                            // Option 1: Simple redirect of the top-level window
+                            // Assumes the main Odoo payment flow will handle the status update
+                            // based on the transaction state after the merchant response POST.
+                            if (window.top !== window.self) {
+                                window.top.location.href = '/payment/status';
+                            } else {
+                                // Fallback if not in an iframe (shouldn't happen in normal flow)
+                                window.location.href = '/payment/status';
+                            }
+
+                            // Option 2: Post a message to the parent window (more complex)
+                            // This would require the parent window (Odoo checkout page JS)
+                            // to listen for this message and react accordingly.
+                            // Useful if you don't want a full page reload immediately.
+                            // Example:
+                            // if (window.top !== window.self) {
+                            //     window.top.postMessage({ 'paymentStatus': '3ds_complete' }, '*');
+                            // }
+                        } catch (e) {
+                            console.error("Error notifying parent window: ", e);
+                            // Fallback redirect if communication fails
+                            window.location.href = '/payment/status';
+                        }
+                    }
+                    // Execute the function once the page loads
+                    window.onload = notifyParentAndRedirect;
+                </script>
+            </head>
+            <body>
+                <p>Processing authentication, please wait...</p>
+                <p>You will be redirected shortly. If redirection does not occur, please <a t-attf-href="/payment/status">click here</a>.</p>
+            </body>
+        </html>
+    </template>
+
+</odoo> 

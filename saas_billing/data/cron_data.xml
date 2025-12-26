@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== SCHEDULED ACTIONS ==================== -->
+
+    <!-- Process Pending Transactions -->
+    <record id="cron_process_pending_transactions" model="ir.cron">
+        <field name="name">SaaS Billing: Process Pending Transactions</field>
+        <field name="model_id" ref="model_saas_billing_transaction"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_process_pending()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Retry Failed Transactions -->
+    <record id="cron_retry_failed_transactions" model="ir.cron">
+        <field name="name">SaaS Billing: Retry Failed Transactions</field>
+        <field name="model_id" ref="model_saas_billing_transaction"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_retry_failed()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">hours</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Expire Credits -->
+    <record id="cron_expire_credits" model="ir.cron">
+        <field name="name">SaaS Billing: Expire Credits</field>
+        <field name="model_id" ref="model_saas_customer_credit"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_expire_credits()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active">True</field>
+    </record>
+
+</odoo>

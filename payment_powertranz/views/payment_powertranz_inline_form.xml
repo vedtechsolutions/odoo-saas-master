@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- PowerTranz Inline Form Template -->
+    <template id="powertranz_inline_form" name="PowerTranz Inline Form">
+        <t t-set="has_saved_cards" t-value="tokens_sudo and len(tokens_sudo) > 0"/>
+        <t t-set="is_test_mode" t-value="provider_sudo.state == 'test'"/>
+
+        <div name="o_powertranz_form" class="powertranz-card-form">
+            <!-- Toggle between saved cards and new card entry -->
+            <div t-if="has_saved_cards" class="mb-3">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="powertranzCardType" id="powertranzSavedCard" value="saved_card" checked="checked"/>
+                    <label class="form-check-label mt-0" for="powertranzSavedCard">Use Saved Card</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="powertranzCardType" id="powertranzNewCard" value="new_card"/>
+                    <label class="form-check-label mt-0" for="powertranzNewCard">Enter New Card</label>
+                </div>
+            </div>
+
+            <!-- Card Form -->
+            <div id="powertranz_card_form" t-att-class="has_saved_cards and 'd-none' or ''">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label" for="o_powertranz_card">Card Number</label>
+                        <div class="position-relative">
+                            <input type="text" id="o_powertranz_card" class="form-control"
+                                   placeholder="•••• •••• •••• ••••" autocomplete="cc-number" inputmode="numeric" required="required"/>
+                            <span class="card-type-indicator position-absolute end-0 top-50 translate-middle-y me-3"></span>
+                            <input type="hidden" id="o_powertranz_card_brand" name="powertranz_card_brand" />
+                        </div>
+                        <div id="o_powertranz_card_error" class="text-danger small"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label" for="o_powertranz_holder">Cardholder Name</label>
+                        <input type="text" id="o_powertranz_holder" class="form-control"
+                               placeholder="John Doe" autocomplete="cc-name" required="required"/>
+                        <div id="o_powertranz_holder_error" class="text-danger small"></div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="o_powertranz_expiry">Expiration Date</label>
+                        <input type="text" id="o_powertranz_expiry" class="form-control"
+                               placeholder="MM / YY" autocomplete="cc-exp" inputmode="numeric" maxlength="7" required="required"/>
+                        <div id="o_powertranz_expiry_error" class="text-danger small"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="o_powertranz_cvc">CVC</label>
+                        <input type="text" id="o_powertranz_cvc" class="form-control"
+                               placeholder="•••" autocomplete="cc-csc" inputmode="numeric" maxlength="4" required="required"/>
+                        <div id="o_powertranz_cvc_error" class="text-danger small"></div>
+                    </div>
+                </div>
+
+                <!-- Test Cards Section (Only shown in test mode) -->
+                <div t-if="is_test_mode" class="mb-3 p-3 border rounded bg-light" t-att-data-provider-state="provider_sudo.state">
+                    <h6 class="mb-2"><i class="fa fa-flask me-1"/>Test Cards</h6>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start o_powertranz_test_card"
+                                    data-card="4012000000020071" data-holder="Test User" data-expiry="12 / 25" data-cvc="123">
+                                <i class="fa fa-credit-card me-1"/>Visa (Approved)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start o_powertranz_test_card"
+                                    data-card="5200000000001005" data-holder="Test User" data-expiry="12 / 25" data-cvc="123">
+                                <i class="fa fa-credit-card me-1"/>Mastercard (Approved)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start o_powertranz_test_card"
+                                    data-card="4012000000020089" data-holder="Test User" data-expiry="12 / 25" data-cvc="123">
+                                <i class="fa fa-credit-card me-1"/>Visa (3DS Challenge)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start o_powertranz_test_card"
+                                    data-card="4012000000020097" data-holder="Test User" data-expiry="12 / 25" data-cvc="123">
+                                <i class="fa fa-credit-card me-1"/>Visa (Declined)
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">Click a button to fill in test card details.</small>
+                </div>
+
+                <!-- Save Card Option -->
+                <div id="o_powertranz_save_card_container" t-if="allow_tokenization" class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="o_powertranz_save_card" name="powertranz_save_card"/>
+                    <label class="form-check-label" for="o_powertranz_save_card">Save my card for future payments</label>
+                </div>
+
+                <!-- Recurring Payment Options (for subscriptions) -->
+                <div class="o_powertranz_recurring_container mb-3 p-3 border rounded bg-light">
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="o_powertranz_setup_recurring" name="powertranz_setup_recurring"/>
+                        <label class="form-check-label" for="o_powertranz_setup_recurring">
+                            <strong>Enable automatic recurring payments</strong>
+                        </label>
+                        <small class="form-text text-muted d-block">Set up automatic billing for subscriptions. Requires saving your card.</small>
+                    </div>
+                    <!-- Recurring details - hidden until checkbox is checked -->
+                    <div class="o_powertranz_recurring_details mt-3" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label" for="o_powertranz_recurring_freq">Frequency</label>
+                                <select class="form-select" id="o_powertranz_recurring_freq" name="powertranz_recurring_freq">
+                                    <option value="D">Daily</option>
+                                    <option value="W">Weekly</option>
+                                    <option value="F">Fortnightly</option>
+                                    <option value="M" selected="selected">Monthly</option>
+                                    <option value="B">Bi-Monthly</option>
+                                    <option value="Q">Quarterly</option>
+                                    <option value="S">Semi-Annually</option>
+                                    <option value="Y">Yearly</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="o_powertranz_recurring_start">Start Date</label>
+                                <input type="date" id="o_powertranz_recurring_start" class="form-control" name="powertranz_recurring_start"/>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="o_powertranz_recurring_end">End Date <small>(Optional)</small></label>
+                                <input type="date" id="o_powertranz_recurring_end" class="form-control" name="powertranz_recurring_end"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="d-flex align-items-center justify-content-center mt-3 text-muted small">
+                <i class="fa fa-lock me-2"/>
+                <span>Your payment is secured with 256-bit SSL encryption</span>
+            </div>
+        </div>
+
+        <!-- Test card fill script -->
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.o_powertranz_test_card').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var cardInput = document.getElementById('o_powertranz_card');
+                        var holderInput = document.getElementById('o_powertranz_holder');
+                        var expiryInput = document.getElementById('o_powertranz_expiry');
+                        var cvcInput = document.getElementById('o_powertranz_cvc');
+
+                        if (cardInput) cardInput.value = this.dataset.card.replace(/(\d{4})/g, '$1 ').trim();
+                        if (holderInput) holderInput.value = this.dataset.holder;
+                        if (expiryInput) expiryInput.value = this.dataset.expiry;
+                        if (cvcInput) cvcInput.value = this.dataset.cvc;
+
+                        // Trigger input events for validation
+                        [cardInput, holderInput, expiryInput, cvcInput].forEach(function(input) {
+                            if (input) input.dispatchEvent(new Event('input', { bubbles: true }));
+                        });
+                    });
+                });
+
+                // Toggle new card / saved card
+                var savedCardRadio = document.getElementById('powertranzSavedCard');
+                var newCardRadio = document.getElementById('powertranzNewCard');
+                var cardForm = document.getElementById('powertranz_card_form');
+
+                if (savedCardRadio &amp;&amp; newCardRadio &amp;&amp; cardForm) {
+                    savedCardRadio.addEventListener('change', function() {
+                        if (this.checked) cardForm.classList.add('d-none');
+                    });
+                    newCardRadio.addEventListener('change', function() {
+                        if (this.checked) cardForm.classList.remove('d-none');
+                    });
+                }
+
+                // Toggle recurring payment details
+                var recurringCheckbox = document.getElementById('o_powertranz_setup_recurring');
+                var recurringDetails = document.querySelector('.o_powertranz_recurring_details');
+                var saveCardCheckbox = document.getElementById('o_powertranz_save_card');
+
+                if (recurringCheckbox &amp;&amp; recurringDetails) {
+                    recurringCheckbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            recurringDetails.style.display = 'block';
+                            // Auto-check save card when recurring is enabled
+                            if (saveCardCheckbox) saveCardCheckbox.checked = true;
+                        } else {
+                            recurringDetails.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Uncheck recurring if save card is unchecked
+                if (saveCardCheckbox &amp;&amp; recurringCheckbox) {
+                    saveCardCheckbox.addEventListener('change', function() {
+                        if (!this.checked &amp;&amp; recurringCheckbox.checked) {
+                            recurringCheckbox.checked = false;
+                            if (recurringDetails) recurringDetails.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Set default start date to today
+                var startDateInput = document.getElementById('o_powertranz_recurring_start');
+                if (startDateInput &amp;&amp; !startDateInput.value) {
+                    var today = new Date().toISOString().split('T')[0];
+                    startDateInput.value = today;
+                }
+            });
+        </script>
+    </template>
+</odoo>

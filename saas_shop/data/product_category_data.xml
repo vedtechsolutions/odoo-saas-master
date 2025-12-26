@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- SaaS Product Categories -->
+        <record id="product_category_saas" model="product.category">
+            <field name="name">SaaS</field>
+        </record>
+
+        <record id="product_category_saas_plans" model="product.category">
+            <field name="name">Subscription Plans</field>
+            <field name="parent_id" ref="product_category_saas"/>
+        </record>
+
+        <record id="product_category_saas_addons" model="product.category">
+            <field name="name">Add-ons</field>
+            <field name="parent_id" ref="product_category_saas"/>
+        </record>
+
+    </data>
+</odoo>

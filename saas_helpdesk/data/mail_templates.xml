@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Ticket Created - Auto Response -->
+        <record id="mail_template_ticket_created" model="mail.template">
+            <field name="name">SaaS Helpdesk: Ticket Created</field>
+            <field name="model_id" ref="model_saas_ticket"/>
+            <field name="email_from">support@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">Ticket {{ object.reference }} - {{ object.name }}</field>
+            <field name="body_html"><![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #714B67; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Support Ticket Received</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p>Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+                <p>Thank you for contacting VedTech Solutions support. Your ticket has been created.</p>
+                <p><strong>Reference:</strong> <t t-out="object.reference"/></p>
+                <p><strong>Subject:</strong> <t t-out="object.name"/></p>
+                <p>Our support team will review your ticket shortly.</p>
+                <p>Best regards,<br/>VedTech Solutions Support Team</p>
+            </td>
+        </tr>
+    </table>
+</div>
+]]></field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- Ticket Resolved Notification -->
+        <record id="mail_template_ticket_resolved" model="mail.template">
+            <field name="name">SaaS Helpdesk: Ticket Resolved</field>
+            <field name="model_id" ref="model_saas_ticket"/>
+            <field name="email_from">support@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">Ticket {{ object.reference }} Resolved</field>
+            <field name="body_html"><![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #28a745; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Ticket Resolved</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p>Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+                <p>Great news! Your support ticket has been resolved.</p>
+                <p><strong>Reference:</strong> <t t-out="object.reference"/></p>
+                <p><strong>Subject:</strong> <t t-out="object.name"/></p>
+                <p>Thank you for choosing VedTech Solutions!</p>
+                <p>Best regards,<br/>VedTech Solutions Support Team</p>
+            </td>
+        </tr>
+    </table>
+</div>
+]]></field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

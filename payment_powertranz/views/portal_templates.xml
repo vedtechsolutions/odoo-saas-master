@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Portal Home Entry for Recurring Payments -->
+    <template id="portal_my_home_powertranz_section" inherit_id="portal.portal_my_home" priority="40">
+        <!-- Enable the client category section -->
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <!-- Add recurring payments entry -->
+        <xpath expr="//div[@id='portal_client_category']" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/payment_powertranz/static/src/img/portal-recurring.svg'"/>
+                <t t-set="title">Recurring Payments</t>
+                <t t-set="url" t-value="'/my/recurring'"/>
+                <t t-set="text">View and manage your recurring payment subscriptions</t>
+                <t t-set="placeholder_count" t-value="'recurring_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Recurring payments list template -->
+    <template id="portal_my_recurring_payments" name="My Recurring Payments">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2>Recurring Payments</h2>
+                    </div>
+                </div>
+
+                <!-- Search and filters -->
+                <t t-call="portal.portal_searchbar">
+                    <t t-set="title">Recurring Payments</t>
+                </t>
+
+                <!-- No recurring payments message -->
+                <t t-if="not recurring_payments">
+                    <div class="alert alert-info mt-4">
+                        <p class="mb-0">You don't have any recurring payments yet.</p>
+                    </div>
+                </t>
+
+                <!-- Recurring payments list -->
+                <t t-if="recurring_payments">
+                    <div class="table-responsive mt-4">
+                        <table class="table table-striped o_portal_recurring_table">
+                            <thead>
+                                <tr class="active">
+                                    <th>Reference</th>
+                                    <th>Amount</th>
+                                    <th>Frequency</th>
+                                    <th>Next Payment</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="recurring_payments" t-as="recurring">
+                                    <tr>
+                                        <td>
+                                            <a t-attf-href="/my/recurring/#{recurring.id}">
+                                                <t t-esc="recurring.name"/>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span t-field="recurring.amount" t-options='{"widget": "monetary", "display_currency": recurring.currency_id}'/>
+                                        </td>
+                                        <td>
+                                            <t t-if="recurring.frequency == 'D'">Daily</t>
+                                            <t t-elif="recurring.frequency == 'W'">Weekly</t>
+                                            <t t-elif="recurring.frequency == 'M'">Monthly</t>
+                                            <t t-elif="recurring.frequency == 'Y'">Yearly</t>
+                                        </td>
+                                        <td>
+                                            <span t-field="recurring.next_payment_date"/>
+                                        </td>
+                                        <td>
+                                            <t t-if="recurring.state == 'active'">
+                                                <span class="badge text-bg-success">Active</span>
+                                            </t>
+                                            <t t-elif="recurring.state == 'paused'">
+                                                <span class="badge text-bg-warning">Paused</span>
+                                            </t>
+                                            <t t-elif="recurring.state == 'cancelled'">
+                                                <span class="badge text-bg-danger">Cancelled</span>
+                                            </t>
+                                            <t t-elif="recurring.state == 'completed'">
+                                                <span class="badge text-bg-info">Completed</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="badge text-bg-secondary">Draft</span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pager -->
+                    <div class="o_portal_pager mt-4 d-flex justify-content-between">
+                        <t t-call="portal.pager"/>
+                    </div>
+                </t>
+
+                <!-- Back button -->
+                <div class="mt-4">
+                    <a href="/my/home" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left me-1"/> Back to Portal
+                    </a>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Recurring payment detail template -->
+    <template id="portal_recurring_detail" name="Recurring Payment Details">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4">
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2>Recurring Payment Details</h2>
+                    </div>
+                </div>
+
+                <!-- Main content -->
+                <div class="row">
+                    <!-- Payment details -->
+                    <div class="col-lg-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Payment Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Reference:</div>
+                                    <div class="col-md-8"><span t-field="recurring.name"/></div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Amount:</div>
+                                    <div class="col-md-8"><span t-field="recurring.amount" t-options='{"widget": "monetary", "display_currency": recurring.currency_id}'/></div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Frequency:</div>
+                                    <div class="col-md-8">
+                                        <t t-if="recurring.frequency == 'D'">Daily</t>
+                                        <t t-elif="recurring.frequency == 'W'">Weekly</t>
+                                        <t t-elif="recurring.frequency == 'M'">Monthly</t>
+                                        <t t-elif="recurring.frequency == 'Y'">Yearly</t>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Start Date:</div>
+                                    <div class="col-md-8"><span t-field="recurring.start_date"/></div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Next Payment:</div>
+                                    <div class="col-md-8"><span t-field="recurring.next_payment_date"/></div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">End Date:</div>
+                                    <div class="col-md-8">
+                                        <span t-field="recurring.end_date" t-options='{"widget": "date"}'/>
+                                        <span t-if="not recurring.end_date" class="text-muted">No end date (until cancelled)</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Status:</div>
+                                    <div class="col-md-8">
+                                        <t t-if="recurring.state == 'active'">
+                                            <span class="badge text-bg-success">Active</span>
+                                        </t>
+                                        <t t-elif="recurring.state == 'paused'">
+                                            <span class="badge text-bg-warning">Paused</span>
+                                        </t>
+                                        <t t-elif="recurring.state == 'cancelled'">
+                                            <span class="badge text-bg-danger">Cancelled</span>
+                                        </t>
+                                        <t t-elif="recurring.state == 'completed'">
+                                            <span class="badge text-bg-info">Completed</span>
+                                        </t>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-bold">Created On:</div>
+                                    <div class="col-md-8"><span t-field="recurring.create_date"/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transaction history -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Transaction History</h5>
+                            </div>
+                            <div class="card-body">
+                                <t t-if="not transactions or len(transactions) == 0">
+                                    <p class="text-muted">No transactions have been processed yet.</p>
+                                </t>
+                                <t t-if="transactions and len(transactions) > 0">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Reference</th>
+                                                    <th>Amount</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="transactions" t-as="tx">
+                                                    <tr>
+                                                        <td><span t-field="tx.create_date"/></td>
+                                                        <td><span t-field="tx.reference"/></td>
+                                                        <td><span t-field="tx.amount" t-options='{"widget": "monetary", "display_currency": tx.currency_id}'/></td>
+                                                        <td>
+                                                            <t t-if="tx.state == 'done'">
+                                                                <span class="badge text-bg-success">Success</span>
+                                                            </t>
+                                                            <t t-elif="tx.state == 'pending'">
+                                                                <span class="badge text-bg-warning">Pending</span>
+                                                            </t>
+                                                            <t t-elif="tx.state == 'cancel'">
+                                                                <span class="badge text-bg-danger">Cancelled</span>
+                                                            </t>
+                                                            <t t-elif="tx.state == 'error'">
+                                                                <span class="badge text-bg-danger">Error</span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span class="badge text-bg-secondary"><t t-esc="tx.state"/></span>
+                                                            </t>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions sidebar -->
+                    <div class="col-lg-4">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <t t-if="recurring.state == 'active'">
+                                        <a t-att-href="'/my/recurring/%s/pause' % recurring.id" class="btn btn-warning">
+                                            <i class="fa fa-pause me-1"/> Pause Payments
+                                        </a>
+                                        <a t-att-href="'/my/recurring/%s/cancel' % recurring.id" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this recurring payment? This action cannot be undone.')">
+                                            <i class="fa fa-times me-1"/> Cancel Subscription
+                                        </a>
+                                    </t>
+                                    <t t-if="recurring.state == 'paused'">
+                                        <a t-att-href="'/my/recurring/%s/resume' % recurring.id" class="btn btn-success">
+                                            <i class="fa fa-play me-1"/> Resume Payments
+                                        </a>
+                                        <a t-att-href="'/my/recurring/%s/cancel' % recurring.id" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel this recurring payment? This action cannot be undone.')">
+                                            <i class="fa fa-times me-1"/> Cancel Subscription
+                                        </a>
+                                    </t>
+                                    <a href="/my/recurring" class="btn btn-secondary">
+                                        <i class="fa fa-arrow-left me-1"/> Back to List
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

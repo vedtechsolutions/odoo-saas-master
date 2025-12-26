@@ -1,0 +1,30 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Subscriptions - Isometric calendar with recurring symbol -->
+<!-- Calendar body base -->
+<path d="M52.36 44.208L21.9496 61.7655L11.6401 55.7743L42.0505 38.2168L52.36 44.208Z" fill="#FBDBD0"/>
+<path d="M11.6401 55.7743L15.6829 15.4443L25.9924 21.4356L21.9496 61.7655L11.6401 55.7743Z" fill="#C1DBF6"/>
+<path d="M52.36 44.208L48.3171 4.67053L37.7926 2.67932L42.0505 38.2168L52.36 44.208Z" fill="#FBDBD0"/>
+<path d="M21.9496 61.7655L25.9924 21.4356L48.1021 8.67053L52.36 44.208L21.9496 61.7655Z" fill="white"/>
+<!-- Calendar header -->
+<path d="M25.9924 21.4356L48.1021 8.67053L48.3171 4.67053L26.2074 17.4356L25.9924 21.4356Z" fill="#374874"/>
+<!-- Calendar binding holes -->
+<circle cx="30" cy="19" r="1.5" fill="white"/>
+<circle cx="36" cy="15.5" r="1.5" fill="white"/>
+<circle cx="42" cy="12" r="1.5" fill="white"/>
+<!-- Calendar grid lines -->
+<line x1="28" y1="28" x2="45" y2="18" stroke="#374874" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="27" y1="34" x2="44" y2="24" stroke="#374874" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="26" y1="40" x2="43" y2="30" stroke="#374874" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="25" y1="46" x2="42" y2="36" stroke="#374874" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="32" y1="25" x2="28" y2="50" stroke="#374874" stroke-width="0.5" stroke-opacity="0.3"/>
+<line x1="38" y1="22" x2="34" y2="47" stroke="#374874" stroke-width="0.5" stroke-opacity="0.3"/>
+<!-- Recurring arrows circle -->
+<circle cx="36" cy="38" r="10" fill="white" stroke="#374874" stroke-width="1.5"/>
+<path d="M36 30C40.4183 30 44 33.5817 44 38C44 42.4183 40.4183 46 36 46" stroke="#374874" stroke-width="2" stroke-linecap="round"/>
+<path d="M36 46C31.5817 46 28 42.4183 28 38C28 33.5817 31.5817 30 36 30" stroke="#374874" stroke-width="2" stroke-linecap="round"/>
+<!-- Arrow heads -->
+<path d="M36 28L36 32L40 30" stroke="#374874" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M36 48L36 44L32 46" stroke="#374874" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Main outline -->
+<path fill-rule="evenodd" clip-rule="evenodd" d="M37.7926 1.76501C37.634 1.76501 37.4761 1.80632 37.3355 1.88751L15.2258 14.6525C14.971 14.7996 14.8025 15.0604 14.7732 15.3531L10.7304 55.683C10.6946 56.0398 10.8707 56.3846 11.1807 56.5647L21.4902 62.5559C21.6322 62.6384 21.7909 62.6797 21.9496 62.6797C22.1075 62.6797 22.2653 62.6388 22.4068 62.5572L52.8172 44.9998C53.134 44.8168 53.3113 44.4626 53.2678 44.0992L49.0099 8.56172C48.963 8.1702 48.6704 7.85285 48.2839 7.77445L39.967 6.08707L38.6546 2.37457C38.5641 2.11839 38.3642 1.91576 38.1093 1.82161C38.0068 1.78378 37.8995 1.76501 37.7926 1.76501Z" fill="#374874"/>
+</svg>

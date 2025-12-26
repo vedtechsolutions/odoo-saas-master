@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Custom list view for payment transactions in PowerTranz module -->
+    <record id="view_payment_transaction_powertranz_list" model="ir.ui.view">
+        <field name="name">payment.transaction.powertranz.list</field>
+        <field name="model">payment.transaction</field>
+        <field name="arch" type="xml">
+            <list string="Payment Transactions" create="false" edit="false">
+                <field name="reference"/>
+                <field name="create_date"/>
+                <field name="amount" widget="monetary"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+</odoo>

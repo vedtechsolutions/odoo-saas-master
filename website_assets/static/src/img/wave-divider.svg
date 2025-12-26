@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+  <defs>
+    <linearGradient id="waveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066CC"/>
+      <stop offset="100%" style="stop-color:#004C99"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Wave shape -->
+  <path
+    d="M 0 60
+       C 240 120, 480 0, 720 60
+       C 960 120, 1200 0, 1440 60
+       L 1440 120
+       L 0 120
+       Z"
+    fill="url(#waveGrad)"
+  />
+
+  <!-- Secondary wave for depth -->
+  <path
+    d="M 0 80
+       C 200 100, 400 40, 600 70
+       C 800 100, 1000 30, 1200 60
+       C 1320 80, 1380 70, 1440 75
+       L 1440 120
+       L 0 120
+       Z"
+    fill="rgba(255,255,255,0.1)"
+  />
+</svg>

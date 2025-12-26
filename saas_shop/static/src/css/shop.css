@@ -1,0 +1,71 @@
+/**
+ * SaaS Shop Styles
+ */
+
+/* Pricing Cards */
+.s_pricing .card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.s_pricing .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.s_pricing .card.border-primary {
+    border-width: 2px !important;
+}
+
+.s_pricing .pricing-amount .display-5 {
+    font-weight: 600;
+}
+
+/* Configuration Form */
+#saas_configure_form .form-check.card {
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+#saas_configure_form .form-check.card:hover {
+    border-color: var(--primary);
+}
+
+#saas_configure_form .form-check-input:checked ~ .form-check-label {
+    color: var(--primary);
+}
+
+#saas_configure_form .form-check.card:has(.form-check-input:checked) {
+    border-color: var(--primary);
+    background-color: rgba(var(--primary-rgb), 0.05);
+}
+
+/* Subdomain Input */
+#subdomain {
+    font-family: monospace;
+    font-size: 1.1rem;
+}
+
+#subdomain_feedback {
+    min-height: 24px;
+}
+
+/* Cart SaaS Info */
+.td-product_name .saas-info {
+    font-size: 0.85rem;
+}
+
+/* Confirmation Page */
+.card-header.bg-success h5 {
+    margin-bottom: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .s_pricing .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    #saas_configure_form .row .col-md-6 {
+        margin-bottom: 0.5rem;
+    }
+}

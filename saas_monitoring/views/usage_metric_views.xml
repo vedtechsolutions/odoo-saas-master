@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== METRIC TYPE VIEWS ==================== -->
+
+    <!-- Metric Type Form View -->
+    <record id="saas_metric_type_view_form" model="ir.ui.view">
+        <field name="name">saas.metric.type.form</field>
+        <field name="model">saas.metric.type</field>
+        <field name="arch" type="xml">
+            <form string="Metric Type">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g., CPU Usage"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="unit"/>
+                            <field name="unit_type"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                            <field name="collection_method"/>
+                            <field name="collection_interval"/>
+                            <field name="retention_days"/>
+                        </group>
+                    </group>
+                    <group string="Thresholds">
+                        <group>
+                            <field name="warning_threshold"/>
+                        </group>
+                        <group>
+                            <field name="critical_threshold"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Description of this metric..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Metric Type List View -->
+    <record id="saas_metric_type_view_list" model="ir.ui.view">
+        <field name="name">saas.metric.type.list</field>
+        <field name="model">saas.metric.type</field>
+        <field name="arch" type="xml">
+            <list string="Metric Types">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="unit"/>
+                <field name="unit_type"/>
+                <field name="warning_threshold"/>
+                <field name="critical_threshold"/>
+                <field name="collection_method"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Metric Type Action -->
+    <record id="saas_metric_type_action" model="ir.actions.act_window">
+        <field name="name">Metric Types</field>
+        <field name="res_model">saas.metric.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define metric types to track
+            </p>
+            <p>
+                Metric types define what can be monitored for instances,
+                such as CPU usage, memory, disk space, and user counts.
+            </p>
+        </field>
+    </record>
+
+    <!-- ==================== USAGE METRIC VIEWS ==================== -->
+
+    <!-- Usage Metric Form View -->
+    <record id="saas_usage_metric_view_form" model="ir.ui.view">
+        <field name="name">saas.usage.metric.form</field>
+        <field name="model">saas.usage.metric</field>
+        <field name="arch" type="xml">
+            <form string="Usage Metric">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(saas_monitoring.saas_usage_log_action)d"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-history"
+                                context="{'search_default_instance_id': instance_id, 'search_default_metric_type_id': metric_type_id}">
+                            <span class="o_stat_text">History</span>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="instance_id"/>
+                            <field name="metric_type_id"/>
+                            <field name="status" widget="badge"
+                                   decoration-success="status == 'ok'"
+                                   decoration-warning="status == 'warning'"
+                                   decoration-danger="status in ('critical', 'exceeded')"/>
+                        </group>
+                        <group>
+                            <field name="current_value"/>
+                            <field name="limit_value"/>
+                            <field name="usage_percent" widget="progressbar"/>
+                            <field name="formatted_value"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="last_updated"/>
+                            <field name="last_collected"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Usage Metric List View -->
+    <record id="saas_usage_metric_view_list" model="ir.ui.view">
+        <field name="name">saas.usage.metric.list</field>
+        <field name="model">saas.usage.metric</field>
+        <field name="arch" type="xml">
+            <list string="Usage Metrics" decoration-warning="status == 'warning'" decoration-danger="status in ('critical', 'exceeded')">
+                <field name="instance_name"/>
+                <field name="metric_type_id"/>
+                <field name="formatted_value"/>
+                <field name="limit_value"/>
+                <field name="usage_percent" widget="progressbar"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'ok'"
+                       decoration-warning="status == 'warning'"
+                       decoration-danger="status in ('critical', 'exceeded')"/>
+                <field name="last_updated"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Usage Metric Search View -->
+    <record id="saas_usage_metric_view_search" model="ir.ui.view">
+        <field name="name">saas.usage.metric.search</field>
+        <field name="model">saas.usage.metric</field>
+        <field name="arch" type="xml">
+            <search string="Usage Metrics">
+                <field name="instance_id"/>
+                <field name="metric_type_id"/>
+                <field name="instance_name"/>
+                <separator/>
+                <filter name="ok" string="OK" domain="[('status', '=', 'ok')]"/>
+                <filter name="warning" string="Warning" domain="[('status', '=', 'warning')]"/>
+                <filter name="critical" string="Critical" domain="[('status', '=', 'critical')]"/>
+                <filter name="exceeded" string="Exceeded" domain="[('status', '=', 'exceeded')]"/>
+                <separator/>
+                <filter name="issues" string="Has Issues" domain="[('status', 'in', ['warning', 'critical', 'exceeded'])]"/>
+                <separator/>
+                <filter name="group_instance" string="Instance" context="{'group_by': 'instance_id'}"/>
+                <filter name="group_metric" string="Metric Type" context="{'group_by': 'metric_type_id'}"/>
+                <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Usage Metric Action -->
+    <record id="saas_usage_metric_action" model="ir.actions.act_window">
+        <field name="name">Usage Metrics</field>
+        <field name="res_model">saas.usage.metric</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_issues': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No usage metrics recorded yet
+            </p>
+            <p>
+                Usage metrics are collected automatically from running instances.
+            </p>
+        </field>
+    </record>
+
+    <!-- Issues Action -->
+    <record id="saas_usage_metric_action_issues" model="ir.actions.act_window">
+        <field name="name">Metric Issues</field>
+        <field name="res_model">saas.usage.metric</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('status', 'in', ['warning', 'critical', 'exceeded'])]</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="payment_provider_powertranz" model="payment.provider">
+            <field name="name">PowerTranz</field>
+            <field name="code">powertranz</field>
+            <field name="state">disabled</field>
+            <field name="image_128" type="base64" file="payment_powertranz/static/description/icon.png"/> <!-- Add icon later -->
+            <field name="company_id" ref="base.main_company"/>
+            <field name="module_id" ref="base.module_payment_powertranz"/> <!-- Link to the module -->
+
+            <!-- Default feature support (can be overridden by compute methods) -->
+            <field name="support_tokenization" eval="True"/> <!-- Assume True, adjust later -->
+            <field name="support_refund">full_only</field> <!-- Assume full_only, adjust later -->
+            <field name="support_manual_capture">full_only</field> <!-- Assume True, adjust later -->
+
+            <!-- Inline form for card entry -->
+            <field name="inline_form_view_id" ref="payment_powertranz.powertranz_inline_form"/>
+
+            <!-- Default messages (can be customized later) -->
+            <field name="pre_msg"><![CDATA[
+<p>Enter your card details below to complete your payment securely.</p>]]></field>
+            <field name="pending_msg"><![CDATA[
+<p>Your payment is being processed. You will be redirected back to the merchant website shortly.</p>]]></field>
+            <field name="done_msg"><![CDATA[
+<p>Your payment has been successfully processed. Thank you!</p>]]></field>
+            <field name="cancel_msg"><![CDATA[
+<p>Your payment has been cancelled.</p>]]></field>
+
+            <!-- Default view configuration (can be overridden by compute methods) -->
+            <!-- By default, all standard config fields are shown -->
+
+        </record>
+
+        <!-- Add payment method data later if needed, e.g. linking 'card' method -->
+        <!-- <record id="payment_method_card" model="payment.method">
+            <field name="provider_ids" eval="[(4, ref('payment_provider_powertranz'))]"/>
+        </record> -->
+
+    </data>
+</odoo>

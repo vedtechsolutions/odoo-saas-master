@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ET-001: Welcome Email - Instance Ready -->
+        <record id="mail_template_saas_instance_ready" model="mail.template">
+            <field name="name">SaaS: Instance Ready</field>
+            <field name="model_id" ref="saas_master.model_saas_instance"/>
+            <field name="email_from">noreply@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.admin_email }}</field>
+            <field name="subject">Your Odoo Instance is Ready - {{ object.subdomain }}.tenants.vedtechsolutions.com</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #714B67; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Welcome to VedTech Solutions!</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p style="font-size: 16px; color: #333;">Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Great news! Your Odoo instance is now ready and waiting for you.
+                </p>
+
+                <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                    <h3 style="color: #714B67; margin-top: 0;">Your Instance Details:</h3>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="padding: 5px 0; color: #666;"><strong>URL:</strong></td>
+                            <td style="padding: 5px 0;">
+                                <a t-att-href="'https://' + object.subdomain + '.tenants.vedtechsolutions.com'"
+                                   style="color: #714B67; font-weight: bold;">
+                                    https://<t t-out="object.subdomain"/>.tenants.vedtechsolutions.com
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px 0; color: #666;"><strong>Plan:</strong></td>
+                            <td style="padding: 5px 0;"><t t-out="object.plan_id.name or 'N/A'"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                    <h3 style="color: #856404; margin-top: 0;">Your Login Credentials:</h3>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td style="padding: 8px 0; color: #666; width: 120px;"><strong>Username:</strong></td>
+                            <td style="padding: 8px 0; font-family: monospace; font-size: 14px;"><t t-out="object.admin_login or 'admin'"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 0; color: #666;"><strong>Password:</strong></td>
+                            <td style="padding: 8px 0; font-family: monospace; font-size: 14px; background: #f8f9fa; padding-left: 10px;"><t t-out="object.admin_password or ''"/></td>
+                        </tr>
+                    </table>
+                    <p style="color: #856404; margin: 15px 0 0 0; font-size: 13px;">
+                        <strong>Important:</strong> Please save your password securely. We recommend changing it after first login.
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a t-att-href="'https://' + object.subdomain + '.tenants.vedtechsolutions.com/web/login'"
+                       style="background: #714B67; color: white; padding: 12px 30px;
+                              text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Access Your Instance
+                    </a>
+                </div>
+
+                <p style="font-size: 16px; color: #333;">
+                    <strong>Getting Started:</strong>
+                </p>
+                <ol style="color: #555; line-height: 1.8;">
+                    <li>Click the button above to access your instance</li>
+                    <li>Log in with your admin email</li>
+                    <li>Set up your company details</li>
+                    <li>Install the apps you need from the Apps menu</li>
+                </ol>
+
+                <p style="font-size: 14px; color: #666; margin-top: 30px;">
+                    Need help? Visit our <a href="https://vedtechsolutions.com/support" style="color: #714B67;">Support Center</a>
+                    or reply to this email.
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Best regards,<br/>
+                    <strong>The VedTech Solutions Team</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                VedTech Solutions | vedtechsolutions.com<br/>
+                This is an automated message. Please do not reply directly.
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- ET-002: Trial Starting Email -->
+        <record id="mail_template_saas_trial_started" model="mail.template">
+            <field name="name">SaaS: Trial Started</field>
+            <field name="model_id" ref="model_saas_subscription"/>
+            <field name="email_from">noreply@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">Your 14-Day Free Trial Has Started!</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #28a745; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Your Trial Has Started!</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p style="font-size: 16px; color: #333;">Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Welcome to your <strong>14-day free trial</strong> of VedTech Odoo hosting!
+                </p>
+
+                <div style="background: #e8f5e9; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+                    <h2 style="color: #28a745; margin: 0;">14 Days Remaining</h2>
+                    <p style="color: #666; margin: 10px 0 0 0;">Trial ends: <t t-out="object.trial_end_date"/></p>
+                </div>
+
+                <p style="font-size: 16px; color: #333;">
+                    <strong>What's included in your trial:</strong>
+                </p>
+                <ul style="color: #555; line-height: 1.8;">
+                    <li>Full access to Odoo <t t-out="object.instance_id.odoo_version or '19'"/></li>
+                    <li>Up to 3 users</li>
+                    <li>Daily automatic backups</li>
+                    <li>Email support</li>
+                </ul>
+
+                <p style="font-size: 16px; color: #333;">
+                    Access your instance anytime at:<br/>
+                    <a href="https://{{ object.instance_id.subdomain }}.tenants.vedtechsolutions.com"
+                       style="color: #714B67; font-weight: bold;">
+                        https://<t t-out="object.instance_id.subdomain"/>.tenants.vedtechsolutions.com
+                    </a>
+                </p>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://vedtechsolutions.com/shop"
+                       style="background: #714B67; color: white; padding: 12px 30px;
+                              text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        View Upgrade Options
+                    </a>
+                </div>
+
+                <p style="font-size: 14px; color: #666;">
+                    Ready to continue after the trial? Upgrade anytime to keep your data and configuration.
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Best regards,<br/>
+                    <strong>The VedTech Solutions Team</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                VedTech Solutions | vedtechsolutions.com
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- ET-003: Trial Ending Soon (7 days) -->
+        <record id="mail_template_saas_trial_ending_7days" model="mail.template">
+            <field name="name">SaaS: Trial Ending in 7 Days</field>
+            <field name="model_id" ref="model_saas_subscription"/>
+            <field name="email_from">noreply@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">Your Trial Ends in 7 Days - Upgrade Now to Keep Your Data</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #ffc107; padding: 20px; text-align: center;">
+                <h1 style="color: #333; margin: 0;">7 Days Left in Your Trial</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p style="font-size: 16px; color: #333;">Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Your free trial of VedTech Odoo hosting will end in <strong>7 days</strong>.
+                </p>
+
+                <div style="background: #fff3cd; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+                    <h2 style="color: #856404; margin: 0;">Trial Expires: <t t-out="object.trial_end_date"/></h2>
+                </div>
+
+                <p style="font-size: 16px; color: #333;">
+                    <strong>Don't lose your work!</strong> Upgrade now to:
+                </p>
+                <ul style="color: #555; line-height: 1.8;">
+                    <li>Keep all your data, configurations, and customizations</li>
+                    <li>Continue using your instance without interruption</li>
+                    <li>Get more users, storage, and premium support</li>
+                </ul>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://vedtechsolutions.com/shop"
+                       style="background: #714B67; color: white; padding: 15px 40px;
+                              text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">
+                        Upgrade Now
+                    </a>
+                </div>
+
+                <p style="font-size: 14px; color: #666;">
+                    Questions about which plan is right for you?
+                    <a href="https://vedtechsolutions.com/contact" style="color: #714B67;">Contact our team</a>
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Best regards,<br/>
+                    <strong>The VedTech Solutions Team</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                VedTech Solutions | vedtechsolutions.com
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- ET-004: Trial Ending Soon (1 day) -->
+        <record id="mail_template_saas_trial_ending_1day" model="mail.template">
+            <field name="name">SaaS: Trial Ending Tomorrow</field>
+            <field name="model_id" ref="model_saas_subscription"/>
+            <field name="email_from">noreply@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">URGENT: Your Trial Ends Tomorrow - Don't Lose Your Data!</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #dc3545; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Your Trial Ends Tomorrow!</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p style="font-size: 16px; color: #333;">Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+
+                <p style="font-size: 16px; color: #333;">
+                    <strong>This is your final reminder.</strong> Your free trial expires <strong>tomorrow</strong>.
+                </p>
+
+                <div style="background: #f8d7da; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; border: 2px solid #dc3545;">
+                    <h2 style="color: #721c24; margin: 0;">Last Day: <t t-out="object.trial_end_date"/></h2>
+                    <p style="color: #721c24; margin: 10px 0 0 0; font-weight: bold;">
+                        Your instance will be suspended after this date
+                    </p>
+                </div>
+
+                <p style="font-size: 16px; color: #333;">
+                    <strong>What happens if you don't upgrade:</strong>
+                </p>
+                <ul style="color: #dc3545; line-height: 1.8;">
+                    <li>Your instance will be suspended</li>
+                    <li>You won't be able to access your data</li>
+                    <li>After 7 days, your instance will be permanently deleted</li>
+                </ul>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://vedtechsolutions.com/shop"
+                       style="background: #dc3545; color: white; padding: 15px 40px;
+                              text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">
+                        Upgrade Now - Save Your Data
+                    </a>
+                </div>
+
+                <p style="font-size: 14px; color: #666;">
+                    Upgrade takes less than 2 minutes and your service continues uninterrupted.
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Best regards,<br/>
+                    <strong>The VedTech Solutions Team</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                VedTech Solutions | vedtechsolutions.com
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- ET-005: Trial Expired -->
+        <record id="mail_template_saas_trial_expired" model="mail.template">
+            <field name="name">SaaS: Trial Expired</field>
+            <field name="model_id" ref="model_saas_subscription"/>
+            <field name="email_from">noreply@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="subject">Your Trial Has Expired - Instance Suspended</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #6c757d; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Your Trial Has Expired</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p style="font-size: 16px; color: #333;">Dear <t t-out="object.partner_id.name or 'Valued Customer'"/>,</p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Your 14-day free trial has ended and your instance has been <strong>suspended</strong>.
+                </p>
+
+                <div style="background: #e2e3e5; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+                    <h2 style="color: #383d41; margin: 0;">Instance Status: Suspended</h2>
+                    <p style="color: #666; margin: 10px 0 0 0;">
+                        Your data is safe but you cannot access it until you upgrade.
+                    </p>
+                </div>
+
+                <p style="font-size: 16px; color: #333;">
+                    <strong>Good news:</strong> Your data is still available! Upgrade now to restore access:
+                </p>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://vedtechsolutions.com/shop"
+                       style="background: #28a745; color: white; padding: 15px 40px;
+                              text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">
+                        Upgrade &amp; Restore Access
+                    </a>
+                </div>
+
+                <div style="background: #fff3cd; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                    <p style="color: #856404; margin: 0; font-weight: bold;">
+                        Important: Your instance will be permanently deleted in 7 days if not upgraded.
+                    </p>
+                </div>
+
+                <p style="font-size: 14px; color: #666;">
+                    If you've decided not to continue, we'd love to hear your feedback.
+                    <a href="https://vedtechsolutions.com/feedback" style="color: #714B67;">Tell us why</a>
+                </p>
+
+                <p style="font-size: 16px; color: #333;">
+                    Best regards,<br/>
+                    <strong>The VedTech Solutions Team</strong>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #666;">
+                VedTech Solutions | vedtechsolutions.com
+            </td>
+        </tr>
+    </table>
+</div>
+            </field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

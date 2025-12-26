@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BILLING SECURITY GROUPS ==================== -->
+
+    <!-- Billing User Group -->
+    <record id="group_saas_billing_user" model="res.groups">
+        <field name="name">SaaS / Billing User</field>
+        <field name="implied_ids" eval="[(4, ref('saas_master.group_saas_user'))]"/>
+    </record>
+
+    <!-- Billing Manager Group -->
+    <record id="group_saas_billing_manager" model="res.groups">
+        <field name="name">SaaS / Billing Manager</field>
+        <field name="implied_ids" eval="[(4, ref('group_saas_billing_user'))]"/>
+    </record>
+
+    <!-- Admin gets billing manager access -->
+    <record id="saas_master.group_saas_admin" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_saas_billing_manager'))]"/>
+    </record>
+
+    <!-- ==================== RECORD RULES ==================== -->
+
+    <!-- Billing Transaction Rules -->
+    <record id="billing_transaction_rule_user" model="ir.rule">
+        <field name="name">Billing Transaction: User can view all</field>
+        <field name="model_id" ref="model_saas_billing_transaction"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_saas_billing_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="billing_transaction_rule_manager" model="ir.rule">
+        <field name="name">Billing Transaction: Manager full access</field>
+        <field name="model_id" ref="model_saas_billing_transaction"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_saas_billing_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Customer Credit Rules -->
+    <record id="customer_credit_rule_user" model="ir.rule">
+        <field name="name">Customer Credit: User can view all</field>
+        <field name="model_id" ref="model_saas_customer_credit"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_saas_billing_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="customer_credit_rule_manager" model="ir.rule">
+        <field name="name">Customer Credit: Manager full access</field>
+        <field name="model_id" ref="model_saas_customer_credit"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_saas_billing_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+</odoo>

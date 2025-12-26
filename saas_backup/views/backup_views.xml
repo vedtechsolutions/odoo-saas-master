@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BACKUP VIEWS ==================== -->
+
+    <!-- Backup Form View -->
+    <record id="saas_backup_view_form" model="ir.ui.view">
+        <field name="name">saas.backup.form</field>
+        <field name="model">saas.backup</field>
+        <field name="arch" type="xml">
+            <form string="Backup">
+                <header>
+                    <button name="action_start_backup" string="Start Backup" type="object"
+                            class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_verify" string="Verify" type="object"
+                            class="btn-secondary" invisible="state != 'completed' or is_verified"/>
+                    <button name="action_restore" string="Restore" type="object"
+                            class="btn-warning" invisible="state != 'completed'"/>
+                    <button name="action_download" string="Download" type="object"
+                            class="btn-secondary" invisible="state != 'completed'"/>
+                    <button name="action_delete_backup" string="Delete Files" type="object"
+                            class="btn-danger" invisible="state not in ('completed', 'expired')"
+                            confirm="Are you sure you want to delete the backup files? This cannot be undone."/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-check-circle"
+                                invisible="not is_verified">
+                            <field name="is_verified" widget="boolean" string="Verified"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-lock"
+                                invisible="not is_encrypted">
+                            <field name="is_encrypted" widget="boolean" string="Encrypted"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="reference"/>
+                        <h1><field name="reference" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Backup Configuration">
+                            <field name="instance_id" readonly="state != 'pending'"/>
+                            <field name="backup_type" readonly="state != 'pending'"/>
+                            <field name="storage_type" readonly="state != 'pending'"
+                                   widget="radio" options="{'horizontal': true}"/>
+                            <field name="trigger" readonly="1"/>
+                            <field name="schedule_id" invisible="not schedule_id"/>
+                        </group>
+                        <group string="Backup Info">
+                            <field name="size_display" string="Size" invisible="state == 'pending'"/>
+                            <field name="expires_at" invisible="state == 'pending'"/>
+                        </group>
+                    </group>
+                    <group string="Timing">
+                        <group>
+                            <field name="started_at"/>
+                            <field name="completed_at"/>
+                        </group>
+                        <group>
+                            <field name="duration" widget="float_time"/>
+                        </group>
+                    </group>
+                    <group string="Storage Details" invisible="state != 'completed'">
+                        <group>
+                            <field name="storage_path"/>
+                            <field name="database_size"/>
+                            <field name="filestore_size"/>
+                        </group>
+                        <group>
+                            <field name="checksum"/>
+                            <field name="verified_at"/>
+                        </group>
+                    </group>
+                    <group string="Restore History" invisible="restore_count == 0">
+                        <group>
+                            <field name="restore_count"/>
+                            <field name="last_restored_at"/>
+                        </group>
+                    </group>
+                    <group string="Error Details" invisible="state != 'failed'">
+                        <field name="error_message" nolabel="1"/>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Notes..."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Backup List View -->
+    <record id="saas_backup_view_list" model="ir.ui.view">
+        <field name="name">saas.backup.list</field>
+        <field name="model">saas.backup</field>
+        <field name="arch" type="xml">
+            <list string="Backups" decoration-danger="state == 'failed'" decoration-muted="state in ('expired', 'deleted')">
+                <field name="create_date" string="Created"/>
+                <field name="reference"/>
+                <field name="instance_subdomain" string="Instance"/>
+                <field name="backup_type"/>
+                <field name="storage_type" widget="badge"
+                       decoration-info="storage_type == 's3'"
+                       decoration-warning="storage_type == 'local'"/>
+                <field name="trigger"/>
+                <field name="size_display" string="Size"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'pending'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'completed'"
+                       decoration-danger="state == 'failed'"
+                       decoration-muted="state in ('expired', 'deleted')"/>
+                <field name="is_verified" widget="boolean"/>
+                <field name="is_encrypted" widget="boolean"/>
+                <field name="expires_at"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Backup Search View -->
+    <record id="saas_backup_view_search" model="ir.ui.view">
+        <field name="name">saas.backup.search</field>
+        <field name="model">saas.backup</field>
+        <field name="arch" type="xml">
+            <search string="Backups">
+                <field name="reference"/>
+                <field name="instance_id"/>
+                <field name="instance_subdomain"/>
+                <separator/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="completed" string="Completed" domain="[('state', '=', 'completed')]"/>
+                <filter name="failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <filter name="expired" string="Expired" domain="[('state', '=', 'expired')]"/>
+                <separator/>
+                <filter name="verified" string="Verified" domain="[('is_verified', '=', True)]"/>
+                <filter name="not_verified" string="Not Verified" domain="[('is_verified', '=', False), ('state', '=', 'completed')]"/>
+                <separator/>
+                <filter name="scheduled" string="Scheduled" domain="[('trigger', '=', 'scheduled')]"/>
+                <filter name="manual" string="Manual" domain="[('trigger', '=', 'manual')]"/>
+                <separator/>
+                <filter name="storage_s3" string="S3 Storage" domain="[('storage_type', '=', 's3')]"/>
+                <filter name="storage_local" string="Local Storage" domain="[('storage_type', '=', 'local')]"/>
+                <separator/>
+                <filter name="today" string="Today" domain="[('create_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <filter name="this_week" string="This Week" domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)))]"/>
+                <separator/>
+                <filter name="group_instance" string="Instance" context="{'group_by': 'instance_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                <filter name="group_trigger" string="Trigger" context="{'group_by': 'trigger'}"/>
+                <filter name="group_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Backup Actions -->
+    <record id="saas_backup_action" model="ir.actions.act_window">
+        <field name="name">Backups</field>
+        <field name="res_model">saas.backup</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_this_week': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No backups yet
+            </p>
+            <p>
+                Backups are created automatically via schedules or manually from instances.
+            </p>
+        </field>
+    </record>
+
+    <record id="saas_backup_action_completed" model="ir.actions.act_window">
+        <field name="name">Completed Backups</field>
+        <field name="res_model">saas.backup</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'completed')]</field>
+    </record>
+
+    <record id="saas_backup_action_failed" model="ir.actions.act_window">
+        <field name="name">Failed Backups</field>
+        <field name="res_model">saas.backup</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', '=', 'failed')]</field>
+    </record>
+
+</odoo>

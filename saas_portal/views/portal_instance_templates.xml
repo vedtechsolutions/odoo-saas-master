@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== INSTANCES LIST ==================== -->
+
+    <template id="portal_my_instances" name="My Instances">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Instances</t>
+            </t>
+
+            <t t-if="not instances">
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-0">
+                        <strong>No instances found.</strong>
+                        You don't have any SaaS instances yet.
+                    </p>
+                </div>
+            </t>
+
+            <t t-if="instances">
+                <div class="row">
+                    <t t-foreach="instances" t-as="instance">
+                        <div class="col-lg-6 col-12 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        <a t-attf-href="/my/instances/#{instance.id}">
+                                            <t t-out="instance.name"/>
+                                        </a>
+                                    </h5>
+                                    <span t-attf-class="badge #{
+                                        'text-bg-success' if instance.state == 'running' else
+                                        'text-bg-secondary' if instance.state == 'stopped' else
+                                        'text-bg-warning' if instance.state == 'suspended' else
+                                        'text-bg-danger' if instance.state == 'error' else
+                                        'text-bg-info'
+                                    }">
+                                        <t t-out="instance.state.capitalize()"/>
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">
+                                        <strong>URL:</strong>
+                                        <a t-if="instance.state == 'running'"
+                                           t-attf-href="https://#{instance.full_domain}"
+                                           target="_blank" class="text-primary">
+                                            <t t-out="instance.full_domain"/>
+                                            <i class="fa fa-external-link ms-1" title="Open instance"/>
+                                        </a>
+                                        <span t-else="" class="text-muted">
+                                            <t t-out="instance.full_domain"/>
+                                        </span>
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Plan:</strong>
+                                        <t t-out="instance.plan_id.name"/>
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>Odoo Version:</strong>
+                                        <t t-out="instance.odoo_version"/>
+                                    </p>
+                                </div>
+                                <div class="card-footer">
+                                    <a t-attf-href="/my/instances/#{instance.id}"
+                                       class="btn btn-sm btn-primary">
+                                        View Details
+                                    </a>
+                                    <a t-if="instance.state == 'running'"
+                                       t-attf-href="https://#{instance.full_domain}"
+                                       target="_blank"
+                                       class="btn btn-sm btn-success">
+                                        <i class="fa fa-external-link me-1" title="Open"/>
+                                        Open Instance
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <div t-if="pager" class="o_portal_pager text-center mt-4">
+                    <t t-call="portal.pager"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- ==================== INSTANCE DETAIL ==================== -->
+
+    <template id="portal_my_instance" name="Instance Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
+
+            <div class="row mt-4">
+                <div class="col-lg-8 col-12">
+                    <!-- Instance Header -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">
+                                <t t-out="instance.name"/>
+                            </h4>
+                            <span t-attf-class="badge fs-6 #{
+                                'text-bg-success' if instance.state == 'running' else
+                                'text-bg-secondary' if instance.state == 'stopped' else
+                                'text-bg-warning' if instance.state == 'suspended' else
+                                'text-bg-danger' if instance.state == 'error' else
+                                'text-bg-info'
+                            }">
+                                <t t-out="instance.state.capitalize()"/>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Instance Details</h6>
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Subdomain</strong></td>
+                                            <td><t t-out="instance.subdomain"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Full URL</strong></td>
+                                            <td>
+                                                <a t-if="instance.state == 'running'"
+                                                   t-attf-href="https://#{instance.full_domain}"
+                                                   target="_blank">
+                                                    <t t-out="instance.full_domain"/>
+                                                    <i class="fa fa-external-link ms-1" title="Open"/>
+                                                </a>
+                                                <span t-else="">
+                                                    <t t-out="instance.full_domain"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Odoo Version</strong></td>
+                                            <td><t t-out="instance.odoo_version"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Created</strong></td>
+                                            <td><t t-out="instance.create_date" t-options='{"widget": "datetime"}'/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Plan: <t t-out="instance.plan_id.name"/></h6>
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>CPU</strong></td>
+                                            <td><t t-out="instance.plan_id.cpu_limit"/> cores</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>RAM</strong></td>
+                                            <td><t t-out="instance.plan_id.ram_limit_mb"/> MB</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Database Storage</strong></td>
+                                            <td><t t-out="instance.plan_id.storage_db_limit_gb"/> GB</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>File Storage</strong></td>
+                                            <td><t t-out="instance.plan_id.storage_file_limit_gb"/> GB</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>User Limit</strong></td>
+                                            <td><t t-out="instance.plan_id.user_limit"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instance Actions -->
+                    <div class="card mb-4" t-if="instance.state in ['running', 'stopped']">
+                        <div class="card-header">
+                            <h5 class="mb-0">Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a t-if="instance.state == 'running'"
+                                   t-attf-href="https://#{instance.full_domain}"
+                                   target="_blank"
+                                   class="btn btn-success">
+                                    <i class="fa fa-external-link me-1" title="Open"/>
+                                    Open Instance
+                                </a>
+                                <a t-if="instance.state == 'stopped'"
+                                   t-attf-href="/my/instances/#{instance.id}/action/start"
+                                   class="btn btn-success">
+                                    <i class="fa fa-play me-1" title="Start"/>
+                                    Start Instance
+                                </a>
+                                <a t-if="instance.state == 'running'"
+                                   t-attf-href="/my/instances/#{instance.id}/action/stop"
+                                   class="btn btn-warning"
+                                   onclick="return confirm('Are you sure you want to stop this instance?');">
+                                    <i class="fa fa-stop me-1" title="Stop"/>
+                                    Stop Instance
+                                </a>
+                                <a t-if="instance.state == 'running'"
+                                   t-attf-href="/my/instances/#{instance.id}/action/restart"
+                                   class="btn btn-info">
+                                    <i class="fa fa-refresh me-1" title="Restart"/>
+                                    Restart Instance
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resource Usage -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Resource Usage</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- CPU Usage -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <i class="fa fa-microchip me-1" title="CPU"/>
+                                        CPU Usage
+                                    </label>
+                                    <div class="progress" style="height: 20px;">
+                                        <div t-attf-class="progress-bar #{
+                                            'bg-success' if instance.cpu_usage_percent &lt; 70 else
+                                            'bg-warning' if instance.cpu_usage_percent &lt; 90 else
+                                            'bg-danger'
+                                        }" role="progressbar"
+                                             t-attf-style="width: #{min(instance.cpu_usage_percent or 0, 100)}%"
+                                             t-att-aria-valuenow="instance.cpu_usage_percent or 0"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            <t t-out="'%.1f' % (instance.cpu_usage_percent or 0)"/>%
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        <t t-out="'%.1f' % (instance.cpu_usage_percent or 0)"/>% of
+                                        <t t-out="instance.plan_id.cpu_limit"/> cores
+                                    </small>
+                                </div>
+                                <!-- RAM Usage -->
+                                <div class="col-md-6 mb-3">
+                                    <t t-set="ram_percent" t-value="(instance.ram_usage_mb or 0) / (instance.plan_id.ram_limit_mb or 1) * 100"/>
+                                    <label class="form-label">
+                                        <i class="fa fa-memory me-1" title="RAM"/>
+                                        RAM Usage
+                                    </label>
+                                    <div class="progress" style="height: 20px;">
+                                        <div t-attf-class="progress-bar #{
+                                            'bg-success' if ram_percent &lt; 70 else
+                                            'bg-warning' if ram_percent &lt; 90 else
+                                            'bg-danger'
+                                        }" role="progressbar"
+                                             t-attf-style="width: #{min(ram_percent, 100)}%"
+                                             t-att-aria-valuenow="ram_percent"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            <t t-out="'%.1f' % ram_percent"/>%
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        <t t-out="'%.0f' % (instance.ram_usage_mb or 0)"/> MB of
+                                        <t t-out="instance.plan_id.ram_limit_mb"/> MB
+                                    </small>
+                                </div>
+                                <!-- Database Storage -->
+                                <div class="col-md-6 mb-3">
+                                    <t t-set="db_percent" t-value="(instance.storage_db_gb or 0) / (instance.plan_id.storage_db_limit_gb or 1) * 100"/>
+                                    <label class="form-label">
+                                        <i class="fa fa-database me-1" title="Database"/>
+                                        Database Storage
+                                    </label>
+                                    <div class="progress" style="height: 20px;">
+                                        <div t-attf-class="progress-bar #{
+                                            'bg-success' if db_percent &lt; 70 else
+                                            'bg-warning' if db_percent &lt; 90 else
+                                            'bg-danger'
+                                        }" role="progressbar"
+                                             t-attf-style="width: #{min(db_percent, 100)}%"
+                                             t-att-aria-valuenow="db_percent"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            <t t-out="'%.1f' % db_percent"/>%
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        <t t-out="'%.2f' % (instance.storage_db_gb or 0)"/> GB of
+                                        <t t-out="instance.plan_id.storage_db_limit_gb"/> GB
+                                    </small>
+                                </div>
+                                <!-- File Storage -->
+                                <div class="col-md-6 mb-3">
+                                    <t t-set="file_percent" t-value="(instance.storage_file_gb or 0) / (instance.plan_id.storage_file_limit_gb or 1) * 100"/>
+                                    <label class="form-label">
+                                        <i class="fa fa-folder me-1" title="Files"/>
+                                        File Storage
+                                    </label>
+                                    <div class="progress" style="height: 20px;">
+                                        <div t-attf-class="progress-bar #{
+                                            'bg-success' if file_percent &lt; 70 else
+                                            'bg-warning' if file_percent &lt; 90 else
+                                            'bg-danger'
+                                        }" role="progressbar"
+                                             t-attf-style="width: #{min(file_percent, 100)}%"
+                                             t-att-aria-valuenow="file_percent"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            <t t-out="'%.1f' % file_percent"/>%
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        <t t-out="'%.2f' % (instance.storage_file_gb or 0)"/> GB of
+                                        <t t-out="instance.plan_id.storage_file_limit_gb"/> GB
+                                    </small>
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-0 mt-2">
+                                <i class="fa fa-info-circle me-1" title="Info"/>
+                                Usage data is updated every 5 minutes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Status Message -->
+                    <div t-if="instance.status_message" class="alert alert-info">
+                        <strong>Status:</strong> <t t-out="instance.status_message"/>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4 col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Links</h5>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <a href="/my/instances" class="list-group-item list-group-item-action">
+                                <i class="fa fa-arrow-left me-2" title="Back"/>
+                                Back to Instances
+                            </a>
+                            <a t-attf-href="/my/instances/#{instance.id}/backups" class="list-group-item list-group-item-action">
+                                <i class="fa fa-database me-2" title="Backups"/>
+                                View Backups
+                            </a>
+                            <a href="/my/subscriptions" class="list-group-item list-group-item-action">
+                                <i class="fa fa-credit-card me-2" title="Subscriptions"/>
+                                My Subscriptions
+                            </a>
+                            <a href="/my/tickets/new" class="list-group-item list-group-item-action">
+                                <i class="fa fa-life-ring me-2" title="Support"/>
+                                Get Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== MONITORING MENU (under SaaS Platform) ==================== -->
+
+    <!-- Monitoring submenu under SaaS Platform -->
+    <menuitem id="menu_saas_monitoring"
+              name="Monitoring"
+              parent="saas_master.menu_saas_root"
+              sequence="50"/>
+
+    <!-- Alerts -->
+    <menuitem id="menu_monitoring_alerts"
+              name="Alerts"
+              parent="menu_saas_monitoring"
+              action="saas_alert_action_active"
+              sequence="10"/>
+
+    <!-- Critical Alerts -->
+    <menuitem id="menu_monitoring_alerts_critical"
+              name="Critical Alerts"
+              parent="menu_saas_monitoring"
+              action="saas_alert_action_critical"
+              sequence="15"/>
+
+    <!-- Usage Metrics -->
+    <menuitem id="menu_monitoring_metrics"
+              name="Usage Metrics"
+              parent="menu_saas_monitoring"
+              action="saas_usage_metric_action"
+              sequence="20"/>
+
+    <!-- Metric Issues -->
+    <menuitem id="menu_monitoring_issues"
+              name="Metric Issues"
+              parent="menu_saas_monitoring"
+              action="saas_usage_metric_action_issues"
+              sequence="25"/>
+
+    <!-- Usage History -->
+    <menuitem id="menu_monitoring_history"
+              name="Usage History"
+              parent="menu_saas_monitoring"
+              action="saas_usage_log_action"
+              sequence="30"/>
+
+    <!-- All Alerts (historical) -->
+    <menuitem id="menu_monitoring_alerts_all"
+              name="All Alerts"
+              parent="menu_saas_monitoring"
+              action="saas_alert_action"
+              sequence="40"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_monitoring_config"
+              name="Configuration"
+              parent="menu_saas_monitoring"
+              groups="saas_master.group_saas_admin"
+              sequence="90"/>
+
+    <menuitem id="menu_monitoring_metric_types"
+              name="Metric Types"
+              parent="menu_monitoring_config"
+              action="saas_metric_type_action"
+              sequence="10"/>
+
+</odoo>

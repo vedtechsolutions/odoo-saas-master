@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== SUBSCRIPTION BILLING EXTENSION ==================== -->
+
+    <!-- Extend Subscription Form with Billing -->
+    <record id="saas_subscription_view_form_billing" model="ir.ui.view">
+        <field name="name">saas.subscription.form.billing</field>
+        <field name="model">saas.subscription</field>
+        <field name="inherit_id" ref="saas_subscription.saas_subscription_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add billing stats to button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_invoices" type="object"
+                        class="oe_stat_button" icon="fa-file-text-o">
+                    <field name="invoice_count" widget="statinfo" string="Invoices"/>
+                </button>
+                <button name="action_view_transactions" type="object"
+                        class="oe_stat_button" icon="fa-credit-card">
+                    <span class="o_stat_text">Transactions</span>
+                </button>
+            </xpath>
+
+            <!-- Add MRR/ARR fields -->
+            <xpath expr="//field[@name='recurring_price']" position="after">
+                <field name="mrr"/>
+                <field name="arr"/>
+            </xpath>
+
+            <!-- Add billing actions -->
+            <xpath expr="//header/button[@name='action_cancel']" position="after">
+                <button name="action_create_invoice" string="Create Invoice" type="object"
+                        class="btn-secondary" invisible="state != 'active'"/>
+                <button name="action_change_plan" string="Change Plan" type="object"
+                        class="btn-secondary" invisible="state not in ('active', 'trial')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add Billing tab to subscription -->
+    <record id="saas_subscription_view_form_billing_tab" model="ir.ui.view">
+        <field name="name">saas.subscription.form.billing.tab</field>
+        <field name="model">saas.subscription</field>
+        <field name="inherit_id" ref="saas_subscription.saas_subscription_view_form"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Billing" name="billing">
+                    <group>
+                        <group string="Revenue">
+                            <field name="total_invoiced"/>
+                            <field name="total_paid"/>
+                            <field name="outstanding_amount"/>
+                        </group>
+                        <group string="Analytics">
+                            <field name="mrr"/>
+                            <field name="arr"/>
+                        </group>
+                    </group>
+                    <group string="Recent Invoices">
+                        <field name="invoice_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="name"/>
+                                <field name="invoice_date"/>
+                                <field name="amount_total"/>
+                                <field name="amount_residual"/>
+                                <field name="payment_state" widget="badge"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Recent Transactions">
+                        <field name="transaction_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="reference"/>
+                                <field name="create_date"/>
+                                <field name="amount"/>
+                                <field name="state" widget="badge"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Subscription List - Add billing columns -->
+    <record id="saas_subscription_view_list_billing" model="ir.ui.view">
+        <field name="name">saas.subscription.list.billing</field>
+        <field name="model">saas.subscription</field>
+        <field name="inherit_id" ref="saas_subscription.saas_subscription_view_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='recurring_price']" position="after">
+                <field name="mrr" optional="show" sum="Total MRR"/>
+                <field name="outstanding_amount" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ==================== MRR REPORT VIEWS ==================== -->
+
+    <!-- MRR Report List View -->
+    <record id="saas_mrr_report_view_list" model="ir.ui.view">
+        <field name="name">saas.mrr.report.list</field>
+        <field name="model">saas.mrr.report</field>
+        <field name="arch" type="xml">
+            <list string="MRR Report" create="false" edit="false" delete="false">
+                <field name="subscription_id"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <field name="billing_cycle"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-warning="state in ('trial', 'past_due')"
+                       decoration-danger="state in ('suspended', 'cancelled')"
+                       decoration-muted="state == 'expired'"/>
+                <field name="mrr" sum="Total MRR"/>
+                <field name="arr" sum="Total ARR"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- MRR Report Pivot View -->
+    <record id="saas_mrr_report_view_pivot" model="ir.ui.view">
+        <field name="name">saas.mrr.report.pivot</field>
+        <field name="model">saas.mrr.report</field>
+        <field name="arch" type="xml">
+            <pivot string="MRR Analysis">
+                <field name="plan_id" type="row"/>
+                <field name="billing_cycle" type="col"/>
+                <field name="mrr" type="measure"/>
+                <field name="arr" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- MRR Report Graph View -->
+    <record id="saas_mrr_report_view_graph" model="ir.ui.view">
+        <field name="name">saas.mrr.report.graph</field>
+        <field name="model">saas.mrr.report</field>
+        <field name="arch" type="xml">
+            <graph string="MRR by Plan" type="pie">
+                <field name="plan_id" type="row"/>
+                <field name="mrr" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- MRR Report Search View -->
+    <record id="saas_mrr_report_view_search" model="ir.ui.view">
+        <field name="name">saas.mrr.report.search</field>
+        <field name="model">saas.mrr.report</field>
+        <field name="arch" type="xml">
+            <search string="MRR Report">
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <separator/>
+                <filter name="active" string="Active Only" domain="[('state', 'in', ['active', 'past_due'])]"/>
+                <filter name="monthly" string="Monthly" domain="[('billing_cycle', '=', 'monthly')]"/>
+                <filter name="yearly" string="Yearly" domain="[('billing_cycle', '=', 'yearly')]"/>
+                <separator/>
+                <filter name="group_plan" string="Plan" context="{'group_by': 'plan_id'}"/>
+                <filter name="group_cycle" string="Billing Cycle" context="{'group_by': 'billing_cycle'}"/>
+                <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- MRR Report Action -->
+    <record id="saas_mrr_report_action" model="ir.actions.act_window">
+        <field name="name">MRR/ARR Report</field>
+        <field name="res_model">saas.mrr.report</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No active subscriptions for MRR calculation
+            </p>
+        </field>
+    </record>
+
+</odoo>

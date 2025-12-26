@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== PORTAL HOME COUNTERS ==================== -->
+
+    <!-- Add SaaS counters to portal home -->
+    <template id="portal_my_home_saas" name="Show SaaS Services"
+              inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <!-- Instances -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">My Instances</t>
+                <t t-set="url" t-value="'/my/instances'"/>
+                <t t-set="text">Cloud server instances</t>
+                <t t-set="placeholder_count" t-value="'instance_count'"/>
+                <t t-set="icon" t-value="'/saas_portal/static/src/img/instances.svg'"/>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+
+            <!-- Subscriptions -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">My Subscriptions</t>
+                <t t-set="url" t-value="'/my/subscriptions'"/>
+                <t t-set="text">Active subscriptions</t>
+                <t t-set="placeholder_count" t-value="'subscription_count'"/>
+                <t t-set="icon" t-value="'/saas_portal/static/src/img/subscriptions.svg'"/>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+
+            <!-- Tickets - always show -->
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Support Tickets</t>
+                <t t-set="url" t-value="'/my/tickets'"/>
+                <t t-set="text">Get help from our team</t>
+                <t t-set="placeholder_count" t-value="'ticket_count'"/>
+                <t t-set="icon" t-value="'/saas_portal/static/src/img/tickets.svg'"/>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Simpler approach: Add links in portal sidebar -->
+    <template id="portal_my_home_menu_saas" name="SaaS Portal Menu"
+              inherit_id="portal.portal_breadcrumbs" priority="30">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'instances'" class="breadcrumb-item active">
+                Instances
+            </li>
+            <li t-if="page_name == 'instance'" class="breadcrumb-item">
+                <a href="/my/instances">Instances</a>
+            </li>
+            <li t-if="page_name == 'instance'" class="breadcrumb-item active">
+                <t t-out="instance.subdomain"/>
+            </li>
+            <li t-if="page_name == 'subscriptions'" class="breadcrumb-item active">
+                Subscriptions
+            </li>
+            <li t-if="page_name == 'subscription'" class="breadcrumb-item">
+                <a href="/my/subscriptions">Subscriptions</a>
+            </li>
+            <li t-if="page_name == 'subscription'" class="breadcrumb-item active">
+                <t t-out="subscription.reference"/>
+            </li>
+            <li t-if="page_name == 'tickets'" class="breadcrumb-item active">
+                Support Tickets
+            </li>
+            <li t-if="page_name == 'ticket'" class="breadcrumb-item">
+                <a href="/my/tickets">Support Tickets</a>
+            </li>
+            <li t-if="page_name == 'ticket'" class="breadcrumb-item active">
+                <t t-out="ticket.reference"/>
+            </li>
+            <li t-if="page_name == 'new_ticket'" class="breadcrumb-item">
+                <a href="/my/tickets">Support Tickets</a>
+            </li>
+            <li t-if="page_name == 'new_ticket'" class="breadcrumb-item active">
+                New Ticket
+            </li>
+        </xpath>
+    </template>
+
+</odoo>

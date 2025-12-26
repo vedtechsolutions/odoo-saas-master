@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" fill="none">
+  <defs>
+    <linearGradient id="iconGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066CC"/>
+      <stop offset="100%" style="stop-color:#004C99"/>
+    </linearGradient>
+    <linearGradient id="iconGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+    <linearGradient id="iconGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <linearGradient id="iconGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon 1: Rocket (Fast Deployment) -->
+  <g id="icon-rocket" transform="translate(20, 20)">
+    <circle cx="60" cy="60" r="55" fill="#e0f2fe"/>
+    <circle cx="60" cy="60" r="45" fill="url(#iconGrad1)" opacity="0.1"/>
+    <!-- Rocket body -->
+    <path d="M60 25 L75 55 L75 85 L60 95 L45 85 L45 55 Z" fill="url(#iconGrad1)"/>
+    <!-- Rocket window -->
+    <circle cx="60" cy="55" r="8" fill="white"/>
+    <circle cx="60" cy="55" r="5" fill="#0066CC" opacity="0.3"/>
+    <!-- Flames -->
+    <path d="M52 95 L60 115 L68 95" fill="#f59e0b"/>
+    <path d="M55 95 L60 108 L65 95" fill="#fbbf24"/>
+    <!-- Wings -->
+    <path d="M45 70 L30 85 L45 85 Z" fill="url(#iconGrad1)"/>
+    <path d="M75 70 L90 85 L75 85 Z" fill="url(#iconGrad1)"/>
+  </g>
+
+  <!-- Icon 2: Shield (Security) -->
+  <g id="icon-shield" transform="translate(160, 20)">
+    <circle cx="60" cy="60" r="55" fill="#dcfce7"/>
+    <circle cx="60" cy="60" r="45" fill="url(#iconGrad2)" opacity="0.1"/>
+    <!-- Shield shape -->
+    <path d="M60 25 L90 40 L90 70 C90 90 75 105 60 110 C45 105 30 90 30 70 L30 40 Z" fill="url(#iconGrad2)"/>
+    <!-- Checkmark -->
+    <path d="M45 60 L55 70 L75 50" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Icon 3: Clock (Uptime) -->
+  <g id="icon-clock" transform="translate(300, 20)">
+    <circle cx="60" cy="60" r="55" fill="#fef3c7"/>
+    <circle cx="60" cy="60" r="45" fill="url(#iconGrad3)" opacity="0.1"/>
+    <!-- Clock face -->
+    <circle cx="60" cy="60" r="35" fill="url(#iconGrad3)"/>
+    <circle cx="60" cy="60" r="28" fill="white"/>
+    <!-- Clock hands -->
+    <line x1="60" y1="60" x2="60" y2="40" stroke="#d97706" stroke-width="4" stroke-linecap="round"/>
+    <line x1="60" y1="60" x2="75" y2="60" stroke="#d97706" stroke-width="3" stroke-linecap="round"/>
+    <!-- Center dot -->
+    <circle cx="60" cy="60" r="4" fill="#d97706"/>
+    <!-- Hour markers -->
+    <circle cx="60" cy="35" r="2" fill="#d97706"/>
+    <circle cx="85" cy="60" r="2" fill="#d97706"/>
+    <circle cx="60" cy="85" r="2" fill="#d97706"/>
+    <circle cx="35" cy="60" r="2" fill="#d97706"/>
+  </g>
+
+  <!-- Icon 4: Cloud (Hosting) -->
+  <g id="icon-cloud" transform="translate(440, 20)">
+    <circle cx="60" cy="60" r="55" fill="#ede9fe"/>
+    <circle cx="60" cy="60" r="45" fill="url(#iconGrad4)" opacity="0.1"/>
+    <!-- Cloud shape -->
+    <path d="M35 75 C25 75 20 65 25 55 C25 45 35 40 45 42 C48 32 60 28 72 35 C85 30 98 40 95 55 C102 58 102 72 92 75 Z" fill="url(#iconGrad4)"/>
+    <!-- Upload arrow -->
+    <path d="M60 50 L60 70" stroke="white" stroke-width="4" stroke-linecap="round"/>
+    <path d="M52 58 L60 50 L68 58" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Icon 5: Headset (Support) -->
+  <g id="icon-support" transform="translate(580, 20)">
+    <circle cx="60" cy="60" r="55" fill="#e0f2fe"/>
+    <circle cx="60" cy="60" r="45" fill="url(#iconGrad1)" opacity="0.1"/>
+    <!-- Headset -->
+    <path d="M30 60 C30 40 43 28 60 28 C77 28 90 40 90 60" stroke="url(#iconGrad1)" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <!-- Left ear -->
+    <rect x="25" y="55" width="12" height="25" rx="6" fill="url(#iconGrad1)"/>
+    <!-- Right ear -->
+    <rect x="83" y="55" width="12" height="25" rx="6" fill="url(#iconGrad1)"/>
+    <!-- Microphone -->
+    <path d="M60 85 L60 95 L70 100" stroke="url(#iconGrad1)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="73" cy="100" r="5" fill="url(#iconGrad1)"/>
+  </g>
+
+  <!-- Icon 6: Chart (Analytics) -->
+  <g id="icon-chart" transform="translate(720, 20)">
+    <circle cx="60" cy="60" r="55" fill="#dcfce7"/>
+    <circle cx="60" cy="60" r="45" fill="url(#iconGrad2)" opacity="0.1"/>
+    <!-- Chart bars -->
+    <rect x="35" y="60" width="12" height="30" rx="3" fill="url(#iconGrad2)"/>
+    <rect x="54" y="45" width="12" height="45" rx="3" fill="url(#iconGrad2)"/>
+    <rect x="73" y="35" width="12" height="55" rx="3" fill="url(#iconGrad2)"/>
+    <!-- Trend line -->
+    <path d="M38 55 L60 40 L79 30" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="79" cy="30" r="4" fill="#16a34a"/>
+  </g>
+</svg>

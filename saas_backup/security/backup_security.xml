@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BACKUP SECURITY GROUPS ==================== -->
+
+    <!-- Backup User - Can view and create backups -->
+    <record id="group_backup_user" model="res.groups">
+        <field name="name">SaaS / Backup User</field>
+        <field name="implied_ids" eval="[(4, ref('saas_master.group_saas_user'))]"/>
+    </record>
+
+    <!-- Backup Manager - Can manage schedules and delete backups -->
+    <record id="group_backup_manager" model="res.groups">
+        <field name="name">SaaS / Backup Manager</field>
+        <field name="implied_ids" eval="[(4, ref('group_backup_user'))]"/>
+    </record>
+
+    <!-- Admin gets backup manager -->
+    <record id="saas_master.group_saas_admin" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_backup_manager'))]"/>
+    </record>
+
+    <!-- ==================== RECORD RULES ==================== -->
+
+    <!-- Backup User: Read all backups -->
+    <record id="backup_rule_user_read" model="ir.rule">
+        <field name="name">Backup User: Read All</field>
+        <field name="model_id" ref="model_saas_backup"/>
+        <field name="groups" eval="[(4, ref('group_backup_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Backup Manager: Full access to backups -->
+    <record id="backup_rule_manager" model="ir.rule">
+        <field name="name">Backup Manager: Full Access</field>
+        <field name="model_id" ref="model_saas_backup"/>
+        <field name="groups" eval="[(4, ref('group_backup_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Schedule User: Read schedules -->
+    <record id="schedule_rule_user_read" model="ir.rule">
+        <field name="name">Schedule User: Read All</field>
+        <field name="model_id" ref="model_saas_backup_schedule"/>
+        <field name="groups" eval="[(4, ref('group_backup_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Schedule Manager: Full access -->
+    <record id="schedule_rule_manager" model="ir.rule">
+        <field name="name">Schedule Manager: Full Access</field>
+        <field name="model_id" ref="model_saas_backup_schedule"/>
+        <field name="groups" eval="[(4, ref('group_backup_manager'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+</odoo>

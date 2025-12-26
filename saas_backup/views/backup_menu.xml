@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BACKUP MENUS ==================== -->
+
+    <!-- Backups submenu under SaaS Platform -->
+    <menuitem id="menu_saas_backup_root"
+              name="Backups"
+              parent="saas_master.menu_saas_root"
+              sequence="60"
+              groups="group_backup_user"/>
+
+    <!-- Backup Records -->
+    <menuitem id="menu_saas_backups"
+              name="All Backups"
+              parent="menu_saas_backup_root"
+              action="saas_backup_action"
+              sequence="10"/>
+
+    <!-- Backup Schedules -->
+    <menuitem id="menu_saas_backup_schedules"
+              name="Schedules"
+              parent="menu_saas_backup_root"
+              action="saas_backup_schedule_action"
+              sequence="20"/>
+
+    <!-- Completed Backups -->
+    <menuitem id="menu_saas_backups_completed"
+              name="Completed"
+              parent="menu_saas_backup_root"
+              action="saas_backup_action_completed"
+              sequence="30"/>
+
+    <!-- Failed Backups -->
+    <menuitem id="menu_saas_backups_failed"
+              name="Failed"
+              parent="menu_saas_backup_root"
+              action="saas_backup_action_failed"
+              sequence="40"/>
+
+</odoo>

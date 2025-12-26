@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== SUBSCRIPTION VIEWS ==================== -->
+
+    <!-- Subscription Form View -->
+    <record id="saas_subscription_view_form" model="ir.ui.view">
+        <field name="name">saas.subscription.form</field>
+        <field name="model">saas.subscription</field>
+        <field name="arch" type="xml">
+            <form string="Subscription">
+                <header>
+                    <button name="action_start_trial" string="Start Trial"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft' or is_trial"/>
+                    <button name="action_activate" string="Activate"
+                            type="object" class="btn-primary"
+                            invisible="state not in ['draft', 'trial']"/>
+                    <button name="action_suspend" string="Suspend"
+                            type="object" class="btn-warning"
+                            invisible="state not in ['active', 'past_due']"/>
+                    <button name="action_reactivate" string="Reactivate"
+                            type="object" class="btn-success"
+                            invisible="state != 'suspended'"/>
+                    <button name="action_cancel" string="Cancel"
+                            type="object" class="btn-danger"
+                            invisible="state in ['cancelled', 'expired']"
+                            confirm="Are you sure you want to cancel this subscription?"/>
+                    <button name="action_mark_paid" string="Mark Paid"
+                            type="object" class="btn-success"
+                            invisible="state not in ['active', 'past_due'] or payment_status == 'paid'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,trial,active"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_instance" type="object"
+                                class="oe_stat_button" icon="fa-server"
+                                invisible="not instance_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Instance</span>
+                                <span class="o_stat_value">
+                                    <field name="instance_state" widget="badge"
+                                           decoration-success="instance_state == 'running'"
+                                           decoration-warning="instance_state in ('stopped', 'suspended')"
+                                           decoration-danger="instance_state == 'error'"
+                                           decoration-info="instance_state == 'provisioning'"/>
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Subscription Name"/>
+                        </h1>
+                        <h2>
+                            <field name="reference" readonly="1"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group string="Customer">
+                            <field name="partner_id"/>
+                            <field name="instance_id"/>
+                            <field name="instance_subdomain" invisible="not instance_id"/>
+                        </group>
+                        <group string="Plan">
+                            <field name="plan_id"/>
+                            <field name="billing_cycle"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="recurring_price"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Billing" name="billing">
+                            <group>
+                                <group string="Dates">
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                    <field name="next_billing_date"/>
+                                    <field name="last_billing_date"/>
+                                    <field name="days_until_billing"
+                                           invisible="state not in ['active', 'past_due']"/>
+                                </group>
+                                <group string="Payment">
+                                    <field name="payment_status"/>
+                                    <field name="last_payment_date"/>
+                                    <field name="failed_payment_count"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Trial" name="trial" invisible="not is_trial and state != 'trial'">
+                            <group>
+                                <group>
+                                    <field name="is_trial"/>
+                                    <field name="trial_start_date"/>
+                                    <field name="trial_end_date"/>
+                                </group>
+                                <group>
+                                    <field name="days_in_trial"/>
+                                    <field name="trial_days_remaining"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Cancellation" name="cancellation"
+                              invisible="state not in ['cancelled', 'expired']">
+                            <group>
+                                <field name="cancellation_date"/>
+                                <field name="cancellation_reason"/>
+                            </group>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes" placeholder="Internal notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Subscription List View (Odoo 19: use <list> not <tree>) -->
+    <record id="saas_subscription_view_list" model="ir.ui.view">
+        <field name="name">saas.subscription.list</field>
+        <field name="model">saas.subscription</field>
+        <field name="arch" type="xml">
+            <list string="Subscriptions" decoration-danger="state == 'past_due'"
+                  decoration-muted="state in ['cancelled', 'expired']"
+                  decoration-warning="state == 'suspended'"
+                  decoration-success="state == 'active'">
+                <field name="reference"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <field name="billing_cycle"/>
+                <field name="recurring_price"/>
+                <field name="next_billing_date"/>
+                <field name="payment_status"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'active'"
+                       decoration-info="state == 'trial'"
+                       decoration-warning="state in ['suspended', 'past_due']"
+                       decoration-danger="state in ['cancelled', 'expired']"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Subscription Kanban View (Odoo 19: use t-name="card") -->
+    <record id="saas_subscription_view_kanban" model="ir.ui.view">
+        <field name="name">saas.subscription.kanban</field>
+        <field name="model">saas.subscription</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <field name="state"/>
+                <field name="recurring_price"/>
+                <field name="payment_status"/>
+                <field name="trial_days_remaining"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top mb-2">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="partner_id"/>
+                                    </strong>
+                                </div>
+                                <span class="badge rounded-pill"
+                                      t-att-class="{
+                                          'text-bg-success': record.state.raw_value == 'active',
+                                          'text-bg-info': record.state.raw_value == 'trial',
+                                          'text-bg-warning': record.state.raw_value in ['suspended', 'past_due'],
+                                          'text-bg-danger': record.state.raw_value in ['cancelled', 'expired'],
+                                          'text-bg-secondary': record.state.raw_value == 'draft',
+                                      }">
+                                    <field name="state"/>
+                                </span>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>
+                                    <i class="fa fa-tag me-1" title="Plan"/>
+                                    <field name="plan_id"/>
+                                </div>
+                                <div>
+                                    <i class="fa fa-dollar me-1" title="Price"/>
+                                    <field name="recurring_price"/>
+                                    <span class="text-muted">/<field name="billing_cycle"/></span>
+                                </div>
+                                <div t-if="record.state.raw_value == 'trial'">
+                                    <i class="fa fa-clock-o me-1" title="Trial Days"/>
+                                    <field name="trial_days_remaining"/> days remaining
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span class="badge"
+                                          t-att-class="{
+                                              'text-bg-success': record.payment_status.raw_value == 'paid',
+                                              'text-bg-warning': record.payment_status.raw_value == 'pending',
+                                              'text-bg-danger': record.payment_status.raw_value in ['overdue', 'failed'],
+                                          }">
+                                        <field name="payment_status"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Subscription Search View (Odoo 19: no expand attribute) -->
+    <record id="saas_subscription_view_search" model="ir.ui.view">
+        <field name="name">saas.subscription.search</field>
+        <field name="model">saas.subscription</field>
+        <field name="arch" type="xml">
+            <search string="Subscriptions">
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <separator/>
+                <filter name="filter_draft" string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_trial" string="Trial"
+                        domain="[('state', '=', 'trial')]"/>
+                <filter name="filter_active" string="Active"
+                        domain="[('state', '=', 'active')]"/>
+                <filter name="filter_past_due" string="Past Due"
+                        domain="[('state', '=', 'past_due')]"/>
+                <filter name="filter_suspended" string="Suspended"
+                        domain="[('state', '=', 'suspended')]"/>
+                <separator/>
+                <filter name="filter_monthly" string="Monthly"
+                        domain="[('billing_cycle', '=', 'monthly')]"/>
+                <filter name="filter_yearly" string="Yearly"
+                        domain="[('billing_cycle', '=', 'yearly')]"/>
+                <separator/>
+                <filter name="filter_payment_overdue" string="Payment Overdue"
+                        domain="[('payment_status', '=', 'overdue')]"/>
+                <separator/>
+                <filter name="group_state" string="State"
+                        context="{'group_by': 'state'}"/>
+                <filter name="group_plan" string="Plan"
+                        context="{'group_by': 'plan_id'}"/>
+                <filter name="group_partner" string="Customer"
+                        context="{'group_by': 'partner_id'}"/>
+                <filter name="group_billing_cycle" string="Billing Cycle"
+                        context="{'group_by': 'billing_cycle'}"/>
+                <filter name="group_payment" string="Payment Status"
+                        context="{'group_by': 'payment_status'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ==================== ACTIONS ==================== -->
+
+    <!-- Subscription Action -->
+    <record id="saas_subscription_action" model="ir.actions.act_window">
+        <field name="name">Subscriptions</field>
+        <field name="res_model">saas.subscription</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="saas_subscription_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first subscription
+            </p>
+            <p>
+                Manage customer subscriptions, billing cycles, and payment status.
+            </p>
+        </field>
+    </record>
+
+    <!-- ==================== PARTNER VIEWS EXTENSION ==================== -->
+
+    <!-- Extend Partner Form -->
+    <record id="res_partner_view_form_saas" model="ir.ui.view">
+        <field name="name">res.partner.form.saas</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_subscriptions" type="object"
+                        class="oe_stat_button" icon="fa-repeat"
+                        invisible="subscription_count == 0">
+                    <field name="subscription_count" widget="statinfo" string="Subscriptions"/>
+                </button>
+                <button name="action_view_instances" type="object"
+                        class="oe_stat_button" icon="fa-server"
+                        invisible="instance_count == 0">
+                    <field name="instance_count" widget="statinfo" string="Instances"/>
+                </button>
+            </xpath>
+            <xpath expr="//page[@name='internal_notes']" position="after">
+                <page string="SaaS" name="saas" invisible="not is_saas_customer">
+                    <group>
+                        <group string="Subscription Status">
+                            <field name="is_saas_customer" readonly="1"/>
+                            <field name="current_plan_id" readonly="1"/>
+                            <field name="active_subscription_count" readonly="1"/>
+                        </group>
+                        <group string="Trial Information">
+                            <field name="has_used_trial"/>
+                            <field name="trial_start_date" readonly="1"/>
+                            <button name="action_start_trial" string="Start Trial"
+                                    type="object" class="btn-primary"
+                                    invisible="has_used_trial or not is_company"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ==================== MENUS ==================== -->
+
+    <!-- Add to SaaS menu - requires saas_master menus to exist -->
+    <menuitem id="menu_saas_subscription"
+              name="Subscriptions"
+              parent="saas_master.menu_saas_root"
+              action="saas_subscription_action"
+              sequence="30"/>
+
+    <!-- ==================== SEQUENCES ==================== -->
+
+    <record id="seq_saas_subscription" model="ir.sequence">
+        <field name="name">SaaS Subscription</field>
+        <field name="code">saas.subscription</field>
+        <field name="prefix">SUB-</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>

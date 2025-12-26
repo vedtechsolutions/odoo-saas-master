@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- SaaS Pricing Page -->
+    <template id="saas_pricing_page" name="SaaS Pricing">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <section class="s_text_block pt64 pb48 bg-secondary">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 text-center">
+                                <h1 class="display-4">Simple, Transparent Pricing</h1>
+                                <p class="lead text-muted">
+                                    Choose the plan that fits your business. Start with a free trial.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="s_pricing pt48 pb64">
+                    <div class="container">
+                        <div class="row">
+                            <t t-foreach="plans" t-as="plan">
+                                <div class="col-lg-3 col-md-6 mb-4">
+                                    <div t-attf-class="card h-100 #{plan.shop_featured and 'border-primary' or ''}">
+                                        <t t-if="plan.shop_featured">
+                                            <div class="card-header bg-primary text-white text-center">
+                                                <strong>Most Popular</strong>
+                                            </div>
+                                        </t>
+                                        <div class="card-body">
+                                            <h4 class="card-title text-center" t-field="plan.name"/>
+                                            <div class="pricing-amount text-center mb-3">
+                                                <span class="display-5">$<t t-esc="int(plan.monthly_price)"/></span>
+                                                <span class="text-muted">/month</span>
+                                            </div>
+                                            <p class="text-muted text-center" t-field="plan.description"/>
+                                            <ul class="list-unstyled mt-4">
+                                                <li class="mb-2">
+                                                    <i class="fa fa-check text-success me-2" title="Included"/>
+                                                    <t t-esc="plan.user_limit"/> User<t t-if="plan.user_limit != 1">s</t>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fa fa-check text-success me-2" title="Included"/>
+                                                    <t t-esc="plan.instance_limit"/> Instance<t t-if="plan.instance_limit != 1">s</t>
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fa fa-database me-2" title="Database"/>
+                                                    <t t-esc="plan.storage_db_limit_gb"/> GB Database
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fa fa-file me-2" title="Storage"/>
+                                                    <t t-esc="plan.storage_file_limit_gb"/> GB Files
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="fa fa-clock me-2" title="Backups"/>
+                                                    <t t-esc="plan.backup_retention_days"/> Days Backups
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <t t-if="plan.is_trial">
+                                                <a t-attf-href="/shop/saas/configure?product_id=#{plan.product_template_id.id}"
+                                                   class="btn btn-success btn-block w-100">
+                                                    Start Free Trial
+                                                </a>
+                                            </t>
+                                            <t t-else="">
+                                                <a t-attf-href="/shop/saas/configure?product_id=#{plan.product_template_id.id}"
+                                                   class="btn btn-primary btn-block w-100">
+                                                    Get Started
+                                                </a>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- FAQ Section -->
+                <section class="s_faq pt48 pb64 bg-light">
+                    <div class="container">
+                        <h2 class="text-center mb-5">Frequently Asked Questions</h2>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="accordion" id="pricingFaq">
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#faq1">
+                                                Can I upgrade or downgrade my plan?
+                                            </button>
+                                        </h3>
+                                        <div id="faq1" class="accordion-collapse collapse show"
+                                             data-bs-parent="#pricingFaq">
+                                            <div class="accordion-body">
+                                                Yes! You can upgrade or downgrade your plan at any time.
+                                                Changes take effect immediately and billing is prorated.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#faq2">
+                                                What happens after my trial ends?
+                                            </button>
+                                        </h3>
+                                        <div id="faq2" class="accordion-collapse collapse"
+                                             data-bs-parent="#pricingFaq">
+                                            <div class="accordion-body">
+                                                Your instance will be suspended but your data is preserved.
+                                                Simply choose a paid plan to reactivate your account.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#faq3">
+                                                Do you offer refunds?
+                                            </button>
+                                        </h3>
+                                        <div id="faq3" class="accordion-collapse collapse"
+                                             data-bs-parent="#pricingFaq">
+                                            <div class="accordion-body">
+                                                We offer a 30-day money-back guarantee. If you're not satisfied,
+                                                contact support for a full refund.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <!-- SaaS Configuration Page (before adding to cart) -->
+    <template id="saas_configure_page" name="Configure Your Instance">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <section class="s_text_block pt48 pb32">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <h1 class="text-center mb-4">Configure Your Instance</h1>
+                                <p class="lead text-center text-muted">
+                                    Set up your <t t-esc="plan.name"/> plan with your preferred settings.
+                                </p>
+
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h4 class="mb-0">Instance Configuration</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="saas_configure_form" class="needs-validation" novalidate="">
+                                            <input type="hidden" name="product_id" t-att-value="product.id"/>
+
+                                            <!-- Subdomain -->
+                                            <div class="mb-4">
+                                                <label for="subdomain" class="form-label">
+                                                    <strong>Your Subdomain</strong>
+                                                </label>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control" id="subdomain"
+                                                           name="subdomain" required=""
+                                                           minlength="3" maxlength="30"
+                                                           placeholder="mycompany"
+                                                           autocomplete="off"/>
+                                                    <span class="input-group-text">
+                                                        .<t t-esc="tenant_suffix"/>
+                                                    </span>
+                                                </div>
+                                                <div id="subdomain_feedback" class="form-text">Enter at least 3 characters</div>
+                                            </div>
+
+                                            <!-- Odoo Version -->
+                                            <div class="mb-4">
+                                                <label for="odoo_version" class="form-label">
+                                                    <strong>Odoo Version</strong>
+                                                </label>
+                                                <select class="form-select" id="odoo_version" name="odoo_version">
+                                                    <t t-foreach="odoo_versions" t-as="version">
+                                                        <option t-att-value="version[0]"
+                                                                t-att-selected="version[0] == default_version">
+                                                            <t t-esc="version[1]"/>
+                                                        </option>
+                                                    </t>
+                                                </select>
+                                            </div>
+
+                                            <!-- Billing Cycle (if not trial) -->
+                                            <t t-if="not plan.is_trial">
+                                                <div class="mb-4">
+                                                    <label class="form-label">
+                                                        <strong>Billing Cycle</strong>
+                                                    </label>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-check card p-3">
+                                                                <input class="form-check-input" type="radio"
+                                                                       name="billing_cycle" id="billing_monthly"
+                                                                       value="monthly" checked=""/>
+                                                                <label class="form-check-label w-100"
+                                                                       for="billing_monthly">
+                                                                    <strong>Monthly</strong>
+                                                                    <span class="float-end">
+                                                                        $<t t-esc="int(plan.monthly_price)"/>/mo
+                                                                    </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-check card p-3">
+                                                                <input class="form-check-input" type="radio"
+                                                                       name="billing_cycle" id="billing_yearly"
+                                                                       value="yearly"/>
+                                                                <label class="form-check-label w-100"
+                                                                       for="billing_yearly">
+                                                                    <strong>Yearly</strong>
+                                                                    <span class="float-end">
+                                                                        $<t t-esc="int(plan.yearly_price)"/>/yr
+                                                                        <small class="text-success">(Save 17%)</small>
+                                                                    </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                            <t t-else="">
+                                                <input type="hidden" name="billing_cycle" value="monthly"/>
+                                            </t>
+
+                                            <div class="d-grid gap-2">
+                                                <button type="submit" class="btn btn-primary btn-lg"
+                                                        id="btn_add_to_cart" disabled="">
+                                                    <i class="fa fa-shopping-cart me-2" title="Cart"/>
+                                                    <t t-if="plan.is_trial">Start Free Trial</t>
+                                                    <t t-else="">Add to Cart</t>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <!-- Plan Summary -->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Plan Summary: <t t-esc="plan.name"/></h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <ul class="list-unstyled">
+                                                    <li><i class="fa fa-users me-2" title="Users"/>
+                                                        <t t-esc="plan.user_limit"/> User<t t-if="plan.user_limit != 1">s</t>
+                                                    </li>
+                                                    <li><i class="fa fa-cubes me-2" title="Instances"/>
+                                                        <t t-esc="plan.instance_limit"/> Instance<t t-if="plan.instance_limit != 1">s</t>
+                                                    </li>
+                                                    <li><i class="fa fa-database me-2" title="Database"/>
+                                                        <t t-esc="plan.storage_db_limit_gb"/> GB Database
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-6">
+                                                <ul class="list-unstyled">
+                                                    <li><i class="fa fa-file me-2" title="Files"/>
+                                                        <t t-esc="plan.storage_file_limit_gb"/> GB Files
+                                                    </li>
+                                                    <li><i class="fa fa-clock me-2" title="Backups"/>
+                                                        <t t-esc="plan.backup_retention_days"/> Days Backups
+                                                    </li>
+                                                    <li><i class="fa fa-headset me-2" title="Support"/>
+                                                        <t t-esc="dict(plan._fields['support_level'].selection).get(plan.support_level)"/>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>

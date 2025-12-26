@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== INSTANCE BACKUPS LIST ==================== -->
+
+    <template id="portal_instance_backups" name="Instance Backups">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Backups for <t t-out="instance.name"/></t>
+            </t>
+
+            <!-- Error Messages -->
+            <div t-if="request.params.get('error') == 'not_found'" class="alert alert-danger" role="alert">
+                <i class="fa fa-exclamation-triangle me-2" title="Error"/>
+                <strong>Error:</strong> Backup not found.
+            </div>
+            <div t-if="request.params.get('error') == 'not_ready'" class="alert alert-warning" role="alert">
+                <i class="fa fa-clock-o me-2" title="Not ready"/>
+                <strong>Not Ready:</strong> This backup is not yet completed and cannot be downloaded.
+            </div>
+            <div t-if="request.params.get('error') == 'local_only'" class="alert alert-info" role="alert">
+                <i class="fa fa-info-circle me-2" title="Info"/>
+                <strong>Download Unavailable:</strong> This backup is stored locally. Please contact support to download.
+            </div>
+            <div t-if="request.params.get('error') == 'url_failed'" class="alert alert-danger" role="alert">
+                <i class="fa fa-exclamation-triangle me-2" title="Error"/>
+                <strong>Error:</strong> Failed to generate download link. Please try again later.
+            </div>
+
+            <!-- Info Banner -->
+            <div class="alert alert-secondary mb-4" role="alert">
+                <i class="fa fa-info-circle me-2" title="Info"/>
+                <strong>Backups are read-only.</strong>
+                Backups are created automatically based on your plan.
+                To request a manual backup or restore, please
+                <a href="/my/tickets/new">create a support ticket</a>.
+            </div>
+
+            <!-- Back to Instance Link -->
+            <div class="mb-3">
+                <a t-attf-href="/my/instances/#{instance.id}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa fa-arrow-left me-1" title="Back"/>
+                    Back to Instance
+                </a>
+            </div>
+
+            <t t-if="not backups">
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-0">
+                        <strong>No backups found.</strong>
+                        Backups will appear here once they are created for this instance.
+                    </p>
+                </div>
+            </t>
+
+            <t t-if="backups">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Reference</th>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Size</th>
+                                <th>Status</th>
+                                <th>Storage</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="backups" t-as="backup">
+                                <tr>
+                                    <td>
+                                        <strong><t t-out="backup.reference"/></strong>
+                                    </td>
+                                    <td>
+                                        <t t-out="backup.create_date" t-options='{"widget": "datetime", "format": "short"}'/>
+                                    </td>
+                                    <td>
+                                        <span t-if="backup.backup_type == 'full'" class="badge text-bg-primary">Full</span>
+                                        <span t-elif="backup.backup_type == 'database'" class="badge text-bg-info">Database</span>
+                                        <span t-else="" class="badge text-bg-secondary">Filestore</span>
+                                    </td>
+                                    <td>
+                                        <t t-out="backup.size_display"/>
+                                    </td>
+                                    <td>
+                                        <span t-if="backup.state == 'completed'" class="badge text-bg-success">
+                                            <i class="fa fa-check me-1" title="Completed"/>
+                                            Completed
+                                        </span>
+                                        <span t-elif="backup.state == 'in_progress'" class="badge text-bg-warning">
+                                            <i class="fa fa-spinner fa-spin me-1" title="In Progress"/>
+                                            In Progress
+                                        </span>
+                                        <span t-elif="backup.state == 'pending'" class="badge text-bg-secondary">
+                                            <i class="fa fa-clock-o me-1" title="Pending"/>
+                                            Pending
+                                        </span>
+                                        <span t-else="" class="badge text-bg-danger">
+                                            <t t-out="backup.state.capitalize()"/>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span t-if="backup.storage_type == 's3'" class="text-muted">
+                                            <i class="fa fa-cloud me-1" title="Cloud"/>
+                                            Cloud
+                                        </span>
+                                        <span t-else="" class="text-muted">
+                                            <i class="fa fa-server me-1" title="Local"/>
+                                            Local
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <t t-if="backup.state == 'completed' and backup.storage_type == 's3'">
+                                            <a t-attf-href="/my/instances/#{instance.id}/backups/#{backup.id}/download"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Download backup (link expires in 1 hour)">
+                                                <i class="fa fa-download me-1" title="Download"/>
+                                                Download
+                                            </a>
+                                        </t>
+                                        <t t-elif="backup.state == 'completed' and backup.storage_type == 'local'">
+                                            <span class="text-muted" title="Contact support to download local backups">
+                                                <i class="fa fa-lock me-1" title="Contact support"/>
+                                                Contact Support
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="text-muted">-</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div t-if="pager" class="o_portal_pager text-center mt-4">
+                    <t t-call="portal.pager"/>
+                </div>
+            </t>
+
+            <!-- Backup Info -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">About Backups</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Automatic Backups:</strong> Your instance is backed up automatically based on your plan schedule.</li>
+                        <li><strong>Retention:</strong> Backups are retained according to your plan's backup policy.</li>
+                        <li><strong>Download Links:</strong> Download links expire after 1 hour for security.</li>
+                        <li><strong>Restore Requests:</strong> To restore a backup, please <a href="/my/tickets/new">create a support ticket</a>.</li>
+                    </ul>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

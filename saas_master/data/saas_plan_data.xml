@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Trial Plan - 1GB RAM, 1 CPU for smooth experience -->
+        <record id="plan_trial" model="saas.plan">
+            <field name="name">Free Trial</field>
+            <field name="code">trial</field>
+            <field name="sequence">1</field>
+            <field name="is_active" eval="True"/>
+            <field name="is_trial" eval="True"/>
+            <field name="monthly_price">0</field>
+            <field name="yearly_price">0</field>
+            <field name="cpu_limit">1.0</field>
+            <field name="ram_limit_mb">1024</field>
+            <field name="storage_db_limit_gb">2</field>
+            <field name="storage_file_limit_gb">2</field>
+            <field name="user_limit">3</field>
+            <field name="instance_limit">1</field>
+            <field name="backup_retention_days">3</field>
+            <field name="support_level">community</field>
+            <field name="description">14-day free trial with limited resources. Perfect for evaluation.</field>
+        </record>
+
+        <!-- Solo Plan - 1GB RAM, 1 CPU -->
+        <record id="plan_solo" model="saas.plan">
+            <field name="name">Solo</field>
+            <field name="code">solo</field>
+            <field name="sequence">10</field>
+            <field name="is_active" eval="True"/>
+            <field name="is_trial" eval="False"/>
+            <field name="monthly_price">12</field>
+            <field name="yearly_price">120</field>
+            <field name="cpu_limit">1.0</field>
+            <field name="ram_limit_mb">1024</field>
+            <field name="storage_db_limit_gb">2</field>
+            <field name="storage_file_limit_gb">5</field>
+            <field name="user_limit">1</field>
+            <field name="instance_limit">1</field>
+            <field name="backup_retention_days">7</field>
+            <field name="support_level">email</field>
+            <field name="description">Perfect for freelancers and solo entrepreneurs. Basic resources with email support.</field>
+        </record>
+
+        <!-- Starter Plan - 2GB RAM -->
+        <record id="plan_starter" model="saas.plan">
+            <field name="name">Starter</field>
+            <field name="code">starter</field>
+            <field name="sequence">20</field>
+            <field name="is_active" eval="True"/>
+            <field name="is_trial" eval="False"/>
+            <field name="monthly_price">29</field>
+            <field name="yearly_price">290</field>
+            <field name="cpu_limit">1.0</field>
+            <field name="ram_limit_mb">2048</field>
+            <field name="storage_db_limit_gb">5</field>
+            <field name="storage_file_limit_gb">10</field>
+            <field name="user_limit">3</field>
+            <field name="instance_limit">1</field>
+            <field name="backup_retention_days">14</field>
+            <field name="support_level">email</field>
+            <field name="description">Ideal for small teams. Balanced resources for growing businesses.</field>
+        </record>
+
+        <!-- Professional Plan - 4GB RAM -->
+        <record id="plan_professional" model="saas.plan">
+            <field name="name">Professional</field>
+            <field name="code">professional</field>
+            <field name="sequence">30</field>
+            <field name="is_active" eval="True"/>
+            <field name="is_trial" eval="False"/>
+            <field name="monthly_price">99</field>
+            <field name="yearly_price">990</field>
+            <field name="cpu_limit">2.0</field>
+            <field name="ram_limit_mb">4096</field>
+            <field name="storage_db_limit_gb">25</field>
+            <field name="storage_file_limit_gb">50</field>
+            <field name="user_limit">15</field>
+            <field name="instance_limit">2</field>
+            <field name="backup_retention_days">30</field>
+            <field name="support_level">priority</field>
+            <field name="description">For established businesses. Generous resources with priority support.</field>
+        </record>
+
+        <!-- Enterprise Plan - 8GB RAM -->
+        <record id="plan_enterprise" model="saas.plan">
+            <field name="name">Enterprise</field>
+            <field name="code">enterprise</field>
+            <field name="sequence">40</field>
+            <field name="is_active" eval="True"/>
+            <field name="is_trial" eval="False"/>
+            <field name="monthly_price">299</field>
+            <field name="yearly_price">2990</field>
+            <field name="cpu_limit">4.0</field>
+            <field name="ram_limit_mb">8192</field>
+            <field name="storage_db_limit_gb">100</field>
+            <field name="storage_file_limit_gb">200</field>
+            <field name="user_limit">100</field>
+            <field name="instance_limit">5</field>
+            <field name="backup_retention_days">90</field>
+            <field name="support_level">dedicated</field>
+            <field name="description">Full-featured for large organizations. Maximum resources with dedicated support.</field>
+        </record>
+
+    </data>
+</odoo>

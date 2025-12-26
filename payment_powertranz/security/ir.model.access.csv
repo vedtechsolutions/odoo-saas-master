@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_payment_provider_powertranz_system,payment.provider.powertranz.system,payment.model_payment_provider,base.group_system,1,1,1,1
+access_payment_provider_powertranz_user,payment.provider.powertranz.user,payment.model_payment_provider,base.group_user,1,0,0,0
+access_payment_transaction_powertranz_user,payment.transaction.powertranz.user,payment.model_payment_transaction,base.group_user,1,0,0,0
+access_payment_token_powertranz_user,payment.token.powertranz.user,payment.model_payment_token,base.group_user,1,0,0,1
+access_powertranz_recurring_system,powertranz.recurring.system,model_powertranz_recurring,base.group_system,1,1,1,1
+access_powertranz_recurring_user,powertranz.recurring.user,model_powertranz_recurring,base.group_user,1,1,1,0
+access_powertranz_recurring_portal,powertranz.recurring.portal,model_powertranz_recurring,base.group_portal,1,0,0,0

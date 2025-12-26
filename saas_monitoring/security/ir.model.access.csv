@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_metric_type_user,saas.metric.type.user,model_saas_metric_type,group_monitoring_user,1,0,0,0
+access_metric_type_manager,saas.metric.type.manager,model_saas_metric_type,group_monitoring_manager,1,1,1,1
+access_usage_metric_user,saas.usage.metric.user,model_saas_usage_metric,group_monitoring_user,1,0,0,0
+access_usage_metric_manager,saas.usage.metric.manager,model_saas_usage_metric,group_monitoring_manager,1,1,1,1
+access_usage_log_user,saas.usage.log.user,model_saas_usage_log,group_monitoring_user,1,0,0,0
+access_usage_log_manager,saas.usage.log.manager,model_saas_usage_log,group_monitoring_manager,1,1,1,1
+access_alert_user,saas.alert.user,model_saas_alert,group_monitoring_user,1,1,0,0
+access_alert_manager,saas.alert.manager,model_saas_alert,group_monitoring_manager,1,1,1,1

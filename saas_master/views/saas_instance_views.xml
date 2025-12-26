@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="saas_instance_view_form" model="ir.ui.view">
+        <field name="name">saas.instance.form</field>
+        <field name="model">saas.instance</field>
+        <field name="arch" type="xml">
+            <form string="Customer Instance">
+                <header>
+                    <button name="action_provision" type="object"
+                            string="Provision" class="oe_highlight"
+                            invisible="state != 'draft'"/>
+                    <button name="action_start" type="object"
+                            string="Start" class="oe_highlight"
+                            invisible="state not in ('stopped', 'error')"/>
+                    <button name="action_stop" type="object"
+                            string="Stop"
+                            invisible="state != 'running'"/>
+                    <button name="action_restart" type="object"
+                            string="Restart"
+                            invisible="state != 'running'"/>
+                    <button name="action_reactivate" type="object"
+                            string="Reactivate" class="oe_highlight"
+                            invisible="state != 'suspended'"/>
+                    <button name="action_suspend" type="object"
+                            string="Suspend"
+                            invisible="state not in ('running', 'stopped')"
+                            groups="saas_master.group_saas_manager"/>
+                    <button name="action_terminate" type="object"
+                            string="Terminate" class="btn-danger"
+                            invisible="state == 'terminated'"
+                            groups="saas_master.group_saas_admin"
+                            confirm="Are you sure you want to permanently terminate this instance? This action cannot be undone."/>
+                    <button name="action_open_instance" type="object"
+                            string="Open Instance" icon="fa-external-link"
+                            invisible="state != 'running'"/>
+                    <button name="action_impersonate" type="object"
+                            string="Support Access" icon="fa-user-secret"
+                            class="btn-warning"
+                            invisible="state != 'running'"
+                            groups="saas_master.group_saas_manager"
+                            confirm="This will log your access to this instance for audit purposes. Continue?"/>
+                    <button name="action_sync_state" type="object"
+                            string="Sync State" icon="fa-refresh"
+                            invisible="state in ('draft', 'terminated')"
+                            groups="saas_master.group_saas_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,provisioning,running"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="Trial" bg_color="text-bg-info"
+                            invisible="not is_trial"/>
+                    <widget name="web_ribbon" title="Suspended" bg_color="text-bg-warning"
+                            invisible="state != 'suspended'"/>
+                    <widget name="web_ribbon" title="Error" bg_color="text-bg-danger"
+                            invisible="state != 'error'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Acme Corporation"/>
+                        </h1>
+                        <h3>
+                            <field name="instance_url" widget="url" readonly="1"
+                                   invisible="not full_domain"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <group string="Instance Details">
+                            <field name="subdomain"/>
+                            <field name="full_domain" readonly="1"/>
+                            <field name="odoo_version"/>
+                            <field name="admin_email"/>
+                        </group>
+                        <group string="Customer &amp; Plan">
+                            <field name="partner_id"/>
+                            <field name="plan_id"/>
+                            <field name="is_trial"/>
+                            <field name="trial_end_date" invisible="not is_trial"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Credentials" name="credentials">
+                            <group>
+                                <group string="Admin Access">
+                                    <field name="admin_email"/>
+                                    <label for="admin_login"/>
+                                    <div class="o_row">
+                                        <field name="admin_login" nolabel="1"/>
+                                        <button name="action_refresh_admin_login" type="object"
+                                                string="Refresh" icon="fa-sync" title="Refresh username from tenant"
+                                                class="btn-link p-0 ms-2"
+                                                groups="saas_master.group_saas_manager"/>
+                                    </div>
+                                    <field name="admin_password" password="True"
+                                           groups="saas_master.group_saas_manager"/>
+                                    <button name="action_regenerate_password" type="object"
+                                            string="Regenerate Password" icon="fa-refresh"
+                                            class="btn-link"
+                                            groups="saas_master.group_saas_admin"
+                                            confirm="This will generate a new password. The customer will need to be notified."/>
+                                </group>
+                                <group string="Actions">
+                                    <button name="action_send_credentials" type="object"
+                                            string="Send Credentials Email" icon="fa-envelope"
+                                            class="btn-primary"
+                                            groups="saas_master.group_saas_manager"/>
+                                    <button name="action_copy_login_url" type="object"
+                                            string="Copy Login URL" icon="fa-copy"
+                                            class="btn-secondary"/>
+                                </group>
+                            </group>
+                            <group string="Login URL" invisible="state != 'running'">
+                                <field name="instance_url" widget="CopyClipboardChar" readonly="1" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page string="Technical" name="technical"
+                              groups="saas_master.group_saas_manager">
+                            <group>
+                                <group string="Server">
+                                    <field name="server_id"/>
+                                    <field name="port_http"/>
+                                    <field name="port_longpolling"/>
+                                </group>
+                                <group string="Docker">
+                                    <field name="container_id"/>
+                                    <field name="container_name"/>
+                                    <field name="database_name"/>
+                                </group>
+                            </group>
+                            <group string="Status">
+                                <field name="status_message" readonly="1"/>
+                                <field name="provisioned_date"/>
+                                <field name="last_accessed_date"/>
+                            </group>
+                            <group string="Maintenance" invisible="state != 'running'">
+                                <button name="action_install_support_module" type="object"
+                                        string="Install Support Module" icon="fa-download"
+                                        class="btn-secondary"
+                                        groups="saas_master.group_saas_admin"
+                                        confirm="This will install or update the support access module on this instance. Continue?"/>
+                            </group>
+                        </page>
+                        <page string="Resource Usage" name="resources"
+                              groups="saas_master.group_saas_manager">
+                            <group>
+                                <group string="Current Usage">
+                                    <field name="cpu_usage_percent" widget="progressbar"/>
+                                    <field name="ram_usage_mb"/>
+                                </group>
+                                <group string="Storage">
+                                    <field name="storage_db_gb"/>
+                                    <field name="storage_file_gb"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Audit" name="audit"
+                              groups="saas_master.group_saas_admin">
+                            <group>
+                                <group>
+                                    <field name="created_by_id"/>
+                                    <field name="created_date"/>
+                                </group>
+                                <group>
+                                    <field name="updated_by_id"/>
+                                    <field name="updated_date"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="saas_instance_view_tree" model="ir.ui.view">
+        <field name="name">saas.instance.tree</field>
+        <field name="model">saas.instance</field>
+        <field name="arch" type="xml">
+            <list string="Customer Instances"
+                  decoration-success="state == 'running'"
+                  decoration-warning="state == 'suspended'"
+                  decoration-danger="state == 'error'"
+                  decoration-muted="state in ('stopped', 'terminated')">
+                <field name="name"/>
+                <field name="subdomain"/>
+                <field name="full_domain"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <field name="server_id" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'running'"
+                       decoration-info="state in ('pending', 'provisioning')"
+                       decoration-warning="state == 'suspended'"
+                       decoration-danger="state == 'error'"
+                       decoration-muted="state in ('draft', 'stopped', 'terminated')"/>
+                <field name="is_trial"/>
+                <field name="port_http" optional="hide"/>
+                <field name="odoo_version"/>
+                <field name="create_date" string="Created"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View (Odoo 19: t-name="card") -->
+    <record id="saas_instance_view_kanban" model="ir.ui.view">
+        <field name="name">saas.instance.kanban</field>
+        <field name="model">saas.instance</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="subdomain"/>
+                <field name="state"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <field name="is_trial"/>
+                <field name="full_domain"/>
+                <progressbar field="state"
+                             colors='{"draft": "muted", "pending": "info", "provisioning": "info", "running": "success", "stopped": "muted", "suspended": "warning", "error": "danger", "terminated": "muted"}'/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <span class="o_kanban_record_subtitle text-muted">
+                                        <field name="subdomain"/>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span t-if="record.is_trial.raw_value"
+                                          class="badge text-bg-info">Trial</span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>
+                                    <i class="fa fa-user" title="Customer"/>
+                                    <field name="partner_id"/>
+                                </div>
+                                <div>
+                                    <i class="fa fa-tag" title="Plan"/>
+                                    <field name="plan_id"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="state" widget="label_selection"
+                                           options="{'classes': {
+                                               'draft': 'secondary',
+                                               'pending': 'info',
+                                               'provisioning': 'info',
+                                               'running': 'success',
+                                               'stopped': 'secondary',
+                                               'suspended': 'warning',
+                                               'error': 'danger',
+                                               'terminated': 'dark'
+                                           }}"/>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <a t-if="record.state.raw_value == 'running'"
+                                       t-att-href="record.full_domain.value ? 'https://' + record.full_domain.value : '#'"
+                                       target="_blank" class="text-primary">
+                                        <i class="fa fa-external-link" title="Open Instance"/>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View (Odoo 19: no expand attribute) -->
+    <record id="saas_instance_view_search" model="ir.ui.view">
+        <field name="name">saas.instance.search</field>
+        <field name="model">saas.instance</field>
+        <field name="arch" type="xml">
+            <search string="Search Instances">
+                <field name="name"/>
+                <field name="subdomain"/>
+                <field name="partner_id"/>
+                <field name="plan_id"/>
+                <field name="server_id"/>
+                <filter name="filter_running" string="Running"
+                        domain="[('state', '=', 'running')]"/>
+                <filter name="filter_stopped" string="Stopped"
+                        domain="[('state', '=', 'stopped')]"/>
+                <filter name="filter_suspended" string="Suspended"
+                        domain="[('state', '=', 'suspended')]"/>
+                <filter name="filter_error" string="Error"
+                        domain="[('state', '=', 'error')]"/>
+                <separator/>
+                <filter name="filter_trial" string="Trial"
+                        domain="[('is_trial', '=', True)]"/>
+                <filter name="filter_active" string="Active"
+                        domain="[('state', 'in', ['running', 'stopped', 'suspended'])]"/>
+                <separator/>
+                <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                <filter name="group_plan" string="Plan" context="{'group_by': 'plan_id'}"/>
+                <filter name="group_server" string="Server" context="{'group_by': 'server_id'}"/>
+                <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_saas_instance" model="ir.actions.act_window">
+        <field name="name">Customer Instances</field>
+        <field name="res_model">saas.instance</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="saas_instance_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first customer instance
+            </p>
+            <p>
+                Customer instances are Docker containers running Odoo for your SaaS customers.
+            </p>
+        </field>
+    </record>
+
+</odoo>

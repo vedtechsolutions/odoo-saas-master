@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Main Approval Page -->
+    <template id="support_approval_page" name="Support Access Approval">
+        <t t-call="web.layout">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="card shadow">
+                            <div class="card-header bg-warning text-dark">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-user-secret me-2"/>Support Access Request
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info">
+                                    <strong>VedTech Solutions</strong> support team is requesting access to your Odoo instance.
+                                </div>
+
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th width="40%">Instance:</th>
+                                        <td><t t-esc="access_request.instance_id.name"/> (<t t-esc="access_request.instance_subdomain"/>)</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Requested By:</th>
+                                        <td><t t-esc="access_request.requested_by_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Requested:</th>
+                                        <td><t t-esc="access_request.requested_date" t-options="{'widget': 'datetime'}"/></td>
+                                    </tr>
+                                    <tr t-if="access_request.reason">
+                                        <th>Reason:</th>
+                                        <td><t t-esc="access_request.reason"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Valid Until:</th>
+                                        <td><t t-esc="access_request.token_expiry" t-options="{'widget': 'datetime'}"/></td>
+                                    </tr>
+                                </table>
+
+                                <hr/>
+
+                                <p class="text-muted small">
+                                    By approving, you allow the support representative to access your instance for troubleshooting purposes.
+                                    All access is logged for audit purposes.
+                                </p>
+
+                                <div class="d-flex justify-content-between mt-4">
+                                    <form t-attf-action="/support/approve/#{token}/confirm" method="post">
+                                        <input type="hidden" name="action" value="deny"/>
+                                        <button type="submit" class="btn btn-outline-danger btn-lg">
+                                            <i class="fa fa-times me-2"/>Deny Access
+                                        </button>
+                                    </form>
+                                    <form t-attf-action="/support/approve/#{token}/confirm" method="post">
+                                        <input type="hidden" name="action" value="approve"/>
+                                        <button type="submit" class="btn btn-success btn-lg">
+                                            <i class="fa fa-check me-2"/>Approve Access
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Success Page -->
+    <template id="support_approval_success" name="Support Access Response">
+        <t t-call="web.layout">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="card shadow">
+                            <div t-attf-class="card-header #{action == 'approved' and 'bg-success' or 'bg-danger'} text-white">
+                                <h4 class="mb-0">
+                                    <i t-attf-class="fa #{action == 'approved' and 'fa-check-circle' or 'fa-times-circle'} me-2"/>
+                                    Access <t t-esc="action.title()"/>
+                                </h4>
+                            </div>
+                            <div class="card-body text-center py-5">
+                                <t t-if="action == 'approved'">
+                                    <i class="fa fa-check-circle text-success mb-3" style="font-size: 4rem;"/>
+                                    <h3>Support Access Approved</h3>
+                                    <p class="text-muted">
+                                        The support team has been notified and can now access your instance
+                                        <strong><t t-esc="access_request.instance_id.name"/></strong>.
+                                    </p>
+                                    <p class="text-muted small">
+                                        This approval is valid for 1 hour. All access will be logged.
+                                    </p>
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-times-circle text-danger mb-3" style="font-size: 4rem;"/>
+                                    <h3>Support Access Denied</h3>
+                                    <p class="text-muted">
+                                        The support team has been notified that access was denied.
+                                    </p>
+                                    <p class="text-muted small">
+                                        If you need assistance, please contact support through alternative channels.
+                                    </p>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Already Processed Page -->
+    <template id="support_approval_processed" name="Request Already Processed">
+        <t t-call="web.layout">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="card shadow">
+                            <div class="card-header bg-secondary text-white">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-info-circle me-2"/>Request Already Processed
+                                </h4>
+                            </div>
+                            <div class="card-body text-center py-5">
+                                <i class="fa fa-history text-secondary mb-3" style="font-size: 4rem;"/>
+                                <h3>This request has already been processed</h3>
+                                <p class="text-muted">
+                                    Status: <span class="badge bg-secondary"><t t-esc="state.title()"/></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Expired Page -->
+    <template id="support_approval_expired" name="Request Expired">
+        <t t-call="web.layout">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="card shadow">
+                            <div class="card-header bg-warning text-dark">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-clock-o me-2"/>Request Expired
+                                </h4>
+                            </div>
+                            <div class="card-body text-center py-5">
+                                <i class="fa fa-clock-o text-warning mb-3" style="font-size: 4rem;"/>
+                                <h3>This approval request has expired</h3>
+                                <p class="text-muted">
+                                    The support team will need to submit a new request if they still need access.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Invalid Token Page -->
+    <template id="support_approval_invalid" name="Invalid Request">
+        <t t-call="web.layout">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="card shadow">
+                            <div class="card-header bg-danger text-white">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-exclamation-triangle me-2"/>Invalid Link
+                                </h4>
+                            </div>
+                            <div class="card-body text-center py-5">
+                                <i class="fa fa-exclamation-triangle text-danger mb-3" style="font-size: 4rem;"/>
+                                <h3>Invalid or Expired Link</h3>
+                                <p class="text-muted">
+                                    <t t-esc="error"/>
+                                </p>
+                                <p class="text-muted small">
+                                    Please contact support if you believe this is an error.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

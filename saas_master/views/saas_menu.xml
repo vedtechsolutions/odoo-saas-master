@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Root Menu -->
+    <menuitem id="menu_saas_root"
+              name="SaaS Platform"
+              sequence="50"
+              web_icon="saas_master,static/description/icon.png"/>
+
+    <!-- Dashboard Menu (placeholder for future) -->
+    <menuitem id="menu_saas_dashboard"
+              name="Dashboard"
+              parent="menu_saas_root"
+              sequence="1"/>
+
+    <!-- Instances Menu -->
+    <menuitem id="menu_saas_instances"
+              name="Instances"
+              parent="menu_saas_root"
+              sequence="10"/>
+
+    <menuitem id="menu_saas_instance_all"
+              name="All Instances"
+              parent="menu_saas_instances"
+              action="action_saas_instance"
+              sequence="1"/>
+
+    <!-- Operations Menu -->
+    <menuitem id="menu_saas_operations"
+              name="Operations"
+              parent="menu_saas_root"
+              sequence="20"
+              groups="saas_master.group_saas_manager"/>
+
+    <menuitem id="menu_saas_queue"
+              name="Provisioning Queue"
+              parent="menu_saas_operations"
+              action="saas_provisioning_queue_action"
+              sequence="1"/>
+
+    <menuitem id="menu_saas_queue_failed"
+              name="Failed Tasks"
+              parent="menu_saas_operations"
+              action="saas_provisioning_queue_action_failed"
+              sequence="2"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_saas_config"
+              name="Configuration"
+              parent="menu_saas_root"
+              sequence="90"
+              groups="saas_master.group_saas_manager"/>
+
+    <menuitem id="menu_saas_plan"
+              name="Subscription Plans"
+              parent="menu_saas_config"
+              action="action_saas_plan"
+              sequence="1"/>
+
+    <menuitem id="menu_saas_server"
+              name="Tenant Servers"
+              parent="menu_saas_config"
+              action="action_saas_tenant_server"
+              sequence="2"
+              groups="saas_master.group_saas_admin"/>
+
+</odoo>

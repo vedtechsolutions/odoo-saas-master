@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sudo chown:*)",
+      "Bash(sudo systemctl restart:*)",
+      "Bash(systemctl is-active:*)",
+      "Bash(grep:*)",
+      "Bash(/opt/odoo/venv/bin/python3:*)",
+      "Bash(sudo -u postgres psql:*)",
+      "Bash(sudo systemctl stop:*)",
+      "Bash(sudo systemctl start:*)",
+      "Bash(sshpass:*)",
+      "Bash(sudo tail:*)",
+      "WebFetch(domain:vedtechsolutions.com)",
+      "WebFetch(domain:teguhteja.id)",
+      "Bash(sudo chmod:*)",
+      "mcp__postgres__query",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(sudo grep:*)",
+      "Bash(sudo -u odoo /opt/odoo/venv/bin/python3:*)",
+      "Bash(sudo journalctl:*)",
+      "WebSearch",
+      "Bash(sudo cat:*)"
+    ]
+  }
+}

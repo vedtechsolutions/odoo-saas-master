@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sequence for powertranz.recurring model -->
+        <record id="seq_powertranz_recurring" model="ir.sequence">
+            <field name="name">PowerTranz Recurring Payment</field>
+            <field name="code">powertranz.recurring</field>
+            <field name="prefix">REC/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

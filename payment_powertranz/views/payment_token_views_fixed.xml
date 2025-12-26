@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Simple inheritance without any complex features -->
+    <record id="payment_token_form_powertranz_simple" model="ir.ui.view">
+        <field name="name">payment.token.form.powertranz.simple</field>
+        <field name="model">payment.token</field>
+        <field name="inherit_id" ref="payment.payment_token_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="after">
+                <group string="PowerTranz Details" invisible="provider_code != 'powertranz'">
+                    <field name="powertranz_card_brand" readonly="1"/>
+                    <field name="powertranz_masked_pan" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

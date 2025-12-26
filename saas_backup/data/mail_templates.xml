@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ET-010: Backup Completed Email -->
+        <record id="mail_template_backup_completed" model="mail.template">
+            <field name="name">SaaS: Backup Completed</field>
+            <field name="model_id" ref="model_saas_backup"/>
+            <field name="email_from">noreply@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.instance_id.admin_email or object.instance_id.partner_id.email }}</field>
+            <field name="subject">Backup Completed - {{ object.instance_id.subdomain }}.tenants.vedtechsolutions.com</field>
+            <field name="body_html"><![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #28a745; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Backup Completed Successfully</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p>Dear <t t-out="object.instance_id.partner_id.name or 'Valued Customer'"/>,</p>
+                <p>Great news! A backup of your Odoo instance has been completed successfully.</p>
+                <p><strong>Reference:</strong> <t t-out="object.reference"/></p>
+                <p><strong>Instance:</strong> <t t-out="object.instance_id.subdomain"/>.tenants.vedtechsolutions.com</p>
+                <p><strong>Backup Type:</strong> <t t-out="object.backup_type"/></p>
+                <p><strong>Size:</strong> <t t-out="object.size_display"/></p>
+                <p>You can download this backup from your customer portal.</p>
+                <p>Best regards,<br/>The VedTech Solutions Team</p>
+            </td>
+        </tr>
+    </table>
+</div>
+]]></field>
+            <field name="lang">{{ object.instance_id.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+        <!-- ET-011: Backup Failed Email -->
+        <record id="mail_template_backup_failed" model="mail.template">
+            <field name="name">SaaS: Backup Failed</field>
+            <field name="model_id" ref="model_saas_backup"/>
+            <field name="email_from">noreply@vedtechsolutions.com</field>
+            <field name="email_to">{{ object.instance_id.admin_email or object.instance_id.partner_id.email }}</field>
+            <field name="subject">Backup Failed - {{ object.instance_id.subdomain }}.tenants.vedtechsolutions.com</field>
+            <field name="body_html"><![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table style="width: 100%; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <tr>
+            <td style="background: #dc3545; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0;">Backup Failed</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 30px;">
+                <p>Dear <t t-out="object.instance_id.partner_id.name or 'Valued Customer'"/>,</p>
+                <p>Unfortunately, a scheduled backup of your Odoo instance has failed.</p>
+                <p><strong>Reference:</strong> <t t-out="object.reference"/></p>
+                <p><strong>Instance:</strong> <t t-out="object.instance_id.subdomain"/>.tenants.vedtechsolutions.com</p>
+                <p><strong>Backup Type:</strong> <t t-out="object.backup_type"/></p>
+                <p>Our system will automatically retry the backup. If this issue persists, please contact support.</p>
+                <p>Best regards,<br/>The VedTech Solutions Team</p>
+            </td>
+        </tr>
+    </table>
+</div>
+]]></field>
+            <field name="lang">{{ object.instance_id.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

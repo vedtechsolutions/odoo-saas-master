@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== SUBSCRIPTIONS LIST ==================== -->
+
+    <template id="portal_my_subscriptions" name="My Subscriptions">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Subscriptions</t>
+            </t>
+
+            <t t-if="not subscriptions">
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-0">
+                        <strong>No subscriptions found.</strong>
+                        You don't have any subscriptions yet.
+                    </p>
+                </div>
+            </t>
+
+            <t t-if="subscriptions">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Reference</th>
+                                <th>Plan</th>
+                                <th>Billing</th>
+                                <th>Price</th>
+                                <th>Next Billing</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="subscriptions" t-as="subscription">
+                                <tr>
+                                    <td>
+                                        <a t-attf-href="/my/subscriptions/#{subscription.id}">
+                                            <t t-out="subscription.reference"/>
+                                        </a>
+                                    </td>
+                                    <td><t t-out="subscription.plan_id.name"/></td>
+                                    <td>
+                                        <t t-if="subscription.billing_cycle == 'monthly'">Monthly</t>
+                                        <t t-if="subscription.billing_cycle == 'yearly'">Yearly</t>
+                                    </td>
+                                    <td>
+                                        <t t-out="subscription.recurring_price"
+                                           t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                    </td>
+                                    <td>
+                                        <t t-if="subscription.next_billing_date">
+                                            <t t-out="subscription.next_billing_date" t-options='{"widget": "date"}'/>
+                                        </t>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </td>
+                                    <td>
+                                        <span t-attf-class="badge #{
+                                            'text-bg-success' if subscription.state == 'active' else
+                                            'text-bg-info' if subscription.state == 'trial' else
+                                            'text-bg-warning' if subscription.state in ['past_due', 'suspended'] else
+                                            'text-bg-secondary' if subscription.state == 'draft' else
+                                            'text-bg-danger'
+                                        }">
+                                            <t t-out="subscription.state.replace('_', ' ').title()"/>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a t-attf-href="/my/subscriptions/#{subscription.id}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div t-if="pager" class="o_portal_pager text-center mt-4">
+                    <t t-call="portal.pager"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- ==================== SUBSCRIPTION DETAIL ==================== -->
+
+    <template id="portal_my_subscription" name="Subscription Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
+
+            <div class="row mt-4">
+                <div class="col-lg-8 col-12">
+                    <!-- Subscription Header -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-0">
+                                    Subscription <t t-out="subscription.reference"/>
+                                </h4>
+                                <small class="text-muted">
+                                    <t t-out="subscription.plan_id.name"/>
+                                </small>
+                            </div>
+                            <span t-attf-class="badge fs-6 #{
+                                'text-bg-success' if subscription.state == 'active' else
+                                'text-bg-info' if subscription.state == 'trial' else
+                                'text-bg-warning' if subscription.state in ['past_due', 'suspended'] else
+                                'text-bg-secondary' if subscription.state == 'draft' else
+                                'text-bg-danger'
+                            }">
+                                <t t-out="subscription.state.replace('_', ' ').title()"/>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Subscription Details</h6>
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Plan</strong></td>
+                                            <td><t t-out="subscription.plan_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Billing Cycle</strong></td>
+                                            <td>
+                                                <t t-if="subscription.billing_cycle == 'monthly'">Monthly</t>
+                                                <t t-if="subscription.billing_cycle == 'yearly'">Yearly</t>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Price</strong></td>
+                                            <td>
+                                                <t t-out="subscription.recurring_price"
+                                                   t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                                <span class="text-muted">
+                                                    /<t t-if="subscription.billing_cycle == 'monthly'">month</t>
+                                                    <t t-if="subscription.billing_cycle == 'yearly'">year</t>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="subscription.instance_id">
+                                            <td><strong>Instance</strong></td>
+                                            <td>
+                                                <a t-attf-href="/my/instances/#{subscription.instance_id.id}">
+                                                    <t t-out="subscription.instance_id.subdomain"/>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Billing Information</h6>
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Start Date</strong></td>
+                                            <td>
+                                                <t t-if="subscription.start_date">
+                                                    <t t-out="subscription.start_date" t-options='{"widget": "date"}'/>
+                                                </t>
+                                                <span t-else="" class="text-muted">Not started</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Next Billing</strong></td>
+                                            <td>
+                                                <t t-if="subscription.next_billing_date">
+                                                    <t t-out="subscription.next_billing_date" t-options='{"widget": "date"}'/>
+                                                </t>
+                                                <span t-else="" class="text-muted">-</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Payment Status</strong></td>
+                                            <td>
+                                                <span t-attf-class="badge #{
+                                                    'text-bg-success' if subscription.payment_status == 'paid' else
+                                                    'text-bg-warning' if subscription.payment_status == 'pending' else
+                                                    'text-bg-danger'
+                                                }">
+                                                    <t t-out="subscription.payment_status.title()"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="subscription.last_payment_date">
+                                            <td><strong>Last Payment</strong></td>
+                                            <td>
+                                                <t t-out="subscription.last_payment_date" t-options='{"widget": "datetime"}'/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trial Information -->
+                    <div t-if="subscription.is_trial or subscription.state == 'trial'" class="card mb-4 border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fa fa-clock-o me-2" title="Trial"/>
+                                Trial Period
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p>
+                                        <strong>Started:</strong>
+                                        <t t-out="subscription.trial_start_date" t-options='{"widget": "date"}'/>
+                                    </p>
+                                    <p>
+                                        <strong>Ends:</strong>
+                                        <t t-out="subscription.trial_end_date" t-options='{"widget": "date"}'/>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-warning mb-0">
+                                        <strong><t t-out="subscription.trial_days_remaining"/></strong> days remaining
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plan Details -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Plan Features</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fa fa-microchip me-2 text-primary" title="CPU"/>
+                                            <strong><t t-out="subscription.plan_id.cpu_limit"/></strong> CPU cores
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fa fa-memory me-2 text-primary" title="RAM"/>
+                                            <strong><t t-out="subscription.plan_id.ram_limit_mb"/></strong> MB RAM
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fa fa-database me-2 text-primary" title="Database"/>
+                                            <strong><t t-out="subscription.plan_id.storage_db_limit_gb"/></strong> GB database storage
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fa fa-hdd-o me-2 text-primary" title="Storage"/>
+                                            <strong><t t-out="subscription.plan_id.storage_file_limit_gb"/></strong> GB file storage
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fa fa-users me-2 text-primary" title="Users"/>
+                                            <strong><t t-out="subscription.plan_id.user_limit"/></strong> users
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fa fa-server me-2 text-primary" title="Instances"/>
+                                            <strong><t t-out="subscription.plan_id.instance_limit"/></strong> instance(s)
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4 col-12">
+                    <!-- Actions Card -->
+                    <div t-if="subscription.state in ['active', 'trial']" class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Subscription Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <a t-attf-href="/my/subscriptions/#{subscription.id}/change-plan"
+                               class="btn btn-primary w-100 mb-2">
+                                <i class="fa fa-exchange me-2" title="Change Plan"/>
+                                Upgrade/Downgrade Plan
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Links</h5>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <a href="/my/subscriptions" class="list-group-item list-group-item-action">
+                                <i class="fa fa-arrow-left me-2" title="Back"/>
+                                Back to Subscriptions
+                            </a>
+                            <a t-if="subscription.instance_id"
+                               t-attf-href="/my/instances/#{subscription.instance_id.id}"
+                               class="list-group-item list-group-item-action">
+                                <i class="fa fa-server me-2" title="Instance"/>
+                                View Instance
+                            </a>
+                            <a href="/my/tickets/new" class="list-group-item list-group-item-action">
+                                <i class="fa fa-life-ring me-2" title="Support"/>
+                                Get Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ==================== CHANGE PLAN - SELECT PLAN ==================== -->
+
+    <template id="portal_subscription_change_plan" name="Change Subscription Plan">
+        <t t-call="portal.portal_layout">
+            <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
+
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-lg-8 offset-lg-2">
+                        <!-- Header -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-exchange me-2" title="Change Plan"/>
+                                    Change Your Plan
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    Current Plan: <strong><t t-out="current_plan.name"/></strong>
+                                    (<t t-out="subscription.recurring_price"
+                                        t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>/<t t-if="subscription.billing_cycle == 'monthly'">month</t><t t-else="">year</t>)
+                                </p>
+                                <p class="text-muted">
+                                    Select a new plan below. Pricing will be prorated for the remainder of your billing period.
+                                </p>
+
+                                <div t-if="error" class="alert alert-danger">
+                                    <t t-out="error"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Available Plans -->
+                        <t t-if="available_plans">
+                            <div class="row">
+                                <t t-foreach="available_plans" t-as="plan">
+                                    <div class="col-md-6 mb-4">
+                                        <div t-attf-class="card h-100 #{
+                                            'border-success' if plan.monthly_price > current_plan.monthly_price else
+                                            'border-warning' if plan.monthly_price &lt; current_plan.monthly_price else ''
+                                        }">
+                                            <div class="card-header">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h5 class="mb-0"><t t-out="plan.name"/></h5>
+                                                    <span t-if="plan.monthly_price > current_plan.monthly_price"
+                                                          class="badge text-bg-success">Upgrade</span>
+                                                    <span t-if="plan.monthly_price &lt; current_plan.monthly_price"
+                                                          class="badge text-bg-warning">Downgrade</span>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="h3 mb-3">
+                                                    <t t-if="subscription.billing_cycle == 'monthly'">
+                                                        <t t-out="plan.monthly_price"
+                                                           t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                                        <small class="text-muted">/month</small>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <t t-out="plan.yearly_price"
+                                                           t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                                        <small class="text-muted">/year</small>
+                                                    </t>
+                                                </div>
+
+                                                <ul class="list-unstyled mb-4">
+                                                    <li class="mb-2">
+                                                        <i class="fa fa-microchip me-2 text-primary" title="CPU"/>
+                                                        <t t-out="plan.cpu_limit"/> CPU cores
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="fa fa-memory me-2 text-primary" title="RAM"/>
+                                                        <t t-out="plan.ram_limit_mb"/> MB RAM
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="fa fa-database me-2 text-primary" title="DB"/>
+                                                        <t t-out="plan.storage_db_limit_gb"/> GB database
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="fa fa-hdd-o me-2 text-primary" title="Files"/>
+                                                        <t t-out="plan.storage_file_limit_gb"/> GB files
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="fa fa-users me-2 text-primary" title="Users"/>
+                                                        <t t-out="plan.user_limit"/> users
+                                                    </li>
+                                                </ul>
+
+                                                <form t-attf-action="/my/subscriptions/#{subscription.id}/calculate-proration" method="post">
+                                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                                    <input type="hidden" name="new_plan_id" t-att-value="plan.id"/>
+                                                    <button type="submit" class="btn btn-primary w-100">
+                                                        Select This Plan
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <t t-else="">
+                            <div class="alert alert-info">
+                                No other plans are available at this time.
+                            </div>
+                        </t>
+
+                        <div class="mt-4">
+                            <a t-attf-href="/my/subscriptions/#{subscription.id}" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left me-2" title="Cancel"/>
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ==================== CHANGE PLAN - CONFIRMATION ==================== -->
+
+    <template id="portal_subscription_confirm_change" name="Confirm Plan Change">
+        <t t-call="portal.portal_layout">
+            <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
+
+            <div class="container py-4">
+                <div class="row">
+                    <div class="col-lg-8 offset-lg-2">
+                        <!-- Header -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h4 class="mb-0">
+                                    <i class="fa fa-check-circle me-2" title="Confirm"/>
+                                    Confirm Plan Change
+                                </h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-5 text-center">
+                                        <div class="text-muted mb-2">Current Plan</div>
+                                        <h4><t t-out="current_plan.name"/></h4>
+                                        <div class="h5">
+                                            <t t-out="proration.current_price"
+                                               t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                            <small class="text-muted">
+                                                /<t t-if="subscription.billing_cycle == 'monthly'">month</t><t t-else="">year</t>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 text-center align-self-center">
+                                        <i class="fa fa-arrow-right fa-2x text-muted" title="Change to"/>
+                                    </div>
+                                    <div class="col-md-5 text-center">
+                                        <div class="text-muted mb-2">New Plan</div>
+                                        <h4><t t-out="new_plan.name"/></h4>
+                                        <div class="h5">
+                                            <t t-out="proration.new_price"
+                                               t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                            <small class="text-muted">
+                                                /<t t-if="subscription.billing_cycle == 'monthly'">month</t><t t-else="">year</t>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr/>
+
+                                <!-- Proration Details -->
+                                <h5>Proration Calculation</h5>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Days remaining in billing period</td>
+                                        <td class="text-end"><strong><t t-out="proration.days_remaining"/></strong> days</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Credit for unused <t t-out="current_plan.name"/>
+                                        </td>
+                                        <td class="text-end text-success">
+                                            -<t t-out="proration.credit_amount"
+                                                t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Charge for <t t-out="new_plan.name"/> (prorated)
+                                        </td>
+                                        <td class="text-end">
+                                            +<t t-out="proration.charge_amount"
+                                                t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-active">
+                                        <td><strong>
+                                            <t t-if="proration.net_amount >= 0">Amount Due Today</t>
+                                            <t t-else="">Credit Applied to Account</t>
+                                        </strong></td>
+                                        <td class="text-end">
+                                            <strong t-attf-class="#{
+                                                'text-danger' if proration.net_amount > 0 else 'text-success'
+                                            }">
+                                                <t t-if="proration.net_amount >= 0">
+                                                    <t t-out="proration.net_amount"
+                                                       t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-out="abs(proration.net_amount)"
+                                                       t-options='{"widget": "monetary", "display_currency": subscription.currency_id}'/>
+                                                    (credit)
+                                                </t>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <div t-if="proration.is_upgrade" class="alert alert-info">
+                                    <i class="fa fa-info-circle me-2" title="Info"/>
+                                    You're upgrading to a higher tier. The difference will be charged to your account.
+                                </div>
+                                <div t-else="" class="alert alert-success">
+                                    <i class="fa fa-info-circle me-2" title="Info"/>
+                                    You're downgrading to a lower tier. A credit will be applied to your account.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a t-attf-href="/my/subscriptions/#{subscription.id}/change-plan" class="btn btn-secondary">
+                                <i class="fa fa-arrow-left me-2" title="Back"/>
+                                Back to Plan Selection
+                            </a>
+
+                            <form t-attf-action="/my/subscriptions/#{subscription.id}/apply-plan-change" method="post">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="new_plan_id" t-att-value="new_plan.id"/>
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fa fa-check me-2" title="Confirm"/>
+                                    Confirm Plan Change
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

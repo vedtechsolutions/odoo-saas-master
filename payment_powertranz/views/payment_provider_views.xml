@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="payment_provider_form_powertranz" model="ir.ui.view">
+        <field name="name">payment.provider.form.powertranz</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <!-- Add PowerTranz specific fields to the Credentials notebook page -->
+            <xpath expr="//notebook/page[@name='credentials']" position="inside">
+                <group invisible="code != 'powertranz'" groups="base.group_system">
+                    <field name="powertranz_id"/>
+                    <field name="powertranz_password" password="True"/>
+                    <field name="powertranz_gateway_key"/>
+                </group>
+            </xpath>
+
+            <!-- Add PowerTranz specific configuration fields to the Configuration page -->
+             <xpath expr="//notebook/page[@name='configuration']" position="inside">
+                <!-- Group for specific PowerTranz settings -->
+                <group string="PowerTranz Settings" invisible="code != 'powertranz'" name="powertranz_settings" groups="base.group_system">
+                     <field name="powertranz_3ds_enabled"/>
+                     <field name="powertranz_recurring_type" widget="radio"/>
+                     <field name="powertranz_webhook_url" readonly="1"/>
+                     <field name="powertranz_webhook_secret" password="True"/>
+                     <field name="powertranz_api_url" placeholder="https://gateway.ptranz.com/Api"/>
+                 </group>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

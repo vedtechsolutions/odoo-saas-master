@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Tree View -->
+    <record id="saas_support_access_log_view_tree" model="ir.ui.view">
+        <field name="name">saas.support.access.log.tree</field>
+        <field name="model">saas.support.access.log</field>
+        <field name="arch" type="xml">
+            <list string="Support Access Logs" default_order="create_date desc">
+                <field name="access_date"/>
+                <field name="instance_subdomain"/>
+                <field name="customer_id"/>
+                <field name="user_name"/>
+                <field name="access_type" widget="badge"/>
+                <field name="session_duration_minutes" optional="show"/>
+                <field name="session_end_reason" widget="badge" optional="show"
+                       decoration-success="session_end_reason == 'ended'"
+                       decoration-warning="session_end_reason == 'expired'"/>
+                <field name="ip_address" optional="hide"/>
+                <field name="reason" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="saas_support_access_log_view_form" model="ir.ui.view">
+        <field name="name">saas.support.access.log.form</field>
+        <field name="model">saas.support.access.log</field>
+        <field name="arch" type="xml">
+            <form string="Support Access Log" create="0" edit="0">
+                <sheet>
+                    <group>
+                        <group string="Access Details">
+                            <field name="access_date"/>
+                            <field name="access_type"/>
+                            <field name="user_id"/>
+                            <field name="ip_address"/>
+                            <field name="user_agent"/>
+                        </group>
+                        <group string="Instance">
+                            <field name="instance_id"/>
+                            <field name="instance_subdomain"/>
+                            <field name="customer_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Session Info">
+                            <field name="session_end_time"/>
+                            <field name="session_duration_minutes"/>
+                            <field name="session_end_reason"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="reason" nolabel="1" placeholder="Reason for access..."/>
+                        <field name="notes" nolabel="1" placeholder="Additional notes..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="saas_support_access_log_view_search" model="ir.ui.view">
+        <field name="name">saas.support.access.log.search</field>
+        <field name="model">saas.support.access.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Support Access Logs">
+                <field name="instance_subdomain"/>
+                <field name="user_id"/>
+                <field name="customer_id"/>
+                <field name="ip_address"/>
+                <separator/>
+                <filter name="filter_today" string="Today"
+                        domain="[('access_date', '&gt;=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_week" string="This Week"
+                        domain="[('access_date', '&gt;=', (context_today() - relativedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_month" string="This Month"
+                        domain="[('access_date', '&gt;=', (context_today() - relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="filter_impersonate" string="Impersonate"
+                        domain="[('access_type', '=', 'impersonate')]"/>
+                <separator/>
+                <filter name="group_user" string="Support User" context="{'group_by': 'user_id'}"/>
+                <filter name="group_instance" string="Instance" context="{'group_by': 'instance_id'}"/>
+                <filter name="group_customer" string="Customer" context="{'group_by': 'customer_id'}"/>
+                <filter name="group_type" string="Access Type" context="{'group_by': 'access_type'}"/>
+                <filter name="group_date" string="Date" context="{'group_by': 'access_date:day'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_saas_support_access_log" model="ir.actions.act_window">
+        <field name="name">Support Access Logs</field>
+        <field name="res_model">saas.support.access.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="saas_support_access_log_view_search"/>
+        <field name="context">{'search_default_filter_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No support access logs found
+            </p>
+            <p>
+                Support access logs are created automatically when administrators
+                use the "Support Access" feature to impersonate into customer instances.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item under SaaS Platform > Operations -->
+    <menuitem id="menu_saas_support_access_log"
+              name="Support Access Logs"
+              parent="menu_saas_operations"
+              action="action_saas_support_access_log"
+              sequence="10"
+              groups="saas_master.group_saas_admin"/>
+
+</odoo>

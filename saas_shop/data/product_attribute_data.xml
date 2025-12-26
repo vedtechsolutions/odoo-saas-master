@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Billing Cycle Attribute -->
+        <record id="product_attribute_billing_cycle" model="product.attribute">
+            <field name="name">Billing Cycle</field>
+            <field name="display_type">radio</field>
+            <field name="create_variant">always</field>
+        </record>
+
+        <record id="product_attribute_value_monthly" model="product.attribute.value">
+            <field name="name">Monthly</field>
+            <field name="attribute_id" ref="product_attribute_billing_cycle"/>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="product_attribute_value_yearly" model="product.attribute.value">
+            <field name="name">Yearly</field>
+            <field name="attribute_id" ref="product_attribute_billing_cycle"/>
+            <field name="sequence">2</field>
+        </record>
+
+    </data>
+</odoo>

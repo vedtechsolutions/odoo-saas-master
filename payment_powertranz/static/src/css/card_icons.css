@@ -1,0 +1,26 @@
+/* Card brand icons for PowerTranz tokens */
+.payment_token_powertranz_visa::before {
+    content: '';
+    background-image: url('/payment_powertranz/static/img/visa.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 32px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.payment_token_powertranz_mastercard::before {
+    content: '';
+    background-image: url('/payment_powertranz/static/img/mastercard.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 32px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Removed: img.img.img-fluid display:none - was hiding website logo */

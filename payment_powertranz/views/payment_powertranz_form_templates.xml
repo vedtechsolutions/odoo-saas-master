@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Register our inline form with the payment form -->
+    <template id="payment_method_form" inherit_id="payment.method_form">
+        <xpath expr="//input[@name='o_payment_radio']" position="after">
+            <t t-if="provider_sudo.code == 'powertranz' and pm_sudo.code == 'card'">
+                <t t-set="inline_form_xml_id" t-value="'payment_powertranz.powertranz_inline_form'"/>
+            </t>
+        </xpath>
+    </template>
+    
+    <!-- PowerTranz Inline Form Template -->
+    <template id="powertranz_inline_form" name="PowerTranz Inline Form">
+        <t t-set="has_saved_cards" t-value="tokens_sudo and len(tokens_sudo) > 0"/>
+        <t t-set="is_test_mode" t-value="provider_sudo.state == 'test'"/>
+        
+        <div class="powertranz-card-form">
+            <!-- Toggle between saved cards and new card entry -->
+            <div t-if="has_saved_cards" class="mb-3">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="powertranzCardType" id="powertranzSavedCard" value="saved_card" checked="checked"/>
+                    <label class="form-check-label mt-0" for="powertranzSavedCard">Use Saved Card</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="powertranzCardType" id="powertranzNewCard" value="new_card"/>
+                    <label class="form-check-label mt-0" for="powertranzNewCard">Enter New Card</label>
+                </div>
+            </div>
+            
+            <!-- Card Form -->
+            <div id="powertranz_card_form" t-att-class="has_saved_cards and 'd-none' or ''">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label" for="powertranz_card_number">Card Number</label>
+                        <div class="position-relative">
+                            <input type="text" id="powertranz_card_number" class="form-control" 
+                                   placeholder="•••• •••• •••• ••••" autocomplete="cc-number" inputmode="numeric" />
+                            <span class="card-type-indicator position-absolute end-0 top-50 translate-middle-y me-3"></span>
+                            <input type="hidden" id="powertranz_card_brand" name="powertranz_card_brand" />
+                        </div>
+                        <div id="powertranz_card_number_error" class="text-danger small"></div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label" for="powertranz_card_holder">Cardholder Name</label>
+                        <input type="text" id="powertranz_card_holder" class="form-control" 
+                               placeholder="John Doe" autocomplete="cc-name" />
+                        <div id="powertranz_card_holder_error" class="text-danger small"></div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="powertranz_card_expiry">Expiration Date</label>
+                        <input type="text" id="powertranz_card_expiry" class="form-control" 
+                               placeholder="MM / YY" autocomplete="cc-exp" inputmode="numeric" maxlength="7" />
+                        <div id="powertranz_card_expiry_error" class="text-danger small"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="powertranz_card_cvc">CVC</label>
+                        <input type="text" id="powertranz_card_cvc" class="form-control" 
+                               placeholder="•••" autocomplete="cc-csc" inputmode="numeric" maxlength="4" />
+                        <div id="powertranz_card_cvc_error" class="text-danger small"></div>
+                    </div>
+                </div>
+                
+                <!-- Test Cards Section (Only shown in test mode) -->
+                <div t-if="is_test_mode" class="mb-3 p-3 border rounded bg-light">
+                    <h6 class="mb-2">Test Cards</h6>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start card-copy" 
+                                    data-card="4012000000020071">
+                                Visa (Approved)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start card-copy" 
+                                    data-card="5200000000001005">
+                                Mastercard (Approved)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start card-copy" 
+                                    data-card="4012000000020089">
+                                Visa (3DS Challenge)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start card-copy" 
+                                    data-card="4012000000020097">
+                                Visa (Declined)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Save Card Option -->
+                <div id="powertranz_save_card_container" t-if="allow_tokenization" class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="powertranz_save_card" name="powertranz_save_card"/>
+                    <label class="form-check-label" for="powertranz_save_card">Save my card for future payments</label>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

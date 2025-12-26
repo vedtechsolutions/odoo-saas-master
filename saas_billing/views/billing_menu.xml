@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== BILLING MENU ==================== -->
+
+    <!-- Billing submenu under SaaS Platform -->
+    <menuitem id="menu_saas_billing"
+              name="Billing"
+              parent="saas_master.menu_saas_root"
+              sequence="35"
+              groups="saas_billing.group_saas_billing_user"/>
+
+    <!-- Transactions -->
+    <menuitem id="menu_billing_transactions"
+              name="Transactions"
+              parent="menu_saas_billing"
+              action="saas_billing_transaction_action"
+              sequence="10"/>
+
+    <menuitem id="menu_billing_transactions_pending"
+              name="Pending"
+              parent="menu_billing_transactions"
+              action="saas_billing_transaction_action_pending"
+              sequence="10"/>
+
+    <menuitem id="menu_billing_transactions_failed"
+              name="Failed"
+              parent="menu_billing_transactions"
+              action="saas_billing_transaction_action_failed"
+              sequence="20"/>
+
+    <!-- Credits -->
+    <menuitem id="menu_billing_credits"
+              name="Customer Credits"
+              parent="menu_saas_billing"
+              action="saas_customer_credit_action"
+              sequence="20"/>
+
+    <menuitem id="menu_billing_credits_active"
+              name="Active Credits"
+              parent="menu_billing_credits"
+              action="saas_customer_credit_action_active"
+              sequence="10"/>
+
+    <!-- Invoices -->
+    <menuitem id="menu_billing_invoices"
+              name="SaaS Invoices"
+              parent="menu_saas_billing"
+              action="saas_invoice_action"
+              sequence="30"/>
+
+    <!-- Reports -->
+    <menuitem id="menu_billing_reports"
+              name="Reports"
+              parent="menu_saas_billing"
+              sequence="50"/>
+
+    <menuitem id="menu_billing_mrr_report"
+              name="MRR/ARR Report"
+              parent="menu_billing_reports"
+              action="saas_mrr_report_action"
+              sequence="10"/>
+
+</odoo>

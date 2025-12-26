@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_saas_plan_user,saas.plan.user,model_saas_plan,group_saas_user,1,0,0,0
+access_saas_plan_manager,saas.plan.manager,model_saas_plan,group_saas_manager,1,1,1,0
+access_saas_plan_admin,saas.plan.admin,model_saas_plan,group_saas_admin,1,1,1,1
+access_saas_tenant_server_admin,saas.tenant.server.admin,model_saas_tenant_server,group_saas_admin,1,1,1,1
+access_saas_instance_user,saas.instance.user,model_saas_instance,group_saas_user,1,0,0,0
+access_saas_instance_manager,saas.instance.manager,model_saas_instance,group_saas_manager,1,1,1,0
+access_saas_instance_admin,saas.instance.admin,model_saas_instance,group_saas_admin,1,1,1,1
+access_saas_provisioning_queue_manager,saas.provisioning.queue.manager,model_saas_provisioning_queue,group_saas_manager,1,1,0,0
+access_saas_provisioning_queue_admin,saas.provisioning.queue.admin,model_saas_provisioning_queue,group_saas_admin,1,1,1,1
+access_saas_support_access_log_manager,saas.support.access.log.manager,model_saas_support_access_log,group_saas_manager,1,0,1,0
+access_saas_support_access_log_admin,saas.support.access.log.admin,model_saas_support_access_log,group_saas_admin,1,1,1,1
+access_saas_support_access_wizard_manager,saas.support.access.wizard.manager,model_saas_support_access_wizard,group_saas_manager,1,1,1,1
+access_saas_support_access_request_manager,saas.support.access.request.manager,model_saas_support_access_request,group_saas_manager,1,1,1,0
+access_saas_support_access_request_admin,saas.support.access.request.admin,model_saas_support_access_request,group_saas_admin,1,1,1,1

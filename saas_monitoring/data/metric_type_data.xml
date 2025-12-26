@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ==================== DEFAULT METRIC TYPES ==================== -->
+
+        <!-- CPU Usage -->
+        <record id="metric_type_cpu" model="saas.metric.type">
+            <field name="name">CPU Usage</field>
+            <field name="code">cpu</field>
+            <field name="description">Percentage of CPU resources used by the instance</field>
+            <field name="unit">%</field>
+            <field name="unit_type">percentage</field>
+            <field name="warning_threshold">70</field>
+            <field name="critical_threshold">90</field>
+            <field name="collection_method">docker</field>
+            <field name="collection_interval">5</field>
+            <field name="retention_days">30</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Memory Usage -->
+        <record id="metric_type_memory" model="saas.metric.type">
+            <field name="name">Memory Usage</field>
+            <field name="code">memory</field>
+            <field name="description">RAM memory used by the instance</field>
+            <field name="unit">bytes</field>
+            <field name="unit_type">bytes</field>
+            <field name="warning_threshold">80</field>
+            <field name="critical_threshold">95</field>
+            <field name="collection_method">docker</field>
+            <field name="collection_interval">5</field>
+            <field name="retention_days">30</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Disk Usage -->
+        <record id="metric_type_disk" model="saas.metric.type">
+            <field name="name">Disk Usage</field>
+            <field name="code">disk</field>
+            <field name="description">Disk space used by the instance</field>
+            <field name="unit">bytes</field>
+            <field name="unit_type">bytes</field>
+            <field name="warning_threshold">80</field>
+            <field name="critical_threshold">90</field>
+            <field name="collection_method">docker</field>
+            <field name="collection_interval">60</field>
+            <field name="retention_days">90</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <!-- Database Size -->
+        <record id="metric_type_database" model="saas.metric.type">
+            <field name="name">Database Size</field>
+            <field name="code">database</field>
+            <field name="description">Size of the PostgreSQL database</field>
+            <field name="unit">bytes</field>
+            <field name="unit_type">bytes</field>
+            <field name="warning_threshold">80</field>
+            <field name="critical_threshold">95</field>
+            <field name="collection_method">database</field>
+            <field name="collection_interval">60</field>
+            <field name="retention_days">90</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Filestore Size -->
+        <record id="metric_type_filestore" model="saas.metric.type">
+            <field name="name">Filestore Size</field>
+            <field name="code">filestore</field>
+            <field name="description">Size of the filestore (attachments, images, documents)</field>
+            <field name="unit">bytes</field>
+            <field name="unit_type">bytes</field>
+            <field name="warning_threshold">80</field>
+            <field name="critical_threshold">95</field>
+            <field name="collection_method">docker</field>
+            <field name="collection_interval">60</field>
+            <field name="retention_days">90</field>
+            <field name="sequence">45</field>
+        </record>
+
+        <!-- Active Users -->
+        <record id="metric_type_users" model="saas.metric.type">
+            <field name="name">Active Users</field>
+            <field name="code">users</field>
+            <field name="description">Number of active users in the instance</field>
+            <field name="unit">users</field>
+            <field name="unit_type">count</field>
+            <field name="warning_threshold">90</field>
+            <field name="critical_threshold">100</field>
+            <field name="collection_method">api</field>
+            <field name="collection_interval">60</field>
+            <field name="retention_days">365</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Network Bandwidth -->
+        <record id="metric_type_bandwidth" model="saas.metric.type">
+            <field name="name">Bandwidth Used</field>
+            <field name="code">bandwidth</field>
+            <field name="description">Network bandwidth consumed this billing period</field>
+            <field name="unit">bytes</field>
+            <field name="unit_type">bytes</field>
+            <field name="warning_threshold">80</field>
+            <field name="critical_threshold">95</field>
+            <field name="collection_method">docker</field>
+            <field name="collection_interval">60</field>
+            <field name="retention_days">365</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <!-- API Calls -->
+        <record id="metric_type_api_calls" model="saas.metric.type">
+            <field name="name">API Calls</field>
+            <field name="code">api_calls</field>
+            <field name="description">Number of API calls this billing period</field>
+            <field name="unit">calls</field>
+            <field name="unit_type">count</field>
+            <field name="warning_threshold">80</field>
+            <field name="critical_threshold">95</field>
+            <field name="collection_method">api</field>
+            <field name="collection_interval">60</field>
+            <field name="retention_days">365</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- Response Time -->
+        <record id="metric_type_response_time" model="saas.metric.type">
+            <field name="name">Response Time</field>
+            <field name="code">response_time</field>
+            <field name="description">Average response time in milliseconds</field>
+            <field name="unit">ms</field>
+            <field name="unit_type">time</field>
+            <field name="warning_threshold">200</field>
+            <field name="critical_threshold">500</field>
+            <field name="collection_method">api</field>
+            <field name="collection_interval">5</field>
+            <field name="retention_days">30</field>
+            <field name="sequence">80</field>
+        </record>
+
+        <!-- Background Jobs -->
+        <record id="metric_type_jobs" model="saas.metric.type">
+            <field name="name">Background Jobs</field>
+            <field name="code">jobs</field>
+            <field name="description">Number of queued background jobs</field>
+            <field name="unit">jobs</field>
+            <field name="unit_type">count</field>
+            <field name="warning_threshold">50</field>
+            <field name="critical_threshold">100</field>
+            <field name="collection_method">api</field>
+            <field name="collection_interval">5</field>
+            <field name="retention_days">7</field>
+            <field name="sequence">90</field>
+        </record>
+
+    </data>
+</odoo>

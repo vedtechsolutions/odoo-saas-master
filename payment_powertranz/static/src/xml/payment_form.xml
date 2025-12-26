@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="payment_powertranz.PowerTranzPaymentForm" owl="1">
+        <div class="o_payment_form_powertranz">
+            <!-- Loading Indicator -->
+            <div t-if="state.isLoading" class="o_payment_loader">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <form t-on-submit.prevent="processPayment" t-attf-class="{{ state.isLoading ? 'o_payment_form_disabled' : '' }}">
+                <div class="mb-3">
+                    <label for="pt_card_number" class="form-label">Card Number</label>
+                    <input type="text" class="form-control" id="pt_card_number" required="required"
+                           placeholder="•••• •••• •••• ••••" t-model="state.cardNumber" inputmode="numeric" autocomplete="cc-number"/>
+                </div>
+
+                <div class="mb-3">
+                    <label for="pt_card_holder_name" class="form-label">Name on Card</label>
+                    <input type="text" class="form-control" id="pt_card_holder_name" required="required"
+                           placeholder="John Doe" t-model="state.cardHolderName" autocomplete="cc-name"/>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="pt_expiry_month" class="form-label">Expiry Date</label>
+                        <div class="input-group">
+                             <input type="text" class="form-control" id="pt_expiry_month" required="required"
+                                   placeholder="MM" size="2" maxlength="2" t-model="state.expiryMonth" inputmode="numeric" autocomplete="cc-exp-month"/>
+                             <span class="input-group-text">/</span>
+                             <input type="text" class="form-control" id="pt_expiry_year" required="required"
+                                   placeholder="YY" size="2" maxlength="2" t-model="state.expiryYear" inputmode="numeric" autocomplete="cc-exp-year"/>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="pt_card_cvc" class="form-label">CVC</label>
+                        <input type="password" class="form-control" id="pt_card_cvc" required="required"
+                               placeholder="•••" size="4" maxlength="4" t-model="state.cardCvc" inputmode="numeric" autocomplete="cc-csc"/>
+                    </div>
+                </div>
+
+                <!-- Test Cards Section (Only shown in test mode) -->
+                <div t-if="props.processingValues.state === 'test'" class="mb-3 p-3 border rounded bg-light">
+                    <h6 class="mb-2">Test Cards</h6>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start test-card" 
+                                    t-on-click="fillTestCard('4012000000020071', 'Test User', '12', '25', '123')">
+                                Visa (Approved)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start test-card" 
+                                    t-on-click="fillTestCard('5200000000001005', 'Test User', '12', '25', '123')">
+                                Mastercard (Approved)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start test-card" 
+                                    t-on-click="fillTestCard('4012000000020089', 'Test User', '12', '25', '123')">
+                                Visa (3DS Challenge)
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 text-start test-card" 
+                                    t-on-click="fillTestCard('4012000000020097', 'Test User', '12', '25', '123')">
+                                Visa (Declined)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tokenization Checkbox -->
+                <div t-if="props.processingValues.allow_tokenization" class="mb-3 form-check">
+                     <input type="checkbox" class="form-check-input" id="pt_save_token" t-model="state.saveToken"/>
+                     <label class="form-check-label" for="pt_save_token">Save card for future payments</label>
+                 </div>
+
+                <!-- Recurring Options -->
+                 <div t-if="props.processingValues.allow_tokenization and props.processingValues.powertranz_recurring_type == 'powertranz'" 
+                       class="powertranz_recurring_options border p-3 mt-3 rounded bg-light"
+                       groups="base.group_user">
+                     <!-- Hide this section by default unless context indicates a subscription or recurring product -->
+                     <!-- The condition t-attf-style needs real context passed via processingValues -->
+                     
+                     <h5 class="mb-3">Recurring Payment Setup <small>(PowerTranz Managed)</small></h5>
+                     
+                     <div class="mb-3 form-check">
+                         <input type="checkbox" class="form-check-input" id="pt_setup_recurring" t-model="state.setupPtRecurring"/>
+                         <label class="form-check-label" for="pt_setup_recurring">
+                             Enable automatic recurring payments for this item/subscription
+                         </label>
+                         <small class="form-text text-muted d-block">Requires saving payment method.</small>
+                     </div>
+
+                     <div t-if="state.setupPtRecurring">
+                        <div class="mb-3">
+                             <label for="pt_recurring_freq" class="form-label">Frequency</label>
+                             <select class="form-select" id="pt_recurring_freq" t-model="state.ptRecurringFrequency">
+                                 <option value="D">Daily</option>
+                                 <option value="W">Weekly</option>
+                                 <option value="M" selected="1">Monthly</option>
+                                 <option value="Y">Yearly</option>
+                             </select>
+                         </div>
+                         <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="pt_recurring_start" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="pt_recurring_start" t-model="state.ptRecurringStartDate"/>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="pt_recurring_end" class="form-label">End Date <small>(Optional)</small></label>
+                                <input type="date" class="form-control" id="pt_recurring_end" t-model="state.ptRecurringEndDate"/>
+                            </div>
+                        </div>
+                     </div>
+                 </div>
+
+                <!-- Submit Button -->
+                <div class="mt-4">
+                    <button type="submit" t-attf-class="btn btn-primary {{ state.isLoading ? 'disabled' : '' }}" t-att-disabled="state.isLoading">
+                        <span t-if="!state.isLoading">Pay <t t-esc="props.processingValues.formatted_amount"/></span>
+                        <span t-if="state.isLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span t-if="state.isLoading"> Processing...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </t>
+
+</templates> 

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== PORTAL ACCESS RULES ==================== -->
+
+    <!-- Instances: Portal users see only their own instances -->
+    <record id="instance_portal_rule" model="ir.rule">
+        <field name="name">Portal: Own Instances</field>
+        <field name="model_id" ref="saas_master.model_saas_instance"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Subscriptions: Portal users see only their own subscriptions -->
+    <record id="subscription_portal_rule" model="ir.rule">
+        <field name="name">Portal: Own Subscriptions</field>
+        <field name="model_id" ref="saas_subscription.model_saas_subscription"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Tickets: Portal users see only their own tickets -->
+    <record id="ticket_portal_rule" model="ir.rule">
+        <field name="name">Portal: Own Tickets</field>
+        <field name="model_id" ref="saas_helpdesk.model_saas_ticket"/>
+        <field name="domain_force">[('partner_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Ticket Messages: Portal users see non-internal messages on their tickets -->
+    <record id="ticket_message_portal_rule" model="ir.rule">
+        <field name="name">Portal: Own Ticket Messages</field>
+        <field name="model_id" ref="saas_helpdesk.model_saas_ticket_message"/>
+        <field name="domain_force">[('ticket_id.partner_id', '=', user.partner_id.id), ('is_internal', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Ticket Categories: Portal users can read categories -->
+    <record id="ticket_category_portal_rule" model="ir.rule">
+        <field name="name">Portal: Read Categories</field>
+        <field name="model_id" ref="saas_helpdesk.model_saas_ticket_category"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Plans: Portal users can read plans -->
+    <record id="plan_portal_rule" model="ir.rule">
+        <field name="name">Portal: Read Plans</field>
+        <field name="model_id" ref="saas_master.model_saas_plan"/>
+        <field name="domain_force">[('is_active', '=', True)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>

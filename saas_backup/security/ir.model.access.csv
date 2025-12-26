@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_saas_backup_user,saas.backup.user,model_saas_backup,group_backup_user,1,0,1,0
+access_saas_backup_manager,saas.backup.manager,model_saas_backup,group_backup_manager,1,1,1,1
+access_saas_backup_schedule_user,saas.backup.schedule.user,model_saas_backup_schedule,group_backup_user,1,0,0,0
+access_saas_backup_schedule_manager,saas.backup.schedule.manager,model_saas_backup_schedule,group_backup_manager,1,1,1,1

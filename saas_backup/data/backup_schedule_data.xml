@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ==================== BACKUP SCHEDULES BY PLAN ==================== -->
+
+        <!--
+        Backup Schedule Strategy:
+        - Trial: Daily backup at 3:00 AM UTC (3-day retention)
+        - Solo: Daily backup at 3:00 AM UTC (7-day retention)
+        - Starter: Daily backup at 2:00 AM UTC (14-day retention)
+        - Professional: Daily backup at 2:00 AM UTC + Weekly on Sunday (30-day retention)
+        - Enterprise: Daily backup at 1:00 AM UTC + Weekly on Sunday + Monthly (90-day retention)
+
+        All backups run during off-peak hours (1-4 AM UTC)
+        -->
+
+        <!-- Global Daily Backup - Covers all instances without specific schedule -->
+        <record id="schedule_global_daily" model="saas.backup.schedule">
+            <field name="name">Global Daily Backup</field>
+            <field name="is_active">True</field>
+            <field name="apply_to_all">True</field>
+            <field name="frequency">daily</field>
+            <field name="hour">3</field>
+            <field name="minute">0</field>
+            <field name="backup_type">database</field>
+            <field name="retention_override">0</field>
+        </record>
+
+        <!-- Weekly Full Backup for Professional/Enterprise Plans -->
+        <record id="schedule_weekly_full" model="saas.backup.schedule">
+            <field name="name">Weekly Full Backup (Pro/Enterprise)</field>
+            <field name="is_active">True</field>
+            <field name="apply_to_all">True</field>
+            <field name="frequency">weekly</field>
+            <field name="day_of_week">6</field>
+            <field name="hour">2</field>
+            <field name="minute">0</field>
+            <field name="backup_type">full</field>
+            <field name="retention_override">30</field>
+        </record>
+
+        <!-- Monthly Archive Backup for Enterprise Plans -->
+        <record id="schedule_monthly_archive" model="saas.backup.schedule">
+            <field name="name">Monthly Archive Backup (Enterprise)</field>
+            <field name="is_active">True</field>
+            <field name="apply_to_all">True</field>
+            <field name="frequency">monthly</field>
+            <field name="day_of_month">1</field>
+            <field name="hour">1</field>
+            <field name="minute">0</field>
+            <field name="backup_type">full</field>
+            <field name="retention_override">90</field>
+        </record>
+
+    </data>
+</odoo>

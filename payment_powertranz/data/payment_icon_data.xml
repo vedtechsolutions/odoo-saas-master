@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Payment Icons for PowerTranz -->
+        <record id="payment_icon_visa" model="payment.icon">
+            <field name="name">Visa</field>
+            <field name="image_128" type="base64" file="payment_powertranz/static/img/visa.png"/>
+        </record>
+        
+        <record id="payment_icon_mastercard" model="payment.icon">
+            <field name="name">Mastercard</field>
+            <field name="image_128" type="base64" file="payment_powertranz/static/img/mastercard.png"/>
+        </record>
+    </data>
+</odoo>

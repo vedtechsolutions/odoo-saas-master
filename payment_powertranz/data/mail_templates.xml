@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Copyright 2025 PowerTranz -->
+    <!-- License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl) -->
+    
+    <!-- Email template for failed recurring payments -->
+    <record id="mail_template_recurring_payment_failed" model="mail.template">
+        <field name="name">PowerTranz: Recurring Payment Failed</field>
+        <field name="model_id" ref="model_powertranz_recurring"/>
+        <field name="subject">Recurring Payment Failed: {{ object.name }}</field>
+        <field name="email_from">{{ object.company_id.email or user.email_formatted }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="render_model">powertranz.recurring</field>
+        <field name="body_html" type="html">
+<t>
+    <div>
+        <p>Dear <t t-out="object.partner_id.name"/>,</p>
+        <p>We regret to inform you that your recurring payment <strong><t t-out="object.name"/></strong> for the amount of
+        <strong><t t-out="object.currency_id.symbol"/> <t t-out="'%.2f' % object.amount"/></strong> has failed.</p>
+        <p><strong>Payment Details:</strong></p>
+        <ul>
+            <li>Amount: <t t-out="object.currency_id.symbol"/> <t t-out="'%.2f' % object.amount"/></li>
+            <li>Frequency: <t t-out="object.frequency"/></li>
+            <li>Next Payment Date: <t t-out="object.next_payment_date or 'N/A'"/></li>
+            <li>Payment Method: <t t-out="object.payment_token_id.display_name"/></li>
+        </ul>
+        <p>Please check your payment method details or contact your bank to resolve any issues.</p>
+        <p>You can manage your recurring payment by logging into your account and visiting the 
+        Recurring Payments section of your customer portal.</p>
+        <p>If the payment continues to fail, your subscription may be paused.</p>
+        <p>Thank you for your attention to this matter.</p>
+        <p>Best regards,<br/><t t-out="object.company_id.name"/></p>
+    </div>
+</t>
+        </field>
+    </record>
+
+    <!-- Email template for new recurring payments -->
+    <record id="mail_template_recurring_payment_created" model="mail.template">
+        <field name="name">PowerTranz: Recurring Payment Created</field>
+        <field name="model_id" ref="model_powertranz_recurring"/>
+        <field name="subject">Recurring Payment Setup: {{ object.name }}</field>
+        <field name="email_from">{{ object.company_id.email or user.email_formatted }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="render_model">powertranz.recurring</field>
+        <field name="body_html" type="html">
+<t>
+    <div>
+        <p>Dear <t t-out="object.partner_id.name"/>,</p>
+        <p>Thank you for setting up a recurring payment with us. Your recurring payment <strong><t t-out="object.name"/></strong> has been successfully created.</p>
+        <p><strong>Payment Details:</strong></p>
+        <ul>
+            <li>Amount: <t t-out="object.currency_id.symbol"/> <t t-out="'%.2f' % object.amount"/></li>
+            <li>Frequency: <t t-out="object.frequency"/></li>
+            <li>Next Payment Date: <t t-out="object.next_payment_date or 'N/A'"/></li>
+            <li>Payment Method: <t t-out="object.payment_token_id.display_name"/></li>
+        </ul>
+        <p>You can manage your recurring payment at any time by logging into your account and visiting the Recurring Payments section of your customer portal.</p>
+        <div>
+            <a t-att-href="'/my/powertranz/recurring/%s' % object.id" style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
+                View Recurring Payment
+            </a>
+        </div>
+        <p>Best regards,<br/><t t-out="object.company_id.name"/></p>
+    </div>
+</t>
+        </field>
+    </record>
+
+    <!-- Email template for successful recurring payments -->
+    <record id="mail_template_recurring_payment_success" model="mail.template">
+        <field name="name">PowerTranz: Recurring Payment Successful</field>
+        <field name="model_id" ref="model_powertranz_recurring"/>
+        <field name="subject">Payment Successful: {{ object.name }}</field>
+        <field name="email_from">{{ object.company_id.email or user.email_formatted }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="render_model">powertranz.recurring</field>
+        <field name="body_html" type="html">
+<t>
+    <div>
+        <p>Dear <t t-out="object.partner_id.name"/>,</p>
+        <p>We're pleased to inform you that your recurring payment <strong><t t-out="object.name"/></strong> has been successfully processed.</p>
+        <p><strong>Payment Details:</strong></p>
+        <ul>
+            <li>Amount: <t t-out="object.currency_id.symbol"/> <t t-out="'%.2f' % object.amount"/></li>
+            <li>Payment Date: <t t-out="object.last_payment_date or 'Today'"/></li>
+            <li>Payment Method: <t t-out="object.payment_token_id.display_name"/></li>
+            <li>Next Payment Date: <t t-out="object.next_payment_date or 'N/A'"/></li>
+            <t t-if="ctx.get('missed_payments', 0) > 0">
+                <li><strong>Note:</strong> This payment includes <t t-out="ctx.get('missed_payments', 0)"/> previously missed payment(s) for a total of <t t-out="object.currency_id.symbol"/> <t t-out="'%.2f' % ctx.get('total_amount', object.amount)"/></li>
+            </t>
+        </ul>
+        <div>
+            <a t-att-href="'/my/powertranz/recurring/%s' % object.id" style="background-color: #875A7B; padding: 8px 16px 8px 16px; text-decoration: none; color: #fff; border-radius: 5px; font-size:13px;">
+                View Recurring Payment
+            </a>
+        </div>
+        <p>Thank you for your business.</p>
+        <p>Best regards,<br/><t t-out="object.company_id.name"/></p>
+    </div>
+</t>
+        </field>
+    </record>
+
+    <!-- Email template for cancelled recurring payments -->
+    <record id="mail_template_recurring_payment_cancelled" model="mail.template">
+        <field name="name">PowerTranz: Recurring Payment Cancelled</field>
+        <field name="model_id" ref="model_powertranz_recurring"/>
+        <field name="subject">Payment Cancelled: {{ object.name }}</field>
+        <field name="email_from">{{ object.company_id.email or user.email_formatted }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="render_model">powertranz.recurring</field>
+        <field name="body_html" type="html">
+<t>
+    <div>
+        <p>Dear <t t-out="object.partner_id.name"/>,</p>
+        <p>This is to confirm that your recurring payment <strong><t t-out="object.name"/></strong> has been cancelled as requested.</p>
+        <p><strong>Payment Details:</strong></p>
+        <ul>
+            <li>Amount: <t t-out="object.currency_id.symbol"/> <t t-out="object.amount"/></li>
+            <li>Frequency: <t t-out="object.frequency"/></li>
+            <li>Cancellation Date: Today</li>
+        </ul>
+        <p>If you did not request this cancellation or if you wish to set up a new recurring payment, please contact our support team.</p>
+        <p>Best regards,<br/><t t-out="object.company_id.name"/></p>
+    </div>
+</t>
+        </field>
+    </record>
+
+    <!-- Email template for paused recurring payments -->
+    <record id="mail_template_recurring_payment_paused" model="mail.template">
+        <field name="name">PowerTranz: Recurring Payment Paused</field>
+        <field name="model_id" ref="model_powertranz_recurring"/>
+        <field name="subject">Payment Paused: {{ object.name }}</field>
+        <field name="email_from">{{ object.company_id.email or user.email_formatted }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="render_model">powertranz.recurring</field>
+        <field name="body_html" type="html">
+<t>
+    <div>
+        <p>Dear <t t-out="object.partner_id.name"/>,</p>
+        <p>This is to inform you that your recurring payment <strong><t t-out="object.name"/></strong> has been temporarily paused.</p>
+        <p><strong>Payment Details:</strong></p>
+        <ul>
+            <li>Amount: <t t-out="object.currency_id.symbol"/> <t t-out="object.amount"/></li>
+            <li>Frequency: <t t-out="object.frequency"/></li>
+            <li>Last Payment Date: <t t-out="object.last_payment_date or 'N/A'"/></li>
+        </ul>
+        <p>No payments will be processed while your subscription is paused. You can resume your recurring payments at any time through your customer portal.</p>
+        <p>If you did not request this action or if you wish to resume your recurring payment, please contact our support team.</p>
+        <p>Best regards,<br/><t t-out="object.company_id.name"/></p>
+    </div>
+</t>
+        </field>
+    </record>
+
+    <!-- Email template for resumed recurring payments -->
+    <record id="mail_template_recurring_payment_resumed" model="mail.template">
+        <field name="name">PowerTranz: Recurring Payment Resumed</field>
+        <field name="model_id" ref="model_powertranz_recurring"/>
+        <field name="subject">Payment Resumed: {{ object.name }}</field>
+        <field name="email_from">{{ object.company_id.email or user.email_formatted }}</field>
+        <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="render_model">powertranz.recurring</field>
+        <field name="body_html" type="html">
+<div>
+    <p>Dear <t t-out="object.partner_id.name"/>,</p>
+    <p>Good news! Your recurring payment <strong><t t-out="object.name"/></strong> has been successfully resumed.</p>
+    <p><strong>Payment Details:</strong></p>
+    <ul>
+        <li>Amount: <t t-out="object.currency_id.symbol"/> <t t-out="object.amount"/></li>
+        <li>Frequency: <t t-out="object.frequency"/></li>
+        <li>Next Payment Date: <t t-out="object.next_payment_date or 'N/A'"/></li>
+    </ul>
+    <p>Your payments will now continue to be processed according to your payment schedule.</p>
+    <p>If you have any questions or concerns, please don't hesitate to contact our support team.</p>
+    <p>Best regards,<br/><t t-out="object.company_id.name"/></p>
+</div>
+        </field>
+    </record>
+</odoo>

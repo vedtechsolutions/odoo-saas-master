@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Simple SaaS info template - can be included in other views -->
+    <template id="saas_line_info" name="SaaS Line Info">
+        <t t-if="line.is_saas_line">
+            <div class="small text-muted mt-2 saas-line-info">
+                <t t-if="line.saas_subdomain">
+                    <div>
+                        <i class="fa fa-globe me-1" title="Domain"/>
+                        <strong>Domain:</strong>
+                        <span t-esc="line.saas_subdomain"/>.tenants.vedtechsolutions.com
+                    </div>
+                </t>
+                <t t-if="line.saas_odoo_version">
+                    <div>
+                        <i class="fa fa-code-branch me-1" title="Version"/>
+                        <strong>Version:</strong> Odoo <span t-esc="line.saas_odoo_version"/>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- SaaS Order Confirmation Info -->
+    <template id="saas_order_confirmation_info" name="SaaS Order Confirmation Info">
+        <t t-if="has_saas_products">
+            <div class="card mt-4 border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fa fa-cloud me-2" title="Cloud"/>
+                        Your SaaS Instance is Being Prepared
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Your Odoo instance is being provisioned. This typically takes 2-5 minutes.
+                        You will receive an email with login details once your instance is ready.
+                    </p>
+                    <t t-foreach="saas_lines" t-as="line">
+                        <div class="mb-3 p-2 bg-light rounded">
+                            <h6 t-esc="line.product_id.name"/>
+                            <ul class="list-unstyled ms-3 mb-0">
+                                <li>
+                                    <i class="fa fa-globe me-2" title="URL"/>
+                                    <strong>URL:</strong>
+                                    <a t-att-href="'https://' + (line.saas_subdomain or '') + '.tenants.vedtechsolutions.com'"
+                                       target="_blank" class="text-primary">
+                                        https://<t t-esc="line.saas_subdomain"/>.tenants.vedtechsolutions.com
+                                    </a>
+                                </li>
+                                <li>
+                                    <i class="fa fa-code-branch me-2" title="Version"/>
+                                    <strong>Version:</strong> Odoo <t t-esc="line.saas_odoo_version or '19'"/>
+                                </li>
+                            </ul>
+                        </div>
+                    </t>
+                    <div class="alert alert-light mb-0">
+                        <i class="fa fa-info-circle me-2" title="Info"/>
+                        You can track your instance status in your
+                        <a href="/my/instances" class="alert-link">customer portal</a>.
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

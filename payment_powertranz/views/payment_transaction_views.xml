@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="payment_transaction_form_powertranz" model="ir.ui.view">
+        <field name="name">payment.transaction.form.powertranz</field>
+        <field name="model">payment.transaction</field>
+        <field name="inherit_id" ref="payment.payment_transaction_form"/>
+        <field name="arch" type="xml">
+            <!-- Add a new page for PowerTranz specific details -->
+            <xpath expr="//sheet/group" position="after">
+                <group string="PowerTranz Details" name="powertranz_details" invisible="provider_code != 'powertranz'">
+                    <group name="powertranz_transaction_info">
+                        <field name="powertranz_spi_token"/>
+                        <field name="powertranz_iso_response_code"/>
+                        <field name="powertranz_response_message"/>
+                        <field name="powertranz_authorization_code"/>
+                        <field name="powertranz_rrn"/>
+                        <field name="powertranz_card_brand"/>
+                        <field name="powertranz_recurring_identifier"/>
+                    </group>
+                    <group string="3D Secure Details" name="powertranz_3ds_info">
+                        <field name="powertranz_3ds_status"/>
+                        <field name="powertranz_authentication_status"/>
+                        <field name="powertranz_eci_value"/>
+                        <field name="powertranz_cavv"/>
+                        <field name="powertranz_xid"/>
+                        <field name="powertranz_3ds_redirect_data"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo> 

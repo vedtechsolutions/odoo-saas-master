@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Minimal version with no action references -->
+<odoo>
+    <!-- Empty file to prevent installation errors -->
+</odoo>

@@ -1,0 +1,90 @@
+/* SaaS Portal Custom Styles */
+
+/* Instance Cards */
+.saas-instance-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.saas-instance-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Status Badges */
+.saas-status-running {
+    background-color: #28a745;
+    color: white;
+}
+
+.saas-status-stopped {
+    background-color: #6c757d;
+    color: white;
+}
+
+.saas-status-suspended {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.saas-status-error {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Priority Badges */
+.saas-priority-urgent {
+    background-color: #dc3545;
+    color: white;
+}
+
+.saas-priority-high {
+    background-color: #fd7e14;
+    color: white;
+}
+
+.saas-priority-medium {
+    background-color: #0dcaf0;
+    color: #212529;
+}
+
+.saas-priority-low {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Ticket Messages */
+.saas-message-customer {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-left: 3px solid #0d6efd;
+}
+
+.saas-message-support {
+    background-color: #f8f9fa;
+    border-left: 3px solid #6c757d;
+}
+
+/* Portal Cards */
+.o_portal_docs .card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.o_portal_docs .card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Feature List */
+.saas-feature-list li {
+    padding: 0.5rem 0;
+}
+
+.saas-feature-list i {
+    width: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .saas-instance-card .card-footer .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}

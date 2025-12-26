@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Recurring Payment - Credit card with circular arrows -->
+<!-- Card background -->
+<path d="M8 20C8 17.7909 9.79086 16 12 16H52C54.2091 16 56 17.7909 56 20V44C56 46.2091 54.2091 48 52 48H12C9.79086 48 8 46.2091 8 44V20Z" fill="#C1DBF6"/>
+<path d="M8 20C8 17.7909 9.79086 16 12 16H52C54.2091 16 56 17.7909 56 20V26H8V20Z" fill="#FBDBD0"/>
+<path d="M12 16H52C54.2091 16 56 17.7909 56 20V44C56 46.2091 54.2091 48 52 48H12C9.79086 48 8 46.2091 8 44V20C8 17.7909 9.79086 16 12 16Z" fill="white" fill-opacity="0.4"/>
+<!-- Card stripe -->
+<rect x="8" y="24" width="48" height="6" fill="#374874" fill-opacity="0.3"/>
+<!-- Chip -->
+<rect x="14" y="32" width="10" height="8" rx="1" fill="#FBDBD0" stroke="#374874" stroke-width="0.5"/>
+<line x1="17" y1="32" x2="17" y2="40" stroke="#374874" stroke-width="0.5"/>
+<line x1="21" y1="32" x2="21" y2="40" stroke="#374874" stroke-width="0.5"/>
+<line x1="14" y1="36" x2="24" y2="36" stroke="#374874" stroke-width="0.5"/>
+<!-- Recurring arrows circle -->
+<circle cx="44" cy="36" r="8" fill="white" stroke="#374874" stroke-width="1"/>
+<path d="M44 30C47.3137 30 50 32.6863 50 36C50 39.3137 47.3137 42 44 42" stroke="#374874" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M44 42C40.6863 42 38 39.3137 38 36C38 32.6863 40.6863 30 44 30" stroke="#374874" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M44 28L44 32L48 30" stroke="#374874" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M44 44L44 40L40 42" stroke="#374874" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Card outline -->
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12 15C9.23858 15 7 17.2386 7 20V44C7 46.7614 9.23858 49 12 49H52C54.7614 49 57 46.7614 57 44V20C57 17.2386 54.7614 15 52 15H12ZM9 20C9 18.3431 10.3431 17 12 17H52C53.6569 17 55 18.3431 55 20V44C55 45.6569 53.6569 47 52 47H12C10.3431 47 9 45.6569 9 44V20Z" fill="#374874"/>
+</svg>

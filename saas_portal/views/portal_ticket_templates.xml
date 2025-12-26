@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== TICKETS LIST ==================== -->
+
+    <template id="portal_my_tickets" name="My Tickets">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Support Tickets</t>
+            </t>
+
+            <div class="mb-4">
+                <a href="/my/tickets/new" class="btn btn-primary">
+                    <i class="fa fa-plus me-1" title="New"/>
+                    New Ticket
+                </a>
+            </div>
+
+            <t t-if="not tickets">
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-0">
+                        <strong>No tickets found.</strong>
+                        <a href="/my/tickets/new">Create a new ticket</a> to get help.
+                    </p>
+                </div>
+            </t>
+
+            <t t-if="tickets">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Reference</th>
+                                <th>Subject</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="tickets" t-as="ticket">
+                                <tr>
+                                    <td>
+                                        <a t-attf-href="/my/tickets/#{ticket.id}">
+                                            <t t-out="ticket.reference"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a t-attf-href="/my/tickets/#{ticket.id}">
+                                            <t t-out="ticket.name"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <t t-if="ticket.category_id">
+                                            <t t-out="ticket.category_id.name"/>
+                                        </t>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </td>
+                                    <td>
+                                        <span t-attf-class="badge #{
+                                            'text-bg-danger' if ticket.priority == '3' else
+                                            'text-bg-warning' if ticket.priority == '2' else
+                                            'text-bg-info' if ticket.priority == '1' else
+                                            'text-bg-secondary'
+                                        }">
+                                            <t t-if="ticket.priority == '3'">Urgent</t>
+                                            <t t-if="ticket.priority == '2'">High</t>
+                                            <t t-if="ticket.priority == '1'">Medium</t>
+                                            <t t-if="ticket.priority == '0'">Low</t>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <t t-out="ticket.create_date" t-options='{"widget": "date"}'/>
+                                    </td>
+                                    <td>
+                                        <span t-attf-class="badge #{
+                                            'text-bg-secondary' if ticket.state == 'new' else
+                                            'text-bg-primary' if ticket.state == 'open' else
+                                            'text-bg-info' if ticket.state == 'in_progress' else
+                                            'text-bg-warning' if ticket.state == 'pending' else
+                                            'text-bg-success' if ticket.state in ['resolved', 'closed'] else
+                                            'text-bg-dark'
+                                        }">
+                                            <t t-out="ticket.state.replace('_', ' ').title()"/>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a t-attf-href="/my/tickets/#{ticket.id}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div t-if="pager" class="o_portal_pager text-center mt-4">
+                    <t t-call="portal.pager"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- ==================== TICKET DETAIL ==================== -->
+
+    <template id="portal_my_ticket" name="Ticket Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
+
+            <div class="row mt-4">
+                <div class="col-lg-8 col-12">
+                    <!-- Ticket Header -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h4 class="mb-1">
+                                        <t t-out="ticket.reference"/>
+                                    </h4>
+                                    <h5 class="mb-0 text-muted">
+                                        <t t-out="ticket.name"/>
+                                    </h5>
+                                </div>
+                                <span t-attf-class="badge fs-6 #{
+                                    'text-bg-secondary' if ticket.state == 'new' else
+                                    'text-bg-primary' if ticket.state == 'open' else
+                                    'text-bg-info' if ticket.state == 'in_progress' else
+                                    'text-bg-warning' if ticket.state == 'pending' else
+                                    'text-bg-success' if ticket.state in ['resolved', 'closed'] else
+                                    'text-bg-dark'
+                                }">
+                                    <t t-out="ticket.state.replace('_', ' ').title()"/>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <strong>Category:</strong>
+                                    <t t-if="ticket.category_id">
+                                        <t t-out="ticket.category_id.name"/>
+                                    </t>
+                                    <span t-else="" class="text-muted">Not specified</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Priority:</strong>
+                                    <span t-attf-class="badge #{
+                                        'text-bg-danger' if ticket.priority == '3' else
+                                        'text-bg-warning' if ticket.priority == '2' else
+                                        'text-bg-info' if ticket.priority == '1' else
+                                        'text-bg-secondary'
+                                    }">
+                                        <t t-if="ticket.priority == '3'">Urgent</t>
+                                        <t t-if="ticket.priority == '2'">High</t>
+                                        <t t-if="ticket.priority == '1'">Medium</t>
+                                        <t t-if="ticket.priority == '0'">Low</t>
+                                    </span>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Created:</strong>
+                                    <t t-out="ticket.create_date" t-options='{"widget": "datetime"}'/>
+                                </div>
+                            </div>
+
+                            <div t-if="ticket.instance_id" class="mb-3">
+                                <strong>Related Instance:</strong>
+                                <a t-attf-href="/my/instances/#{ticket.instance_id.id}">
+                                    <t t-out="ticket.instance_id.subdomain"/>
+                                </a>
+                            </div>
+
+                            <hr/>
+
+                            <h6>Description</h6>
+                            <div class="bg-light p-3 rounded">
+                                <t t-out="ticket.description"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="card mb-4" t-if="ticket.state in ['resolved', 'closed']">
+                        <div class="card-body">
+                            <t t-if="ticket.state == 'resolved'">
+                                <p>This ticket has been marked as resolved. Is your issue fixed?</p>
+                                <a t-attf-href="/my/tickets/#{ticket.id}/close"
+                                   class="btn btn-success me-2">
+                                    <i class="fa fa-check me-1" title="Confirm"/>
+                                    Yes, Close Ticket
+                                </a>
+                                <a t-attf-href="/my/tickets/#{ticket.id}/reopen"
+                                   class="btn btn-warning">
+                                    <i class="fa fa-refresh me-1" title="Reopen"/>
+                                    No, Reopen Ticket
+                                </a>
+                            </t>
+                            <t t-if="ticket.state == 'closed'">
+                                <p class="text-muted mb-2">This ticket is closed.</p>
+                                <a t-attf-href="/my/tickets/#{ticket.id}/reopen"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fa fa-refresh me-1" title="Reopen"/>
+                                    Reopen Ticket
+                                </a>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Messages/Replies -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Conversation</h5>
+                        </div>
+                        <div class="card-body">
+                            <t t-if="ticket.ticket_message_ids">
+                                <t t-foreach="ticket.ticket_message_ids.filtered(lambda m: not m.is_internal)"
+                                   t-as="message">
+                                    <div t-attf-class="mb-3 p-3 rounded #{
+                                        'bg-primary bg-opacity-10 border-start border-primary border-3' if message.is_customer_message else
+                                        'bg-light border-start border-secondary border-3'
+                                    }">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <strong>
+                                                <t t-out="message.author_name"/>
+                                                <span t-if="message.is_customer_message"
+                                                      class="badge text-bg-primary ms-1">You</span>
+                                                <span t-else=""
+                                                      class="badge text-bg-secondary ms-1">Support</span>
+                                            </strong>
+                                            <small class="text-muted">
+                                                <t t-out="message.create_date" t-options='{"widget": "datetime"}'/>
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <t t-out="message.body"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+
+                            <t t-if="not ticket.ticket_message_ids.filtered(lambda m: not m.is_internal)">
+                                <p class="text-muted">No messages yet.</p>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Reply Form -->
+                    <div class="card mb-4" t-if="ticket.state not in ['closed', 'cancelled']">
+                        <div class="card-header">
+                            <h5 class="mb-0">Add Reply</h5>
+                        </div>
+                        <div class="card-body">
+                            <form t-attf-action="/my/tickets/#{ticket.id}/reply" method="POST">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="mb-3">
+                                    <textarea name="message" class="form-control" rows="4"
+                                              placeholder="Type your message here..."
+                                              required="required"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-paper-plane me-1" title="Send"/>
+                                    Send Reply
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4 col-12">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Ticket Info</h5>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item">
+                                <small class="text-muted">Assigned To</small>
+                                <div>
+                                    <t t-if="ticket.user_id">
+                                        <t t-out="ticket.user_id.name"/>
+                                    </t>
+                                    <span t-else="" class="text-muted">Unassigned</span>
+                                </div>
+                            </div>
+                            <div t-if="ticket.first_response_date" class="list-group-item">
+                                <small class="text-muted">First Response</small>
+                                <div>
+                                    <t t-out="ticket.first_response_date" t-options='{"widget": "datetime"}'/>
+                                </div>
+                            </div>
+                            <div t-if="ticket.resolved_date" class="list-group-item">
+                                <small class="text-muted">Resolved</small>
+                                <div>
+                                    <t t-out="ticket.resolved_date" t-options='{"widget": "datetime"}'/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Links</h5>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <a href="/my/tickets" class="list-group-item list-group-item-action">
+                                <i class="fa fa-arrow-left me-2" title="Back"/>
+                                Back to Tickets
+                            </a>
+                            <a href="/my/tickets/new" class="list-group-item list-group-item-action">
+                                <i class="fa fa-plus me-2" title="New"/>
+                                New Ticket
+                            </a>
+                            <a href="/my/instances" class="list-group-item list-group-item-action">
+                                <i class="fa fa-server me-2" title="Instances"/>
+                                My Instances
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ==================== NEW TICKET FORM ==================== -->
+
+    <template id="portal_new_ticket" name="New Ticket">
+        <t t-call="portal.portal_layout">
+            <t t-set="wrapwrap_classes" t-value="'o_portal_bg_dark'"/>
+
+            <div class="row mt-4">
+                <div class="col-lg-8 col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">Create New Support Ticket</h4>
+                        </div>
+                        <div class="card-body">
+                            <t t-if="error_message">
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0">
+                                        <t t-foreach="error_message" t-as="err">
+                                            <li><t t-out="err"/></li>
+                                        </t>
+                                    </ul>
+                                </div>
+                            </t>
+
+                            <form action="/my/tickets/create" method="POST">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Subject *</label>
+                                    <input type="text" name="name" id="name"
+                                           t-attf-class="form-control #{'is-invalid' if error.get('name') else ''}"
+                                           t-att-value="post.get('name', '')"
+                                           placeholder="Brief description of your issue"
+                                           required="required"/>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="category_id" class="form-label">Category</label>
+                                        <select name="category_id" id="category_id" class="form-select">
+                                            <option value="">-- Select Category --</option>
+                                            <t t-foreach="categories" t-as="category">
+                                                <option t-att-value="category.id"
+                                                        t-att-selected="post.get('category_id') == str(category.id)">
+                                                    <t t-out="category.name"/>
+                                                </option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="priority" class="form-label">Priority</label>
+                                        <select name="priority" id="priority" class="form-select">
+                                            <option value="0"
+                                                    t-att-selected="post.get('priority') == '0'">Low</option>
+                                            <option value="1"
+                                                    t-att-selected="post.get('priority', '1') == '1'">Medium</option>
+                                            <option value="2"
+                                                    t-att-selected="post.get('priority') == '2'">High</option>
+                                            <option value="3"
+                                                    t-att-selected="post.get('priority') == '3'">Urgent</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div t-if="instances" class="mb-3">
+                                    <label for="instance_id" class="form-label">Related Instance</label>
+                                    <select name="instance_id" id="instance_id" class="form-select">
+                                        <option value="">-- Select Instance (optional) --</option>
+                                        <t t-foreach="instances" t-as="instance">
+                                            <option t-att-value="instance.id"
+                                                    t-att-selected="post.get('instance_id') == str(instance.id)">
+                                                <t t-out="instance.subdomain"/> - <t t-out="instance.name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description *</label>
+                                    <textarea name="description" id="description"
+                                              t-attf-class="form-control #{'is-invalid' if error.get('description') else ''}"
+                                              rows="6"
+                                              placeholder="Please describe your issue in detail..."
+                                              required="required"><t t-out="post.get('description', '')"/></textarea>
+                                    <div class="form-text">
+                                        Include any error messages, steps to reproduce, and what you expected to happen.
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fa fa-paper-plane me-1" title="Submit"/>
+                                        Submit Ticket
+                                    </button>
+                                    <a href="/my/tickets" class="btn btn-outline-secondary">
+                                        Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4 col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Tips</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="mb-0">
+                                <li class="mb-2">Be specific about your issue</li>
+                                <li class="mb-2">Include error messages if any</li>
+                                <li class="mb-2">Describe steps to reproduce</li>
+                                <li class="mb-2">Select the correct category for faster routing</li>
+                                <li>Use Urgent priority only for critical issues</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

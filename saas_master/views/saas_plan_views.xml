@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="saas_plan_view_form" model="ir.ui.view">
+        <field name="name">saas.plan.form</field>
+        <field name="model">saas.plan</field>
+        <field name="arch" type="xml">
+            <form string="Subscription Plan">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_instances" type="object"
+                                class="oe_stat_button" icon="fa-server">
+                            <field name="instance_count" widget="statinfo" string="Instances"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="is_active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Professional Plan"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Plan Details">
+                            <field name="code"/>
+                            <field name="sequence"/>
+                            <field name="is_active"/>
+                            <field name="is_trial"/>
+                        </group>
+                        <group string="Pricing">
+                            <label for="monthly_price"/>
+                            <div class="o_row">
+                                <field name="monthly_price"/>
+                                <field name="currency_id" options="{'no_create': True}"/>
+                                <span>/ month</span>
+                            </div>
+                            <label for="yearly_price"/>
+                            <div class="o_row">
+                                <field name="yearly_price"/>
+                                <span>/ year</span>
+                            </div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Resource Limits" name="resources">
+                            <group>
+                                <group string="Computing">
+                                    <field name="cpu_limit"/>
+                                    <field name="ram_limit_mb"/>
+                                </group>
+                                <group string="Storage">
+                                    <field name="storage_db_limit_gb"/>
+                                    <field name="storage_file_limit_gb"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Limits">
+                                    <field name="user_limit"/>
+                                    <field name="instance_limit"/>
+                                </group>
+                                <group string="Features">
+                                    <field name="backup_retention_days"/>
+                                    <field name="support_level"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Marketing description for this plan..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="saas_plan_view_tree" model="ir.ui.view">
+        <field name="name">saas.plan.tree</field>
+        <field name="model">saas.plan</field>
+        <field name="arch" type="xml">
+            <list string="Subscription Plans">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="monthly_price"/>
+                <field name="yearly_price"/>
+                <field name="user_limit"/>
+                <field name="instance_limit"/>
+                <field name="cpu_limit"/>
+                <field name="ram_limit_mb"/>
+                <field name="is_trial"/>
+                <field name="is_active"/>
+                <field name="instance_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View (Odoo 19: t-name="card") -->
+    <record id="saas_plan_view_kanban" model="ir.ui.view">
+        <field name="name">saas.plan.kanban</field>
+        <field name="model">saas.plan</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="monthly_price"/>
+                <field name="is_active"/>
+                <field name="is_trial"/>
+                <field name="instance_count"/>
+                <field name="currency_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <span class="o_kanban_record_subtitle text-muted">
+                                        <field name="code"/>
+                                    </span>
+                                </div>
+                                <div>
+                                    <span t-if="record.is_trial.raw_value"
+                                          class="badge text-bg-info">Trial</span>
+                                    <span t-if="!record.is_active.raw_value"
+                                          class="badge text-bg-danger">Archived</span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div class="text-primary fw-bold">
+                                    <field name="monthly_price" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <span>/month</span>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span title="Instances">
+                                        <i class="fa fa-server" title="Instances"/>
+                                        <field name="instance_count"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="saas_plan_view_search" model="ir.ui.view">
+        <field name="name">saas.plan.search</field>
+        <field name="model">saas.plan</field>
+        <field name="arch" type="xml">
+            <search string="Search Plans">
+                <field name="name"/>
+                <field name="code"/>
+                <filter name="filter_active" string="Active" domain="[('is_active', '=', True)]"/>
+                <filter name="filter_trial" string="Trial" domain="[('is_trial', '=', True)]"/>
+                <filter name="filter_archived" string="Archived" domain="[('is_active', '=', False)]"/>
+                <separator/>
+                <filter name="group_support" string="Support Level" context="{'group_by': 'support_level'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_saas_plan" model="ir.actions.act_window">
+        <field name="name">Subscription Plans</field>
+        <field name="res_model">saas.plan</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="saas_plan_view_search"/>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first subscription plan
+            </p>
+            <p>
+                Define pricing tiers with resource limits for your SaaS customers.
+            </p>
+        </field>
+    </record>
+
+</odoo>
