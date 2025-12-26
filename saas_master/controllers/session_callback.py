@@ -31,8 +31,9 @@ class SessionCallbackController(http.Controller):
         Updates audit log and sends notification to customer.
         """
         try:
-            # Get JSON data from request
-            data = request.get_json_data() if hasattr(request, 'get_json_data') else kw
+            # For type='jsonrpc' routes, the params are passed as kwargs
+            # The JSON-RPC params are already extracted by Odoo
+            data = kw
 
             _logger.info(f"Session callback received for instance {instance_id}: {data}")
 

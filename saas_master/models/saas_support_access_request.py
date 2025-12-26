@@ -181,6 +181,9 @@ class SaasSupportAccessRequest(models.Model):
         # Log the access
         self.instance_id._log_support_access()
 
+        # Notify customer that support has accessed their instance
+        self.instance_id._send_support_access_notification()
+
         # Redirect to tenant
         login_url = f"{self.instance_id.instance_url}/support/login?token={token}"
         return {

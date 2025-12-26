@@ -846,7 +846,7 @@ password = base64.b64decode("{encoded_password}").decode()
 new_hash = ctx.hash(password)
 conn = psycopg2.connect(host='host.docker.internal', dbname='{self.database_name}', user='odoo', password='odoo')
 cur = conn.cursor()
-cur.execute("UPDATE res_users SET password = %s WHERE id = 2", (new_hash,))
+cur.execute("UPDATE res_users SET password = %s WHERE login = 'admin'", (new_hash,))
 conn.commit()
 print("PASSWORD_UPDATED" if cur.rowcount > 0 else "PASSWORD_FAILED")
 conn.close()
@@ -1899,13 +1899,17 @@ conn.close()
 
                     # Authenticate to tenant with timeout
                     auth_url = f"{self.instance_url}/web/session/authenticate"
+                    # Use _get_decrypted_value to ensure we get the plain password
+                    # (not the ENC::... encrypted value from the mixin)
+                    plain_password = self._get_decrypted_value('admin_password')
+
                     auth_response = session.post(auth_url, json={
                         "jsonrpc": "2.0",
                         "method": "call",
                         "params": {
                             "db": self.database_name,
                             "login": "admin",
-                            "password": self.admin_password,
+                            "password": plain_password,
                         },
                         "id": 1,
                     }, timeout=30)

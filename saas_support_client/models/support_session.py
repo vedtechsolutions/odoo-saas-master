@@ -162,7 +162,8 @@ class SupportSession(models.Model):
         try:
             import requests
 
-            payload = {
+            # Build session data
+            session_data = {
                 'session_id': self.session_id,
                 'master_uid': self.master_uid,
                 'user_id': self.user_id.id,
@@ -173,10 +174,19 @@ class SupportSession(models.Model):
                 'state': self.state,
             }
 
+            # Master callback endpoint uses type='jsonrpc', so wrap in JSON-RPC format
+            payload = {
+                'jsonrpc': '2.0',
+                'method': 'call',
+                'params': session_data,
+                'id': 1,
+            }
+
             response = requests.post(
                 self.master_callback_url,
                 json=payload,
                 timeout=10,
+                headers={'Content-Type': 'application/json'},
             )
 
             if response.status_code == 200:
