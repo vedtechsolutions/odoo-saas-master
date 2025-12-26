@@ -691,7 +691,8 @@ class SaasBackup(models.Model):
                 _logger.warning(f"No instance for backup {self.reference}")
                 return
 
-            recipient_email = instance.admin_email or (instance.partner_id and instance.partner_id.email)
+            # Get decrypted email (admin_email is an encrypted field)
+            recipient_email = instance._get_decrypted_value('admin_email') or (instance.partner_id and instance.partner_id.email)
             if not recipient_email:
                 _logger.warning(f"No email recipient for backup {self.reference}")
                 return

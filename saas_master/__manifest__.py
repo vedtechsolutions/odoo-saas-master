@@ -29,6 +29,7 @@ Features:
         'base',
         'mail',
         'website',
+        'sale',
         'saas_core',
     ],
     'data': [

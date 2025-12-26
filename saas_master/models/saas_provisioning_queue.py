@@ -75,9 +75,16 @@ class SaasProvisioningQueue(models.Model):
     instance_id = fields.Many2one(
         ModelNames.INSTANCE,
         string='Instance',
-        required=True,
+        required=False,  # Not required - may be set later or not at all for early failures
         ondelete='cascade',
         index=True,
+    )
+    sale_order_id = fields.Many2one(
+        'sale.order',
+        string='Sale Order',
+        ondelete='set null',
+        index=True,
+        help='Sale order that triggered this task (for tracking early failures)',
     )
     priority = fields.Selection(
         selection=[
@@ -280,8 +287,16 @@ class SaasProvisioningQueue(models.Model):
             # Execute action based on type
             if self.action == QueueAction.PROVISION:
                 instance._do_provision()
-                # Send welcome email on successful provisioning
-                self._send_welcome_email()
+                # Refresh instance to get latest state
+                instance.invalidate_recordset()
+                # Only send welcome email if provisioning was successful
+                if instance.state == InstanceState.RUNNING:
+                    self._send_welcome_email()
+                else:
+                    _logger.warning(
+                        f"Skipping welcome email for {instance.subdomain} - "
+                        f"instance is in {instance.state} state (not running)"
+                    )
 
             elif self.action == QueueAction.START:
                 instance.action_start()
@@ -369,15 +384,31 @@ class SaasProvisioningQueue(models.Model):
         self.ensure_one()
         try:
             instance = self.instance_id
+            # Refresh instance data from DB to ensure we have the latest values
+            instance.invalidate_recordset()
+
+            # Verify instance has email and password set
+            if not instance.admin_email:
+                _logger.warning(f"No admin email for instance {instance.subdomain} - skipping welcome email")
+                return
+
+            if not instance.admin_password:
+                _logger.warning(f"No admin password for instance {instance.subdomain} - skipping welcome email")
+                return
+
             template = self.env.ref(
                 'saas_subscription.mail_template_saas_instance_ready',
                 raise_if_not_found=False
             )
-            if template and instance.admin_email:
+            if template:
                 template.send_mail(instance.id, force_send=True)
-                _logger.info(f"Welcome email sent to {instance.admin_email}")
+                # Log with decrypted email for debugging
+                decrypted_email = instance._get_decrypted_value('admin_email')
+                _logger.info(f"Welcome email sent to {decrypted_email} for {instance.subdomain}")
+            else:
+                _logger.warning("Welcome email template not found")
         except Exception as e:
-            _logger.warning(f"Failed to send welcome email: {e}")
+            _logger.warning(f"Failed to send welcome email for {self.instance_id.subdomain}: {e}")
             # Don't fail the task just because email failed
 
     @api.model

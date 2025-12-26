@@ -36,5 +36,17 @@
             <field name="active">True</field>
             <field name="nextcall" eval="(datetime.now() + relativedelta(days=1)).strftime('%Y-%m-%d 02:00:00')"/>
         </record>
+
+        <!-- Cancelled Subscription Cleanup - runs daily at 3 AM (FIX Gap #5) -->
+        <record id="cron_cleanup_cancelled_subscriptions" model="ir.cron">
+            <field name="name">SaaS: Cleanup Cancelled Subscriptions</field>
+            <field name="model_id" ref="model_saas_subscription"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_cleanup_cancelled_subscriptions()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">True</field>
+            <field name="nextcall" eval="(datetime.now() + relativedelta(days=1)).strftime('%Y-%m-%d 03:00:00')"/>
+        </record>
     </data>
 </odoo>

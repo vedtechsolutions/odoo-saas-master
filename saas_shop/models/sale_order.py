@@ -210,6 +210,21 @@ class SaleOrder(models.Model):
             # Determine trial status
             is_trial = plan.is_trial
 
+            # Create a queue task early to track this provisioning attempt
+            # This ensures failures are visible in Failed Tasks even if instance creation fails
+            Queue = self.env[ModelNames.QUEUE]
+            queue_task = None
+            try:
+                queue_task = Queue.create({
+                    'action': 'provision',
+                    'sale_order_id': self.id,
+                    'priority': '2',  # High priority for new instances
+                    'state': 'processing',
+                })
+                self.env.cr.commit()
+            except Exception as q_err:
+                _logger.warning(f"Could not create tracking queue task: {q_err}")
+
             try:
                 # STEP 2: Create subscription FIRST (as pending)
                 subscription_vals = {
@@ -255,6 +270,11 @@ class SaleOrder(models.Model):
                 subscription.write({'instance_id': instance.id})
                 self.env.cr.commit()
 
+                # Delete the tracking queue task - the real one will be created by action_provision
+                if queue_task:
+                    queue_task.unlink()
+                    self.env.cr.commit()
+
                 # STEP 5: Trigger provisioning (welcome email sent after completion)
                 try:
                     instance.action_provision()
@@ -263,8 +283,27 @@ class SaleOrder(models.Model):
                     _logger.warning(f"Provisioning trigger issue: {prov_error}")
 
             except Exception as e:
+                import traceback
+                error_tb = traceback.format_exc()
                 _logger.error(f"Failed to provision instance for order {self.name}: {e}")
                 all_success = False
+
+                # Mark the tracking queue task as failed so it shows in Failed Tasks
+                if queue_task:
+                    try:
+                        # Refresh the queue task (it was committed)
+                        queue_task = Queue.browse(queue_task.id)
+                        if queue_task.exists():
+                            queue_task.write({
+                                'state': 'failed',
+                                'error_message': str(e),
+                                'error_traceback': error_tb,
+                                'completed_date': fields.Datetime.now(),
+                            })
+                            self.env.cr.commit()
+                    except Exception as q_err:
+                        _logger.warning(f"Could not update queue task with failure: {q_err}")
+
                 self.env.cr.rollback()
 
         # Update final state

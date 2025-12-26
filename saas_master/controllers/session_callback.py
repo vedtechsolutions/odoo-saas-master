@@ -113,7 +113,9 @@ class SessionCallbackController(http.Controller):
     def _send_session_end_notification(self, env, instance, session_data):
         """Send email to customer when support session ends."""
         try:
-            if not instance.admin_email:
+            # Get decrypted email (admin_email is an encrypted field)
+            customer_email = instance._get_decrypted_value('admin_email')
+            if not customer_email:
                 _logger.warning(f"No admin email for instance {instance.subdomain}")
                 return
 
@@ -169,14 +171,14 @@ class SessionCallbackController(http.Controller):
             mail_values = {
                 'subject': subject,
                 'body_html': body_html,
-                'email_to': instance.admin_email,
+                'email_to': customer_email,
                 'email_from': env.company.email or 'noreply@vedtechsolutions.com',
                 'auto_delete': True,
             }
             mail = env['mail.mail'].create(mail_values)
             mail.send()
 
-            _logger.info(f"Session end notification sent to {instance.admin_email}")
+            _logger.info(f"Session end notification sent to {customer_email}")
 
         except Exception as e:
             _logger.error(f"Failed to send session end notification: {e}")

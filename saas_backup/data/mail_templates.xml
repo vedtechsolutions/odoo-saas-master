@@ -7,7 +7,7 @@
             <field name="name">SaaS: Backup Completed</field>
             <field name="model_id" ref="model_saas_backup"/>
             <field name="email_from">noreply@vedtechsolutions.com</field>
-            <field name="email_to">{{ object.instance_id.admin_email or object.instance_id.partner_id.email }}</field>
+            <field name="email_to">{{ object.instance_id.admin_email_plain or object.instance_id.partner_id.email }}</field>
             <field name="subject">Backup Completed - {{ object.instance_id.subdomain }}.tenants.vedtechsolutions.com</field>
             <field name="body_html"><![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
@@ -41,7 +41,7 @@
             <field name="name">SaaS: Backup Failed</field>
             <field name="model_id" ref="model_saas_backup"/>
             <field name="email_from">noreply@vedtechsolutions.com</field>
-            <field name="email_to">{{ object.instance_id.admin_email or object.instance_id.partner_id.email }}</field>
+            <field name="email_to">{{ object.instance_id.admin_email_plain or object.instance_id.partner_id.email }}</field>
             <field name="subject">Backup Failed - {{ object.instance_id.subdomain }}.tenants.vedtechsolutions.com</field>
             <field name="body_html"><![CDATA[
 <div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">

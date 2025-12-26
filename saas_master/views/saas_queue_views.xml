@@ -28,6 +28,7 @@
                         <group string="Task">
                             <field name="action"/>
                             <field name="instance_id"/>
+                            <field name="sale_order_id"/>
                             <field name="priority"/>
                         </group>
                         <group string="Relations">
@@ -99,6 +100,7 @@
                 <field name="name"/>
                 <field name="action"/>
                 <field name="instance_id"/>
+                <field name="sale_order_id" optional="show"/>
                 <field name="partner_id"/>
                 <field name="priority"/>
                 <field name="attempt_count"/>

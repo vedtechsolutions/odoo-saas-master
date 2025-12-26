@@ -165,6 +165,20 @@ class SaasInstance(models.Model):
         groups='base.group_system',
     )
 
+    # Computed fields for templates (decrypted values)
+    # These are used in email templates where direct field access returns encrypted values
+    admin_email_plain = fields.Char(
+        string='Admin Email (Decrypted)',
+        compute='_compute_decrypted_fields',
+        help='Decrypted admin email for use in email templates',
+    )
+    admin_password_plain = fields.Char(
+        string='Admin Password (Decrypted)',
+        compute='_compute_decrypted_fields',
+        groups='base.group_system',
+        help='Decrypted admin password for use in email templates',
+    )
+
     # Trial management
     is_trial = fields.Boolean(
         string='Trial Instance',
@@ -261,6 +275,16 @@ class SaasInstance(models.Model):
             else:
                 instance.instance_url = False
 
+    def _compute_decrypted_fields(self):
+        """Compute decrypted values for encrypted fields.
+
+        These are used in email templates where direct field access
+        would return encrypted values (ENC::...).
+        """
+        for instance in self:
+            instance.admin_email_plain = instance._get_decrypted_value('admin_email')
+            instance.admin_password_plain = instance._get_decrypted_value('admin_password')
+
     @api.constrains(FieldNames.SUBDOMAIN)
     def _check_subdomain(self):
         """Validate subdomain format and availability."""
@@ -339,7 +363,28 @@ class SaasInstance(models.Model):
         return result
 
     def unlink(self):
-        """Override unlink to update server instance counts."""
+        """
+        Override unlink to prevent deletion of instances with active subscriptions
+        and update server instance counts. (FIX Gap #14)
+        """
+        # Check for active subscriptions before allowing deletion
+        Subscription = self.env.get('saas.subscription')
+        if Subscription is not None:
+            for instance in self:
+                active_subs = Subscription.search([
+                    ('instance_id', '=', instance.id),
+                    ('state', 'in', ['active', 'trial', 'past_due', 'suspended']),
+                ])
+                if active_subs:
+                    raise UserError(_(
+                        "Cannot delete instance '%s' - it has %d active subscription(s): %s. "
+                        "Cancel or expire the subscription(s) first."
+                    ) % (
+                        instance.name,
+                        len(active_subs),
+                        ', '.join(active_subs.mapped('reference'))
+                    ))
+
         servers = self.mapped('server_id')
         result = super().unlink()
         if servers:
@@ -464,6 +509,9 @@ class SaasInstance(models.Model):
             if not self.admin_password:
                 import secrets
                 self.admin_password = secrets.token_urlsafe(16)
+                # Commit immediately to ensure password is persisted before use
+                self.env.cr.commit()
+                _logger.info(f"Generated admin password for {self.subdomain}")
 
             # Container environment variables
             # Use Docker bridge gateway for DB connection from container
@@ -563,7 +611,12 @@ class SaasInstance(models.Model):
             time.sleep(10)  # Give Odoo time to fully initialize the database
 
             # Set admin password and email in tenant database
-            self._set_tenant_admin_password(self.admin_password)
+            # Must use _get_decrypted_value since self.admin_password may return encrypted value
+            decrypted_password = self._get_decrypted_value('admin_password')
+            _logger.info(f"Password to sync for {self.subdomain}: {decrypted_password[:20]}... (len={len(decrypted_password) if decrypted_password else 0})")
+            if decrypted_password and decrypted_password.startswith('ENC::'):
+                _logger.error(f"PASSWORD IS STILL ENCRYPTED! This is a bug.")
+            self._set_tenant_admin_password(decrypted_password)
 
             # Fetch and store the admin username from tenant
             self._fetch_tenant_admin_login()
@@ -594,6 +647,9 @@ class SaasInstance(models.Model):
                 'state': InstanceState.ERROR,
                 'status_message': str(e),
             })
+            self.env.cr.commit()  # Ensure error state is persisted
+            # Re-raise so queue task is marked as failed
+            raise
 
     def action_start(self):
         """Start a stopped instance."""
@@ -822,6 +878,12 @@ class SaasInstance(models.Model):
             new_password: The new password to set
             old_password: The current password (if known). Not used in this approach.
         """
+        _logger.info(f"_set_tenant_admin_password called with password: {new_password[:20] if new_password else 'None'}...")
+        if new_password and new_password.startswith('ENC::'):
+            _logger.error(f"ENCRYPTED PASSWORD PASSED TO _set_tenant_admin_password! Decrypting...")
+            new_password = self._get_decrypted_value('admin_password')
+            _logger.info(f"After decryption: {new_password[:20] if new_password else 'None'}...")
+
         if not self.database_name or not new_password or not self.container_name:
             _logger.warning(
                 f"Missing required data for password update: "
@@ -1715,7 +1777,9 @@ conn.close()
         """Send email with approval link to customer."""
         self.ensure_one()
 
-        if not self.admin_email:
+        # Get decrypted email (admin_email is an encrypted field)
+        customer_email = self._get_decrypted_value('admin_email')
+        if not customer_email:
             _logger.warning(f"No admin email for instance {self.subdomain}")
             return
 
@@ -1771,14 +1835,14 @@ conn.close()
             mail_values = {
                 'subject': subject,
                 'body_html': body_html,
-                'email_to': self.admin_email,
+                'email_to': customer_email,
                 'email_from': self.env.company.email or 'noreply@vedtechsolutions.com',
                 'auto_delete': True,
             }
             mail = self.env['mail.mail'].sudo().create(mail_values)
             mail.send()
 
-            _logger.info(f"Support access approval request sent to {self.admin_email} for {self.subdomain}")
+            _logger.info(f"Support access approval request sent to {customer_email} for {self.subdomain}")
 
         except Exception as e:
             _logger.error(f"Failed to send approval email: {e}")
@@ -1788,7 +1852,9 @@ conn.close()
         """Send email notification to customer about support access (after approval)."""
         self.ensure_one()
 
-        if not self.admin_email:
+        # Get decrypted email (admin_email is an encrypted field)
+        customer_email = self._get_decrypted_value('admin_email')
+        if not customer_email:
             _logger.warning(f"No admin email for instance {self.subdomain}, skipping notification")
             return
 
@@ -1822,14 +1888,14 @@ conn.close()
             mail_values = {
                 'subject': subject,
                 'body_html': body_html,
-                'email_to': self.admin_email,
+                'email_to': customer_email,
                 'email_from': self.env.company.email or 'noreply@vedtechsolutions.com',
                 'auto_delete': True,
             }
             mail = self.env['mail.mail'].sudo().create(mail_values)
             mail.send()
 
-            _logger.info(f"Support access notification sent to {self.admin_email} for {self.subdomain}")
+            _logger.info(f"Support access notification sent to {customer_email} for {self.subdomain}")
 
         except Exception as e:
             _logger.error(f"Failed to send support access notification: {e}")

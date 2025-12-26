@@ -1,64 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Standalone Layout for Public Pages -->
+    <template id="support_approval_layout" name="Support Approval Layout">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <title>VedTech Solutions - Support Access</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+                <style>
+                    body {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        min-height: 100vh;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    }
+                    .card {
+                        border: none;
+                        border-radius: 15px;
+                        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                    }
+                    .card-header {
+                        border-radius: 15px 15px 0 0 !important;
+                        padding: 20px 25px;
+                    }
+                    .card-body {
+                        padding: 30px;
+                    }
+                    .btn-lg {
+                        padding: 12px 30px;
+                        font-weight: 600;
+                        border-radius: 8px;
+                    }
+                    .logo-header {
+                        text-align: center;
+                        padding: 30px 0 20px 0;
+                    }
+                    .logo-header h2 {
+                        color: white;
+                        font-weight: 700;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    }
+                    .info-table td, .info-table th {
+                        padding: 10px 15px;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .info-table th {
+                        color: #666;
+                        font-weight: 600;
+                    }
+                    .badge-instance {
+                        background: #714B67;
+                        color: white;
+                        padding: 5px 12px;
+                        border-radius: 20px;
+                        font-size: 0.85em;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="logo-header">
+                    <h2><i class="fas fa-cloud me-2"></i>VedTech Solutions</h2>
+                </div>
+                <t t-raw="0"/>
+                <div class="text-center py-4">
+                    <small class="text-white-50">© 2025 VedTech Solutions. All rights reserved.</small>
+                </div>
+            </body>
+        </html>
+    </template>
+
     <!-- Main Approval Page -->
     <template id="support_approval_page" name="Support Access Approval">
-        <t t-call="web.layout">
-            <div class="container py-5">
+        <t t-call="saas_master.support_approval_layout">
+            <div class="container py-4">
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-6">
-                        <div class="card shadow">
-                            <div class="card-header bg-warning text-dark">
-                                <h4 class="mb-0">
-                                    <i class="fa fa-user-secret me-2"/>Support Access Request
+                        <div class="card">
+                            <div class="card-header bg-warning">
+                                <h4 class="mb-0 text-dark">
+                                    <i class="fas fa-user-shield me-2"></i>Support Access Request
                                 </h4>
                             </div>
                             <div class="card-body">
-                                <div class="alert alert-info">
+                                <div class="alert alert-info border-0" style="background: #e3f2fd;">
+                                    <i class="fas fa-info-circle me-2"></i>
                                     <strong>VedTech Solutions</strong> support team is requesting access to your Odoo instance.
                                 </div>
 
-                                <table class="table table-borderless">
+                                <table class="table info-table mb-4">
                                     <tr>
-                                        <th width="40%">Instance:</th>
-                                        <td><t t-esc="access_request.instance_id.name"/> (<t t-esc="access_request.instance_subdomain"/>)</td>
+                                        <th width="40%"><i class="fas fa-server me-2 text-muted"></i>Instance</th>
+                                        <td>
+                                            <strong><t t-esc="access_request.instance_id.name"/></strong>
+                                            <span class="badge-instance ms-2"><t t-esc="access_request.instance_subdomain"/></span>
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <th>Requested By:</th>
+                                        <th><i class="fas fa-user me-2 text-muted"></i>Support Agent</th>
                                         <td><t t-esc="access_request.requested_by_id.name"/></td>
                                     </tr>
                                     <tr>
-                                        <th>Requested:</th>
+                                        <th><i class="fas fa-clock me-2 text-muted"></i>Requested</th>
                                         <td><t t-esc="access_request.requested_date" t-options="{'widget': 'datetime'}"/></td>
                                     </tr>
                                     <tr t-if="access_request.reason">
-                                        <th>Reason:</th>
+                                        <th><i class="fas fa-comment me-2 text-muted"></i>Reason</th>
                                         <td><t t-esc="access_request.reason"/></td>
                                     </tr>
                                     <tr>
-                                        <th>Valid Until:</th>
+                                        <th><i class="fas fa-hourglass-end me-2 text-muted"></i>Valid Until</th>
                                         <td><t t-esc="access_request.token_expiry" t-options="{'widget': 'datetime'}"/></td>
                                     </tr>
                                 </table>
 
-                                <hr/>
+                                <div class="alert alert-secondary border-0 small">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    By approving, you allow the support representative to access your instance for troubleshooting.
+                                    <strong>All access is logged for security and audit purposes.</strong>
+                                </div>
 
-                                <p class="text-muted small">
-                                    By approving, you allow the support representative to access your instance for troubleshooting purposes.
-                                    All access is logged for audit purposes.
-                                </p>
-
-                                <div class="d-flex justify-content-between mt-4">
-                                    <form t-attf-action="/support/approve/#{token}/confirm" method="post">
+                                <div class="d-flex justify-content-between mt-4 gap-3">
+                                    <form t-attf-action="/support/approve/#{token}/confirm" method="post" class="flex-fill">
                                         <input type="hidden" name="action" value="deny"/>
-                                        <button type="submit" class="btn btn-outline-danger btn-lg">
-                                            <i class="fa fa-times me-2"/>Deny Access
+                                        <button type="submit" class="btn btn-outline-danger btn-lg w-100">
+                                            <i class="fas fa-times me-2"></i>Deny Access
                                         </button>
                                     </form>
-                                    <form t-attf-action="/support/approve/#{token}/confirm" method="post">
+                                    <form t-attf-action="/support/approve/#{token}/confirm" method="post" class="flex-fill">
                                         <input type="hidden" name="action" value="approve"/>
-                                        <button type="submit" class="btn btn-success btn-lg">
-                                            <i class="fa fa-check me-2"/>Approve Access
+                                        <button type="submit" class="btn btn-success btn-lg w-100">
+                                            <i class="fas fa-check me-2"></i>Approve Access
                                         </button>
                                     </form>
                                 </div>
@@ -72,38 +145,43 @@
 
     <!-- Success Page -->
     <template id="support_approval_success" name="Support Access Response">
-        <t t-call="web.layout">
-            <div class="container py-5">
+        <t t-call="saas_master.support_approval_layout">
+            <div class="container py-4">
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-6">
-                        <div class="card shadow">
+                        <div class="card">
                             <div t-attf-class="card-header #{action == 'approved' and 'bg-success' or 'bg-danger'} text-white">
                                 <h4 class="mb-0">
-                                    <i t-attf-class="fa #{action == 'approved' and 'fa-check-circle' or 'fa-times-circle'} me-2"/>
+                                    <i t-attf-class="fas #{action == 'approved' and 'fa-check-circle' or 'fa-times-circle'} me-2"></i>
                                     Access <t t-esc="action.title()"/>
                                 </h4>
                             </div>
                             <div class="card-body text-center py-5">
                                 <t t-if="action == 'approved'">
-                                    <i class="fa fa-check-circle text-success mb-3" style="font-size: 4rem;"/>
-                                    <h3>Support Access Approved</h3>
-                                    <p class="text-muted">
+                                    <i class="fas fa-check-circle text-success mb-4" style="font-size: 5rem;"></i>
+                                    <h3 class="mb-3">Support Access Approved</h3>
+                                    <p class="text-muted mb-2">
                                         The support team has been notified and can now access your instance
-                                        <strong><t t-esc="access_request.instance_id.name"/></strong>.
                                     </p>
-                                    <p class="text-muted small">
-                                        This approval is valid for 1 hour. All access will be logged.
+                                    <p class="mb-4">
+                                        <strong class="fs-5"><t t-esc="access_request.instance_id.name"/></strong>
                                     </p>
+                                    <div class="alert alert-info border-0 small">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        This approval is valid for 1 hour. All access will be logged for security.
+                                    </div>
                                 </t>
                                 <t t-else="">
-                                    <i class="fa fa-times-circle text-danger mb-3" style="font-size: 4rem;"/>
-                                    <h3>Support Access Denied</h3>
-                                    <p class="text-muted">
+                                    <i class="fas fa-times-circle text-danger mb-4" style="font-size: 5rem;"></i>
+                                    <h3 class="mb-3">Support Access Denied</h3>
+                                    <p class="text-muted mb-4">
                                         The support team has been notified that access was denied.
                                     </p>
-                                    <p class="text-muted small">
-                                        If you need assistance, please contact support through alternative channels.
-                                    </p>
+                                    <div class="alert alert-secondary border-0 small">
+                                        <i class="fas fa-envelope me-2"></i>
+                                        If you need assistance, please contact support at
+                                        <a href="mailto:support@vedtechsolutions.com">support@vedtechsolutions.com</a>
+                                    </div>
                                 </t>
                             </div>
                         </div>
@@ -115,21 +193,21 @@
 
     <!-- Already Processed Page -->
     <template id="support_approval_processed" name="Request Already Processed">
-        <t t-call="web.layout">
-            <div class="container py-5">
+        <t t-call="saas_master.support_approval_layout">
+            <div class="container py-4">
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-6">
-                        <div class="card shadow">
+                        <div class="card">
                             <div class="card-header bg-secondary text-white">
                                 <h4 class="mb-0">
-                                    <i class="fa fa-info-circle me-2"/>Request Already Processed
+                                    <i class="fas fa-info-circle me-2"></i>Request Already Processed
                                 </h4>
                             </div>
                             <div class="card-body text-center py-5">
-                                <i class="fa fa-history text-secondary mb-3" style="font-size: 4rem;"/>
-                                <h3>This request has already been processed</h3>
-                                <p class="text-muted">
-                                    Status: <span class="badge bg-secondary"><t t-esc="state.title()"/></span>
+                                <i class="fas fa-history text-secondary mb-4" style="font-size: 5rem;"></i>
+                                <h3 class="mb-3">This request has already been processed</h3>
+                                <p class="text-muted mb-4">
+                                    Current Status: <span class="badge bg-secondary fs-6 px-3 py-2"><t t-esc="state.title()"/></span>
                                 </p>
                             </div>
                         </div>
@@ -141,22 +219,26 @@
 
     <!-- Expired Page -->
     <template id="support_approval_expired" name="Request Expired">
-        <t t-call="web.layout">
-            <div class="container py-5">
+        <t t-call="saas_master.support_approval_layout">
+            <div class="container py-4">
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-6">
-                        <div class="card shadow">
-                            <div class="card-header bg-warning text-dark">
-                                <h4 class="mb-0">
-                                    <i class="fa fa-clock-o me-2"/>Request Expired
+                        <div class="card">
+                            <div class="card-header bg-warning">
+                                <h4 class="mb-0 text-dark">
+                                    <i class="fas fa-clock me-2"></i>Request Expired
                                 </h4>
                             </div>
                             <div class="card-body text-center py-5">
-                                <i class="fa fa-clock-o text-warning mb-3" style="font-size: 4rem;"/>
-                                <h3>This approval request has expired</h3>
-                                <p class="text-muted">
-                                    The support team will need to submit a new request if they still need access.
+                                <i class="fas fa-clock text-warning mb-4" style="font-size: 5rem;"></i>
+                                <h3 class="mb-3">This approval request has expired</h3>
+                                <p class="text-muted mb-4">
+                                    Support access requests are valid for 1 hour for security purposes.
                                 </p>
+                                <div class="alert alert-secondary border-0 small">
+                                    <i class="fas fa-redo me-2"></i>
+                                    The support team will need to submit a new request if they still need access.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,25 +249,28 @@
 
     <!-- Invalid Token Page -->
     <template id="support_approval_invalid" name="Invalid Request">
-        <t t-call="web.layout">
-            <div class="container py-5">
+        <t t-call="saas_master.support_approval_layout">
+            <div class="container py-4">
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-6">
-                        <div class="card shadow">
+                        <div class="card">
                             <div class="card-header bg-danger text-white">
                                 <h4 class="mb-0">
-                                    <i class="fa fa-exclamation-triangle me-2"/>Invalid Link
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Invalid Link
                                 </h4>
                             </div>
                             <div class="card-body text-center py-5">
-                                <i class="fa fa-exclamation-triangle text-danger mb-3" style="font-size: 4rem;"/>
-                                <h3>Invalid or Expired Link</h3>
-                                <p class="text-muted">
+                                <i class="fas fa-exclamation-triangle text-danger mb-4" style="font-size: 5rem;"></i>
+                                <h3 class="mb-3">Invalid or Expired Link</h3>
+                                <p class="text-muted mb-4">
                                     <t t-esc="error"/>
                                 </p>
-                                <p class="text-muted small">
-                                    Please contact support if you believe this is an error.
-                                </p>
+                                <div class="alert alert-secondary border-0 small">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    Please contact support at
+                                    <a href="mailto:support@vedtechsolutions.com">support@vedtechsolutions.com</a>
+                                    if you believe this is an error.
+                                </div>
                             </div>
                         </div>
                     </div>

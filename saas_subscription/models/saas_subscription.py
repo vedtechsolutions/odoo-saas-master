@@ -157,6 +157,11 @@ class SaasSubscription(models.Model):
         string='Cancellation Date',
         readonly=True,
     )
+    cancellation_cleanup_date = fields.Date(
+        string='Cleanup Date',
+        readonly=True,
+        help='Date when instance will be terminated after cancellation (grace period end)',
+    )
 
     # Payment tracking
     payment_status = fields.Selection(
@@ -278,6 +283,53 @@ class SaasSubscription(models.Model):
             else:
                 sub.trial_days_remaining = 0
 
+    @api.constrains('instance_id', 'state')
+    def _check_instance_subscription_link(self):
+        """
+        Validate subscription-instance relationship (FIX Gap #14).
+
+        Rules:
+        - Active or trial subscriptions should have a linked instance
+        - Only one active subscription per instance allowed
+        """
+        for record in self:
+            # Skip validation for draft, cancelled, expired states
+            if record.state in [
+                SubscriptionState.DRAFT,
+                SubscriptionState.CANCELLED,
+                SubscriptionState.EXPIRED
+            ]:
+                continue
+
+            # Active/trial subscriptions should have an instance
+            # (Warning only - don't block, as instance might be pending creation)
+            if record.state in [SubscriptionState.ACTIVE, SubscriptionState.TRIAL]:
+                if not record.instance_id:
+                    _logger.warning(
+                        f"Subscription {record.reference} is {record.state} but has no instance"
+                    )
+
+            # Check for duplicate active subscriptions on same instance
+            if record.instance_id and record.state in [
+                SubscriptionState.ACTIVE,
+                SubscriptionState.TRIAL,
+                SubscriptionState.PAST_DUE
+            ]:
+                duplicate = self.search([
+                    ('id', '!=', record.id),
+                    ('instance_id', '=', record.instance_id.id),
+                    ('state', 'in', [
+                        SubscriptionState.ACTIVE,
+                        SubscriptionState.TRIAL,
+                        SubscriptionState.PAST_DUE
+                    ]),
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_(
+                        "Instance '%s' already has an active subscription: %s. "
+                        "Cancel the existing subscription first."
+                    ) % (record.instance_id.name, duplicate.reference))
+
     @api.model_create_multi
     def create(self, vals_list):
         """Override create to generate reference."""
@@ -315,7 +367,20 @@ class SaasSubscription(models.Model):
         if not self.instance_id:
             self._create_trial_instance()
 
-        self.message_post(body="Trial started")
+        # Auto-provision the trial instance (FIX Gap #1)
+        # This matches the paid flow pattern in saas_shop/sale_order.py:280
+        if self.instance_id and self.instance_id.state == InstanceState.DRAFT:
+            try:
+                self.instance_id.action_provision()
+                _logger.info(f"Trial instance {self.instance_id.subdomain} queued for provisioning")
+            except Exception as e:
+                _logger.error(f"Failed to provision trial instance: {e}")
+                raise UserError(_(
+                    "Failed to start instance provisioning: %s. "
+                    "Please contact support."
+                ) % str(e))
+
+        self.message_post(body="Trial started - instance provisioning queued")
         return True
 
     def _create_trial_instance(self):
@@ -416,19 +481,71 @@ class SaasSubscription(models.Model):
         return True
 
     def action_cancel(self):
-        """Cancel the subscription."""
+        """
+        Cancel the subscription with grace period for instance cleanup.
+        (FIX Gap #5 - Cancellation cleanup with grace period)
+        """
         self.ensure_one()
         if self.state in [SubscriptionState.CANCELLED, SubscriptionState.EXPIRED]:
             raise UserError(_("Subscription is already cancelled or expired."))
 
         today = fields.Date.context_today(self)
+
+        # Get grace period from config (default 7 days)
+        grace_period_days = int(self.env['ir.config_parameter'].sudo().get_param(
+            'saas.cancellation_grace_period_days', '7'
+        ))
+        cleanup_date = today + timedelta(days=grace_period_days)
+
         self.write({
             'state': SubscriptionState.CANCELLED,
             'cancellation_date': today,
+            'cancellation_cleanup_date': cleanup_date,
         })
 
-        self.message_post(body="Subscription cancelled")
+        # Suspend instance immediately (data preserved during grace period)
+        if self.instance_id and self.instance_id.state == InstanceState.RUNNING:
+            try:
+                self.instance_id.action_suspend()
+                _logger.info(
+                    f"Instance {self.instance_id.subdomain} suspended due to subscription cancellation"
+                )
+            except Exception as e:
+                _logger.error(f"Failed to suspend instance on cancellation: {e}")
+
+        # Send cancellation email with cleanup notice
+        self._send_cancellation_email(grace_period_days)
+
+        self.message_post(
+            body=f"Subscription cancelled. Instance will be terminated on {cleanup_date} "
+                 f"({grace_period_days} day grace period for data backup)."
+        )
         return True
+
+    def _send_cancellation_email(self, grace_period_days):
+        """
+        Send cancellation confirmation email with cleanup notice.
+        """
+        try:
+            template = self.env.ref(
+                'saas_subscription.mail_template_subscription_cancelled',
+                raise_if_not_found=False
+            )
+            if template:
+                # Pass grace period to template context
+                template.with_context(
+                    grace_period_days=grace_period_days,
+                    cleanup_date=self.cancellation_cleanup_date,
+                ).send_mail(self.id, force_send=True)
+                _logger.info(f"Cancellation email sent for subscription {self.reference}")
+            else:
+                _logger.warning(
+                    "Cancellation email template not found: "
+                    "saas_subscription.mail_template_subscription_cancelled"
+                )
+        except Exception as e:
+            _logger.error(f"Failed to send cancellation email: {e}")
+            # Don't fail the cancellation just because email failed
 
     def action_mark_paid(self):
         """Mark subscription as paid."""
@@ -553,7 +670,10 @@ class SaasSubscription(models.Model):
 
     @api.model
     def cron_check_billing_due(self):
-        """Cron job to check billing due dates."""
+        """
+        Cron job to check billing due dates and generate renewal invoices.
+        (FIX Gap #3 - Invoice generation on renewal)
+        """
         today = fields.Date.context_today(self)
 
         # Find subscriptions due for billing
@@ -563,9 +683,193 @@ class SaasSubscription(models.Model):
             ('payment_status', '!=', 'overdue'),
         ])
 
-        for sub in due_subscriptions:
-            sub.write({'payment_status': 'pending'})
-            # Here you would trigger invoice generation or payment processing
+        invoices_created = 0
+        transactions_created = 0
 
-        _logger.info(f"Found {len(due_subscriptions)} subscriptions due for billing")
+        for sub in due_subscriptions:
+            try:
+                # Generate renewal invoice
+                invoice = self._create_renewal_invoice(sub)
+                if invoice:
+                    invoices_created += 1
+                    sub.write({'payment_status': 'pending'})
+
+                    # Create billing transaction for payment processing
+                    transaction = self._create_billing_transaction(sub, invoice)
+                    if transaction:
+                        transactions_created += 1
+
+                    _logger.info(
+                        f"Created renewal invoice {invoice.name} for subscription {sub.reference}"
+                    )
+                else:
+                    _logger.warning(
+                        f"Could not create invoice for subscription {sub.reference}"
+                    )
+            except Exception as e:
+                _logger.error(f"Error processing renewal for {sub.reference}: {e}")
+                sub.message_post(body=f"Renewal invoice generation failed: {str(e)}")
+                continue
+
+        _logger.info(
+            f"Processed {len(due_subscriptions)} due subscriptions: "
+            f"created {invoices_created} invoices, {transactions_created} transactions"
+        )
+        return True
+
+    def _create_renewal_invoice(self, subscription):
+        """
+        Create invoice for subscription renewal.
+        Uses existing infrastructure from saas_billing module.
+        """
+        AccountMove = self.env.get('account.move')
+        if not AccountMove:
+            _logger.error("account.move model not available")
+            return False
+
+        # Check if create_subscription_invoice method exists (from saas_billing)
+        if hasattr(AccountMove, 'create_subscription_invoice'):
+            # Calculate billing period
+            period_start = subscription.next_billing_date
+            if subscription.billing_cycle == 'yearly':
+                period_end = period_start + timedelta(days=365)
+            else:
+                period_end = period_start + timedelta(days=30)
+
+            invoice = AccountMove.create_subscription_invoice(
+                subscription=subscription,
+                period_start=period_start,
+                period_end=period_end,
+            )
+
+            # Update next billing date after invoice created
+            subscription.write({
+                'next_billing_date': period_end,
+            })
+
+            return invoice
+
+        # Fallback: Create basic invoice if saas_billing method not available
+        _logger.warning("create_subscription_invoice not found, using fallback")
+        period_start = subscription.next_billing_date
+        if subscription.billing_cycle == 'yearly':
+            period_end = period_start + timedelta(days=365)
+        else:
+            period_end = period_start + timedelta(days=30)
+
+        invoice = AccountMove.create({
+            'move_type': 'out_invoice',
+            'partner_id': subscription.partner_id.id,
+            'invoice_date': fields.Date.today(),
+            'invoice_line_ids': [(0, 0, {
+                'name': f"Subscription renewal: {subscription.plan_id.name} ({subscription.billing_cycle})",
+                'quantity': 1,
+                'price_unit': subscription.recurring_price,
+            })],
+        })
+
+        # Try to link subscription if field exists
+        if 'subscription_id' in AccountMove._fields:
+            invoice.write({'subscription_id': subscription.id})
+
+        # Update next billing date
+        subscription.write({
+            'next_billing_date': period_end,
+        })
+
+        subscription.message_post(
+            body=f"Renewal invoice {invoice.name} created for period "
+                 f"{period_start} to {period_end}"
+        )
+
+        return invoice
+
+    def _create_billing_transaction(self, subscription, invoice):
+        """
+        Create billing transaction for payment processing.
+        The transaction will be processed by cron_process_pending().
+        """
+        BillingTransaction = self.env.get('saas.billing.transaction')
+        if not BillingTransaction:
+            _logger.warning("saas.billing.transaction model not available - skipping transaction creation")
+            return False
+
+        transaction = BillingTransaction.create({
+            'name': f"Renewal payment for {subscription.reference}",
+            'transaction_type': 'subscription',
+            'partner_id': subscription.partner_id.id,
+            'subscription_id': subscription.id,
+            'invoice_id': invoice.id,
+            'amount': invoice.amount_total,
+            'period_start': invoice.billing_period_start if hasattr(invoice, 'billing_period_start') else None,
+            'period_end': invoice.billing_period_end if hasattr(invoice, 'billing_period_end') else None,
+            'state': 'pending',
+        })
+
+        _logger.info(
+            f"Created billing transaction {transaction.reference} for subscription {subscription.reference}"
+        )
+
+        return transaction
+
+    @api.model
+    def cron_cleanup_cancelled_subscriptions(self):
+        """
+        Cron job to terminate instances for cancelled subscriptions after grace period.
+        (FIX Gap #5 - Cancellation cleanup with grace period)
+
+        Runs daily at 3 AM to:
+        1. Find cancelled subscriptions past their cleanup date
+        2. Terminate their associated instances
+        3. Log the cleanup action
+        """
+        today = fields.Date.context_today(self)
+
+        # Find cancelled subscriptions past grace period
+        expired_cancellations = self.search([
+            ('state', '=', SubscriptionState.CANCELLED),
+            ('cancellation_cleanup_date', '<=', today),
+            ('cancellation_cleanup_date', '!=', False),
+            ('instance_id', '!=', False),
+        ])
+
+        # Filter to only those with non-terminated instances
+        to_cleanup = expired_cancellations.filtered(
+            lambda s: s.instance_id and s.instance_id.state != InstanceState.TERMINATED
+        )
+
+        terminated_count = 0
+        for sub in to_cleanup:
+            try:
+                instance = sub.instance_id
+                instance_name = instance.name or instance.subdomain
+
+                _logger.info(
+                    f"Terminating instance {instance_name} for cancelled subscription "
+                    f"{sub.reference} (grace period ended)"
+                )
+
+                # Terminate the instance
+                instance.action_terminate()
+                terminated_count += 1
+
+                sub.message_post(
+                    body=f"Instance {instance_name} terminated after grace period ended. "
+                         f"All data has been permanently deleted."
+                )
+
+            except Exception as e:
+                _logger.error(
+                    f"Failed to terminate instance for subscription {sub.reference}: {e}"
+                )
+                sub.message_post(
+                    body=f"Failed to terminate instance after grace period: {str(e)}. "
+                         f"Manual intervention required."
+                )
+                continue
+
+        _logger.info(
+            f"Cancelled subscription cleanup: found {len(to_cleanup)} subscriptions, "
+            f"terminated {terminated_count} instances"
+        )
         return True
