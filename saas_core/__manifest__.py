@@ -21,7 +21,9 @@ single source of truth for all SaaS-related constants and utilities.
     'website': 'https://vedtechsolutions.com',
     'license': 'LGPL-3',
     'depends': ['base'],
-    'data': [],
+    'data': [
+        'data/security_config.xml',
+    ],
     'installable': True,
     'auto_install': False,
     'application': False,

@@ -21,6 +21,44 @@ DEFAULT_MAX_RETRIES = 3
 DEFAULT_RETRY_DELAY = 2  # seconds
 DEFAULT_LOCK_TIMEOUT = 300  # 5 minutes
 
+# Valid savepoint name pattern (PostgreSQL identifier rules)
+import re
+SAVEPOINT_NAME_PATTERN = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+
+
+def validate_savepoint_name(name: str) -> str:
+    """
+    Validate and sanitize a savepoint name to prevent SQL injection.
+
+    Args:
+        name: Proposed savepoint name
+
+    Returns:
+        Validated savepoint name
+
+    Raises:
+        ValueError: If name is invalid
+    """
+    if not name:
+        raise ValueError("Savepoint name cannot be empty")
+
+    # Convert to string and strip
+    name = str(name).strip()
+
+    # Limit length (PostgreSQL limit is 63 chars for identifiers)
+    if len(name) > 63:
+        name = name[:63]
+
+    # Check pattern
+    if not SAVEPOINT_NAME_PATTERN.match(name):
+        # Sanitize: replace invalid chars with underscores
+        name = re.sub(r'[^a-zA-Z0-9_]', '_', name)
+        # Ensure starts with letter or underscore
+        if name[0].isdigit():
+            name = 'sp_' + name
+
+    return name
+
 
 class DatabaseLock:
     """
@@ -56,7 +94,8 @@ class DatabaseLock:
         """Try to acquire the advisory lock."""
         try:
             # Set statement timeout for lock acquisition
-            self.cr.execute(f"SET LOCAL lock_timeout = '{self.timeout}s'")
+            # Use parameterized query format for timeout
+            self.cr.execute("SET LOCAL lock_timeout = %s", [f'{self.timeout}s'])
 
             # Try to acquire advisory lock (blocking)
             self.cr.execute(
@@ -159,8 +198,13 @@ def savepoint(cr, name=None):
             # This will be rolled back if exception occurs
             do_something()
     """
-    savepoint_name = name or f"sp_{int(time.time() * 1000)}"
+    # Generate and validate savepoint name
+    raw_name = name or f"sp_{int(time.time() * 1000)}"
+    savepoint_name = validate_savepoint_name(raw_name)
+
     try:
+        # Use string formatting only with validated identifier
+        # PostgreSQL doesn't support parameterized savepoint names
         cr.execute(f"SAVEPOINT {savepoint_name}")
         yield
         cr.execute(f"RELEASE SAVEPOINT {savepoint_name}")
@@ -232,7 +276,10 @@ def retry_database_operation(cr, func, max_retries=DEFAULT_MAX_RETRIES,
     last_exception = None
 
     for attempt in range(max_retries + 1):
-        savepoint_name = f"retry_sp_{attempt}_{int(time.time() * 1000)}"
+        # Generate and validate savepoint name
+        raw_name = f"retry_sp_{attempt}_{int(time.time() * 1000)}"
+        savepoint_name = validate_savepoint_name(raw_name)
+
         try:
             cr.execute(f"SAVEPOINT {savepoint_name}")
             result = func(cr)

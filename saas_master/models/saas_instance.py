@@ -19,6 +19,7 @@ from odoo.addons.saas_core.utils.validators import (
     generate_database_name,
     generate_container_name,
 )
+from odoo.addons.saas_core.utils.db_utils import validate_savepoint_name
 
 _logger = logging.getLogger(__name__)
 
@@ -1889,8 +1890,9 @@ conn.close()
 
         for attempt in range(max_retries + 1):
             try:
-                # Create a savepoint for this attempt
-                savepoint_name = f"token_create_{attempt}_{int(time.time() * 1000)}"
+                # Create a savepoint for this attempt (validated to prevent SQL injection)
+                raw_savepoint = f"token_create_{attempt}_{int(time.time() * 1000)}"
+                savepoint_name = validate_savepoint_name(raw_savepoint)
                 self.env.cr.execute(f"SAVEPOINT {savepoint_name}")
 
                 try:
