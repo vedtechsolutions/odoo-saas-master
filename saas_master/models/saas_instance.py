@@ -40,6 +40,22 @@ class SaasInstance(models.Model):
         'UNIQUE(subdomain)',
         'Subdomain must be unique!'
     )
+    _container_name_unique = models.Constraint(
+        'UNIQUE(container_name)',
+        'Container name must be unique!'
+    )
+    _database_name_unique = models.Constraint(
+        'UNIQUE(database_name)',
+        'Database name must be unique!'
+    )
+    _server_port_unique = models.Constraint(
+        'UNIQUE(server_id, port_http)',
+        'Port must be unique per server!'
+    )
+
+    # Odoo 19 index syntax for composite indexes
+    _server_state_idx = models.Index('(server_id, state)')
+    _trial_expiry_idx = models.Index('(is_trial, trial_end_date) WHERE is_trial = true')
 
     # Basic identification
     name = fields.Char(
@@ -93,6 +109,7 @@ class SaasInstance(models.Model):
         string=FieldLabels.SERVER,
         tracking=True,
         ondelete='restrict',
+        index=True,
     )
 
     # Docker configuration
@@ -253,10 +270,21 @@ class SaasInstance(models.Model):
 
     @api.constrains('admin_email')
     def _check_admin_email(self):
-        """Validate admin email format."""
+        """Validate admin email format.
+
+        Note: admin_email is encrypted by the encryption mixin, so we need to
+        get the decrypted value for validation.
+        """
+        from odoo.addons.saas_core.utils.encryption import is_encrypted
+
         for instance in self:
             if instance.admin_email:
-                normalize_email(instance.admin_email)
+                # Get decrypted value since admin_email is in _encrypted_fields
+                email = instance.admin_email
+                if is_encrypted(email):
+                    email = instance._get_decrypted_value('admin_email')
+                if email:
+                    normalize_email(email)
 
     @api.onchange(FieldNames.SUBDOMAIN)
     def _onchange_subdomain(self):

@@ -155,12 +155,14 @@ class SaasTicket(models.Model):
         ModelNames.INSTANCE,
         string='Related Instance',
         tracking=True,
+        ondelete='set null',
         help='SaaS instance this ticket relates to',
     )
     subscription_id = fields.Many2one(
         ModelNames.SUBSCRIPTION,
         string='Related Subscription',
         tracking=True,
+        ondelete='set null',
         help='Subscription this ticket relates to',
     )
 

@@ -53,6 +53,9 @@ class SaasProvisioningQueue(models.Model):
     # Note: Duplicate prevention is handled in create_task() method
     # Partial unique constraints are not fully portable across databases
 
+    # Odoo 19 index syntax for efficient queue processing
+    _pending_retry_idx = models.Index('(state, next_retry_date) WHERE state = \'pending\'')
+
     # Basic identification
     name = fields.Char(
         string='Reference',

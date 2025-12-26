@@ -26,6 +26,9 @@ class SaasPlan(models.Model):
         'Plan code must be unique!'
     )
 
+    # Odoo 19 index syntax for efficient plan availability queries
+    _active_trial_idx = models.Index('(is_active, is_trial)')
+
     # Basic fields
     name = fields.Char(
         string=FieldLabels.NAME,
@@ -140,12 +143,25 @@ class SaasPlan(models.Model):
     )
 
     def _compute_instance_count(self):
-        """Count instances using this plan."""
+        """
+        Count instances using this plan.
+
+        Optimized to use _read_group for a single query instead of N+1 queries.
+        """
+        if not self:
+            return
+
         Instance = self.env[ModelNames.INSTANCE]
+        # Single query for all plans using _read_group
+        data = Instance._read_group(
+            [('plan_id', 'in', self.ids)],
+            groupby=['plan_id'],
+            aggregates=['__count'],
+        )
+        counts = {plan.id: count for plan, count in data}
+
         for plan in self:
-            plan.instance_count = Instance.search_count([
-                ('plan_id', '=', plan.id)
-            ])
+            plan.instance_count = counts.get(plan.id, 0)
 
     def _compute_subscription_count(self):
         """Count active subscriptions for this plan."""

@@ -33,6 +33,13 @@ class SaasTenantServer(models.Model):
         'UNIQUE(ip_address)',
         'IP address must be unique!'
     )
+    _vpn_ip_unique = models.Constraint(
+        'UNIQUE(vpn_ip)',
+        'VPN IP must be unique!'
+    )
+
+    # Odoo 19 index syntax for efficient server selection queries
+    _state_slots_idx = models.Index('(state, available_slots)')
 
     # Basic fields
     name = fields.Char(
@@ -151,11 +158,29 @@ class SaasTenantServer(models.Model):
 
     @api.depends('instance_ids', 'instance_ids.state')
     def _compute_instance_count(self):
-        """Count active instances on this server."""
+        """
+        Count active instances on this server.
+
+        Optimized to use _read_group for a single query instead of loading
+        all instances into memory and filtering.
+        """
+        if not self:
+            return
+
+        Instance = self.env[ModelNames.INSTANCE]
+        # Single query for all servers using _read_group
+        data = Instance._read_group(
+            [
+                ('server_id', 'in', self.ids),
+                ('state', 'not in', ['draft', 'terminated'])
+            ],
+            groupby=['server_id'],
+            aggregates=['__count'],
+        )
+        counts = {server.id: count for server, count in data}
+
         for server in self:
-            server.instance_count = len(server.instance_ids.filtered(
-                lambda i: i.state not in ['draft', 'terminated']
-            ))
+            server.instance_count = counts.get(server.id, 0)
 
     def refresh_instance_counts(self):
         """Force refresh of instance counts - call after instance changes."""

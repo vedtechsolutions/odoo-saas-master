@@ -32,6 +32,9 @@ class SaasSubscription(models.Model):
         'A customer can only have one subscription per instance!'
     )
 
+    # Odoo 19 index syntax for efficient trial queries
+    _trial_state_idx = models.Index('(state, trial_end_date) WHERE state = \'trial\'')
+
     # Basic fields
     name = fields.Char(
         string=FieldLabels.NAME,
@@ -126,6 +129,7 @@ class SaasSubscription(models.Model):
         string='Trial End Date',
         compute='_compute_trial_end_date',
         store=True,
+        index=True,
     )
 
     # Subscription dates

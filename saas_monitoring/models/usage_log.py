@@ -14,6 +14,10 @@ class UsageLog(models.Model):
     _order = 'timestamp desc'
     _rec_name = 'display_name'
 
+    # Odoo 19 index syntax for efficient time-series queries
+    _instance_timestamp_idx = models.Index('(instance_id, timestamp)')
+    _metric_timestamp_idx = models.Index('(metric_type_id, timestamp)')
+
     instance_id = fields.Many2one(
         'saas.instance',
         string='Instance',
@@ -94,31 +98,44 @@ class UsageLog(models.Model):
 
     @api.model
     def cleanup_old_logs(self):
-        """Remove logs older than retention period. Called by cron."""
-        metric_types = self.env['saas.metric.type'].search([])
+        """
+        Remove logs older than retention period. Called by cron.
 
-        for metric_type in metric_types:
-            retention_days = metric_type.retention_days or 90
+        Optimized to use batch SQL DELETE instead of individual ORM deletes
+        for better performance on large datasets.
+        """
+        import logging
+        _logger = logging.getLogger(__name__)
+
+        # Get all metric types with retention settings
+        metric_types = self.env['saas.metric.type'].search_read(
+            [], ['id', 'name', 'retention_days']
+        )
+
+        total_deleted = 0
+        for mt in metric_types:
+            retention_days = mt['retention_days'] or 90
             cutoff_date = fields.Datetime.now() - timedelta(days=retention_days)
 
-            old_logs = self.search([
-                ('metric_type_id', '=', metric_type.id),
-                ('timestamp', '<', cutoff_date),
-            ])
+            # Use SQL for efficient bulk delete
+            self.env.cr.execute("""
+                DELETE FROM saas_usage_log
+                WHERE metric_type_id = %s AND timestamp < %s
+            """, (mt['id'], cutoff_date))
 
-            if old_logs:
-                count = len(old_logs)
-                old_logs.unlink()
-                # Log cleanup
-                self.env['ir.logging'].sudo().create({
-                    'name': 'saas.usage.log',
-                    'type': 'server',
-                    'level': 'INFO',
-                    'message': f"Cleaned up {count} old {metric_type.name} logs older than {retention_days} days",
-                    'func': 'cleanup_old_logs',
-                    'path': 'saas_monitoring',
-                    'line': '0',
-                })
+            deleted_count = self.env.cr.rowcount
+            if deleted_count > 0:
+                total_deleted += deleted_count
+                _logger.info(
+                    f"Cleaned up {deleted_count} old {mt['name']} logs "
+                    f"older than {retention_days} days"
+                )
+
+        # Invalidate cache after bulk delete
+        self.invalidate_model()
+
+        if total_deleted > 0:
+            _logger.info(f"Total logs cleaned up: {total_deleted}")
 
         return True
 
