@@ -11,6 +11,8 @@ from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.exceptions import AccessError, MissingError
 
+from odoo.addons.saas_core.constants.fields import ModelNames
+
 
 class SaasPortal(CustomerPortal):
     """Customer portal for SaaS services."""
@@ -21,19 +23,19 @@ class SaasPortal(CustomerPortal):
         partner = request.env.user.partner_id
 
         if 'instance_count' in counters:
-            values['instance_count'] = request.env['saas.instance'].search_count([
+            values['instance_count'] = request.env[ModelNames.INSTANCE].search_count([
                 ('partner_id', '=', partner.id),
                 ('state', 'not in', ['terminated']),
             ])
 
         if 'subscription_count' in counters:
-            values['subscription_count'] = request.env['saas.subscription'].search_count([
+            values['subscription_count'] = request.env[ModelNames.SUBSCRIPTION].search_count([
                 ('partner_id', '=', partner.id),
                 ('state', 'not in', ['cancelled', 'expired']),
             ])
 
         if 'ticket_count' in counters:
-            values['ticket_count'] = request.env['saas.ticket'].search_count([
+            values['ticket_count'] = request.env[ModelNames.TICKET].search_count([
                 ('partner_id', '=', partner.id),
             ])
 
@@ -58,7 +60,7 @@ class SaasPortal(CustomerPortal):
         """List customer instances."""
         values = self._prepare_portal_layout_values()
         partner = request.env.user.partner_id
-        Instance = request.env['saas.instance']
+        Instance = request.env[ModelNames.INSTANCE]
 
         domain = [
             ('partner_id', '=', partner.id),
@@ -124,7 +126,7 @@ class SaasPortal(CustomerPortal):
         """Instance detail page."""
         try:
             instance_sudo = self._document_check_access(
-                'saas.instance', instance_id, access_token
+                ModelNames.INSTANCE, instance_id, access_token
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
@@ -138,7 +140,7 @@ class SaasPortal(CustomerPortal):
         """Handle instance actions from portal."""
         try:
             instance_sudo = self._document_check_access(
-                'saas.instance', instance_id, access_token
+                ModelNames.INSTANCE, instance_id, access_token
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
@@ -172,7 +174,7 @@ class SaasPortal(CustomerPortal):
         """List customer subscriptions."""
         values = self._prepare_portal_layout_values()
         partner = request.env.user.partner_id
-        Subscription = request.env['saas.subscription']
+        Subscription = request.env[ModelNames.SUBSCRIPTION]
 
         domain = [('partner_id', '=', partner.id)]
 
@@ -235,7 +237,7 @@ class SaasPortal(CustomerPortal):
         """Subscription detail page."""
         try:
             subscription_sudo = self._document_check_access(
-                'saas.subscription', subscription_id, access_token
+                ModelNames.SUBSCRIPTION, subscription_id, access_token
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
@@ -262,7 +264,7 @@ class SaasPortal(CustomerPortal):
         """List customer tickets."""
         values = self._prepare_portal_layout_values()
         partner = request.env.user.partner_id
-        Ticket = request.env['saas.ticket']
+        Ticket = request.env[ModelNames.TICKET]
 
         domain = [('partner_id', '=', partner.id)]
 
@@ -326,7 +328,7 @@ class SaasPortal(CustomerPortal):
         """Ticket detail page."""
         try:
             ticket_sudo = self._document_check_access(
-                'saas.ticket', ticket_id, access_token
+                ModelNames.TICKET, ticket_id, access_token
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
@@ -334,7 +336,7 @@ class SaasPortal(CustomerPortal):
         values = self._ticket_get_page_view_values(ticket_sudo, access_token, **kw)
 
         # Get categories for new ticket form
-        values['categories'] = request.env['saas.ticket.category'].sudo().search([
+        values['categories'] = request.env[ModelNames.TICKET_CATEGORY].sudo().search([
             ('active', '=', True)
         ])
 
@@ -347,12 +349,12 @@ class SaasPortal(CustomerPortal):
         partner = request.env.user.partner_id
 
         # Get categories
-        categories = request.env['saas.ticket.category'].sudo().search([
+        categories = request.env[ModelNames.TICKET_CATEGORY].sudo().search([
             ('active', '=', True)
         ])
 
         # Get customer's instances for reference
-        instances = request.env['saas.instance'].search([
+        instances = request.env[ModelNames.INSTANCE].search([
             ('partner_id', '=', partner.id),
             ('state', 'not in', ['terminated']),
         ])
@@ -387,10 +389,10 @@ class SaasPortal(CustomerPortal):
 
         if error:
             values = self._prepare_portal_layout_values()
-            categories = request.env['saas.ticket.category'].sudo().search([
+            categories = request.env[ModelNames.TICKET_CATEGORY].sudo().search([
                 ('active', '=', True)
             ])
-            instances = request.env['saas.instance'].search([
+            instances = request.env[ModelNames.INSTANCE].search([
                 ('partner_id', '=', partner.id),
                 ('state', 'not in', ['terminated']),
             ])
@@ -418,7 +420,7 @@ class SaasPortal(CustomerPortal):
         if post.get('instance_id'):
             ticket_vals['instance_id'] = int(post['instance_id'])
 
-        ticket = request.env['saas.ticket'].sudo().create(ticket_vals)
+        ticket = request.env[ModelNames.TICKET].sudo().create(ticket_vals)
 
         return request.redirect(f'/my/tickets/{ticket.id}?message=created')
 
@@ -426,7 +428,7 @@ class SaasPortal(CustomerPortal):
     def portal_ticket_reply(self, ticket_id, **post):
         """Add reply to ticket from portal."""
         try:
-            ticket_sudo = self._document_check_access('saas.ticket', ticket_id)
+            ticket_sudo = self._document_check_access(ModelNames.TICKET, ticket_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
 
@@ -439,7 +441,7 @@ class SaasPortal(CustomerPortal):
     def portal_ticket_close(self, ticket_id, **kw):
         """Close ticket from portal."""
         try:
-            ticket_sudo = self._document_check_access('saas.ticket', ticket_id)
+            ticket_sudo = self._document_check_access(ModelNames.TICKET, ticket_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
 
@@ -452,7 +454,7 @@ class SaasPortal(CustomerPortal):
     def portal_ticket_reopen(self, ticket_id, **kw):
         """Reopen ticket from portal."""
         try:
-            ticket_sudo = self._document_check_access('saas.ticket', ticket_id)
+            ticket_sudo = self._document_check_access(ModelNames.TICKET, ticket_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
 
@@ -470,13 +472,13 @@ class SaasPortal(CustomerPortal):
         """List backups for an instance (read-only view)."""
         try:
             instance_sudo = self._document_check_access(
-                'saas.instance', instance_id
+                ModelNames.INSTANCE, instance_id
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
 
         values = self._prepare_portal_layout_values()
-        Backup = request.env['saas.backup'].sudo()
+        Backup = request.env[ModelNames.BACKUP].sudo()
 
         domain = [
             ('instance_id', '=', instance_id),
@@ -531,13 +533,13 @@ class SaasPortal(CustomerPortal):
         """Download a backup (S3 presigned URL redirect)."""
         try:
             instance_sudo = self._document_check_access(
-                'saas.instance', instance_id
+                ModelNames.INSTANCE, instance_id
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
 
         # Get backup and verify it belongs to this instance
-        Backup = request.env['saas.backup'].sudo()
+        Backup = request.env[ModelNames.BACKUP].sudo()
         backup = Backup.browse(backup_id)
 
         if not backup.exists() or backup.instance_id.id != instance_id:
@@ -567,7 +569,7 @@ class SaasPortal(CustomerPortal):
         """Show available plans for upgrade/downgrade."""
         try:
             subscription_sudo = self._document_check_access(
-                'saas.subscription', subscription_id
+                ModelNames.SUBSCRIPTION, subscription_id
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
@@ -581,7 +583,7 @@ class SaasPortal(CustomerPortal):
         values = self._prepare_portal_layout_values()
 
         # Get available plans (excluding current plan)
-        Plan = request.env['saas.plan'].sudo()
+        Plan = request.env[ModelNames.PLAN].sudo()
         available_plans = Plan.search([
             ('id', '!=', subscription_sudo.plan_id.id),
         ], order='monthly_price')
@@ -602,7 +604,7 @@ class SaasPortal(CustomerPortal):
         """Calculate proration for plan change and show confirmation."""
         try:
             subscription_sudo = self._document_check_access(
-                'saas.subscription', subscription_id
+                ModelNames.SUBSCRIPTION, subscription_id
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
@@ -613,7 +615,7 @@ class SaasPortal(CustomerPortal):
                 f'/my/subscriptions/{subscription_id}/change-plan?error=no_plan_selected'
             )
 
-        Plan = request.env['saas.plan'].sudo()
+        Plan = request.env[ModelNames.PLAN].sudo()
         new_plan = Plan.browse(int(new_plan_id))
 
         if not new_plan.exists():
@@ -622,7 +624,7 @@ class SaasPortal(CustomerPortal):
             )
 
         # Calculate proration
-        ProrationCalc = request.env['saas.proration.calculator'].sudo()
+        ProrationCalc = request.env[ModelNames.PRORATION_CALCULATOR].sudo()
         calc = ProrationCalc.create({
             'subscription_id': subscription_sudo.id,
             'new_plan_id': new_plan.id,
@@ -645,7 +647,7 @@ class SaasPortal(CustomerPortal):
         """Apply the plan change with proration."""
         try:
             subscription_sudo = self._document_check_access(
-                'saas.subscription', subscription_id
+                ModelNames.SUBSCRIPTION, subscription_id
             )
         except (AccessError, MissingError):
             return request.redirect('/my')
@@ -656,7 +658,7 @@ class SaasPortal(CustomerPortal):
                 f'/my/subscriptions/{subscription_id}/change-plan?error=no_plan_selected'
             )
 
-        Plan = request.env['saas.plan'].sudo()
+        Plan = request.env[ModelNames.PLAN].sudo()
         new_plan = Plan.browse(int(new_plan_id))
 
         if not new_plan.exists():
@@ -665,7 +667,7 @@ class SaasPortal(CustomerPortal):
             )
 
         # Create proration calculator and apply change
-        ProrationCalc = request.env['saas.proration.calculator'].sudo()
+        ProrationCalc = request.env[ModelNames.PRORATION_CALCULATOR].sudo()
         calc = ProrationCalc.create({
             'subscription_id': subscription_sudo.id,
             'new_plan_id': new_plan.id,

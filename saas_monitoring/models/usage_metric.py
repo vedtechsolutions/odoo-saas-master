@@ -6,6 +6,8 @@ Usage Metric model - stores current metric values for instances.
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
+from odoo.addons.saas_core.constants.fields import ModelNames
+
 
 class UsageMetric(models.Model):
     """Current metric values for an instance."""
@@ -15,14 +17,14 @@ class UsageMetric(models.Model):
     _rec_name = 'display_name'
 
     instance_id = fields.Many2one(
-        'saas.instance',
+        ModelNames.INSTANCE,
         string='Instance',
         required=True,
         ondelete='cascade',
         index=True,
     )
     metric_type_id = fields.Many2one(
-        'saas.metric.type',
+        ModelNames.METRIC_TYPE,
         string='Metric Type',
         required=True,
         ondelete='restrict',
@@ -160,7 +162,7 @@ class UsageMetric(models.Model):
         })
 
         # Create log entry
-        self.env['saas.usage.log'].create({
+        self.env[ModelNames.USAGE_LOG].create({
             'instance_id': self.instance_id.id,
             'metric_type_id': self.metric_type_id.id,
             'value': new_value,
@@ -183,7 +185,7 @@ class UsageMetric(models.Model):
             'exceeded': 'critical',
         }
 
-        self.env['saas.alert'].create({
+        self.env[ModelNames.ALERT].create({
             'instance_id': self.instance_id.id,
             'metric_type_id': self.metric_type_id.id,
             'alert_type': 'threshold',

@@ -25,12 +25,35 @@ class ModelNames:
 
     # Operational models
     BACKUP = 'saas.backup'
+    BACKUP_SCHEDULE = 'saas.backup.schedule'
     QUEUE = 'saas.provisioning.queue'
     LOG = 'saas.activity.log'
 
     # Configuration models
     ADDON = 'saas.addon'
     FEATURE = 'saas.feature'
+
+    # Helpdesk models
+    TICKET = 'saas.ticket'
+    TICKET_CATEGORY = 'saas.ticket.category'
+    TICKET_TAG = 'saas.ticket.tag'
+    TICKET_MESSAGE = 'saas.ticket.message'
+
+    # Billing models
+    PRORATION_CALCULATOR = 'saas.proration.calculator'
+    BILLING_TRANSACTION = 'billing.transaction'
+    CUSTOMER_CREDIT = 'customer.credit'
+
+    # Monitoring models
+    USAGE_METRIC = 'saas.usage.metric'
+    USAGE_LOG = 'saas.usage.log'
+    METRIC_TYPE = 'saas.metric.type'
+    ALERT = 'saas.monitoring.alert'
+
+    # Support models
+    SUPPORT_ACCESS_REQUEST = 'saas.support.access.request'
+    SUPPORT_ACCESS_LOG = 'saas.support.access.log'
+    SUPPORT_SESSION = 'saas.support.session'
 
 
 class FieldNames:

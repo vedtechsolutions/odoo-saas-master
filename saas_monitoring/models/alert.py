@@ -5,6 +5,8 @@ Alert model - monitoring alerts for instances.
 
 from odoo import models, fields, api
 
+from odoo.addons.saas_core.constants.fields import ModelNames
+
 
 class MonitoringAlert(models.Model):
     """Monitoring alerts for SaaS instances."""
@@ -20,18 +22,18 @@ class MonitoringAlert(models.Model):
 
     # Relations
     instance_id = fields.Many2one(
-        'saas.instance',
+        ModelNames.INSTANCE,
         string='Instance',
         ondelete='cascade',
         index=True,
     )
     metric_type_id = fields.Many2one(
-        'saas.metric.type',
+        ModelNames.METRIC_TYPE,
         string='Metric Type',
         ondelete='set null',
     )
     server_id = fields.Many2one(
-        'saas.tenant.server',
+        ModelNames.SERVER,
         string='Server',
         ondelete='cascade',
     )

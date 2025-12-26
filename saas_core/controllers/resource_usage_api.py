@@ -23,6 +23,8 @@ from threading import Lock
 from odoo import http
 from odoo.http import request, Response
 
+from odoo.addons.saas_core.constants.fields import ModelNames
+
 _logger = logging.getLogger(__name__)
 
 # API Key parameter name in ir.config_parameter
@@ -177,7 +179,7 @@ class ResourceUsageAPI(http.Controller):
             JSON array of instances with usage data
         """
         try:
-            Instance = request.env['saas.instance'].sudo()
+            Instance = request.env[ModelNames.INSTANCE].sudo()
 
             # Build domain from filters
             domain = []
@@ -226,7 +228,7 @@ class ResourceUsageAPI(http.Controller):
             JSON object with detailed usage metrics
         """
         try:
-            Instance = request.env['saas.instance'].sudo()
+            Instance = request.env[ModelNames.INSTANCE].sudo()
             instance = Instance.browse(instance_id)
 
             if not instance.exists():
@@ -269,7 +271,7 @@ class ResourceUsageAPI(http.Controller):
             JSON object with historical usage data
         """
         try:
-            Instance = request.env['saas.instance'].sudo()
+            Instance = request.env[ModelNames.INSTANCE].sudo()
             instance = Instance.browse(instance_id)
 
             if not instance.exists():
@@ -284,7 +286,7 @@ class ResourceUsageAPI(http.Controller):
             interval = kwargs.get('interval', 'hour')
 
             # Get usage logs
-            UsageLog = request.env['saas.usage.log'].sudo()
+            UsageLog = request.env[ModelNames.USAGE_LOG].sudo()
             from datetime import datetime, timedelta
             date_from = datetime.now() - timedelta(days=days)
 
@@ -294,7 +296,7 @@ class ResourceUsageAPI(http.Controller):
             ]
 
             if metric_filter:
-                MetricType = request.env['saas.metric.type'].sudo()
+                MetricType = request.env[ModelNames.METRIC_TYPE].sudo()
                 metric_type = MetricType.search([('code', '=', metric_filter)], limit=1)
                 if metric_type:
                     domain.append(('metric_type_id', '=', metric_type.id))
@@ -341,7 +343,7 @@ class ResourceUsageAPI(http.Controller):
             JSON object with collection result
         """
         try:
-            Instance = request.env['saas.instance'].sudo()
+            Instance = request.env[ModelNames.INSTANCE].sudo()
             instance = Instance.browse(instance_id)
 
             if not instance.exists():
@@ -391,7 +393,7 @@ class ResourceUsageAPI(http.Controller):
             JSON object with aggregated platform metrics
         """
         try:
-            Instance = request.env['saas.instance'].sudo()
+            Instance = request.env[ModelNames.INSTANCE].sudo()
 
             # Count instances by state
             states = {}
@@ -417,7 +419,7 @@ class ResourceUsageAPI(http.Controller):
                     total_disk += inst.disk_usage or 0
 
             # Get server info
-            Server = request.env['saas.tenant.server'].sudo()
+            Server = request.env[ModelNames.SERVER].sudo()
             servers = Server.search([])
             server_info = []
             for server in servers:
@@ -470,7 +472,7 @@ class ResourceUsageAPI(http.Controller):
             JSON object with usage metrics
         """
         try:
-            Instance = request.env['saas.instance'].sudo()
+            Instance = request.env[ModelNames.INSTANCE].sudo()
 
             # Try to parse as integer ID first
             try:

@@ -6,6 +6,8 @@ Usage Log model - stores historical metric values.
 from odoo import models, fields, api
 from datetime import timedelta
 
+from odoo.addons.saas_core.constants.fields import ModelNames
+
 
 class UsageLog(models.Model):
     """Historical log of metric values."""
@@ -19,14 +21,14 @@ class UsageLog(models.Model):
     _metric_timestamp_idx = models.Index('(metric_type_id, timestamp)')
 
     instance_id = fields.Many2one(
-        'saas.instance',
+        ModelNames.INSTANCE,
         string='Instance',
         required=True,
         ondelete='cascade',
         index=True,
     )
     metric_type_id = fields.Many2one(
-        'saas.metric.type',
+        ModelNames.METRIC_TYPE,
         string='Metric Type',
         required=True,
         ondelete='cascade',
@@ -108,7 +110,7 @@ class UsageLog(models.Model):
         _logger = logging.getLogger(__name__)
 
         # Get all metric types with retention settings
-        metric_types = self.env['saas.metric.type'].search_read(
+        metric_types = self.env[ModelNames.METRIC_TYPE].search_read(
             [], ['id', 'name', 'retention_days']
         )
 
